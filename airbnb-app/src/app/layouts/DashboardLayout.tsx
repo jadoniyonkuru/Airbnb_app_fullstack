@@ -86,10 +86,12 @@ export function DashboardLayout() {
         {!collapsed && (
           <div className="p-4 mx-3 mt-4 rounded-2xl border border-[#FFD4D8]" style={{ backgroundColor: '#FFF1F3' }}>
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">JP</div>
+              <div className="w-11 h-11 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[#222222] font-semibold text-sm truncate" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  Hitayezu Jean Pierre
+                  {user?.name}
                 </p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
@@ -250,8 +252,10 @@ export function DashboardLayout() {
               className="flex items-center gap-2 rounded-xl px-3 py-2 transition-colors border border-[#FFD4D8]"
               style={{ backgroundColor: '#FFF1F3' }}
             >
-              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">JP</div>
-              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>Jean Pierre</span>
+              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
+                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              </div>
+              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>{user?.name.split(' ')[0]}</span>
             </Link>
           </div>
         </header>

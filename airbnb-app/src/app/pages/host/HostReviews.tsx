@@ -1,4 +1,4 @@
-Ôªøimport { useState } from 'react';
+import { useState } from 'react';
 import { Star, MessageSquare, ThumbsUp, Filter, Search, ChevronDown } from 'lucide-react';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
@@ -12,10 +12,10 @@ const reviews = [
     guestAvatar: 'JS',
     rating: 5,
     date: 'April 25, 2026',
-    comment: 'Amazing place! Very clean and comfortable. Jean Pierre was incredibly helpful and responsive throughout the entire stay. The apartment is exactly as described and the location is perfect.',
+    comment: 'Amazing place! Very clean and comfortable. The host was incredibly helpful and responsive throughout the entire stay. The apartment is exactly as described and the location is perfect.',
     replied: false,
     helpful: 12,
-    stayDates: 'Apr 20 ‚Äì Apr 25, 2026',
+    stayDates: 'Apr 20 ñ Apr 25, 2026',
   },
   {
     id: 'R002',
@@ -25,11 +25,11 @@ const reviews = [
     guestAvatar: 'MD',
     rating: 4,
     date: 'April 18, 2026',
-    comment: 'Beautiful cottage, very cozy and peaceful. Jean Pierre was great at communicating. The garden is stunning. Only minor issue was parking, but overall a wonderful experience.',
+    comment: 'Beautiful cottage, very cozy and peaceful. The host was great at communicating. The garden is stunning. Only minor issue was parking, but overall a wonderful experience.',
     replied: true,
     replyText: "Thank you so much, Marie! It was a pleasure hosting you. Glad you enjoyed the garden! We're working on the parking situation.",
     helpful: 8,
-    stayDates: 'Apr 14 ‚Äì Apr 18, 2026',
+    stayDates: 'Apr 14 ñ Apr 18, 2026',
   },
   {
     id: 'R003',
@@ -39,15 +39,15 @@ const reviews = [
     guestAvatar: 'LM',
     rating: 5,
     date: 'April 10, 2026',
-    comment: 'Absolutely fantastic stay. The apartment is modern, spotlessly clean, and well-equipped. Jean Pierre goes above and beyond to make guests feel welcome. Will definitely book again!',
+    comment: 'Absolutely fantastic stay. The apartment is modern, spotlessly clean, and well-equipped. The host goes above and beyond to make guests feel welcome. Will definitely book again!',
     replied: true,
     replyText: "Thank you Lucas! So happy you had a great time. You're welcome back anytime!",
     helpful: 15,
-    stayDates: 'Apr 5 ‚Äì Apr 10, 2026',
+    stayDates: 'Apr 5 ñ Apr 10, 2026',
   },
   {
     id: 'R004',
-    property: 'Executive Studio ‚Äî Kimihurura',
+    property: 'Executive Studio ó Kimihurura',
     propertyImg: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&h=60&fit=crop',
     guest: 'Thabo Nkosi',
     guestAvatar: 'PP',
@@ -56,7 +56,7 @@ const reviews = [
     comment: 'The executive suite exceeded all expectations. Perfect for a business trip with fast WiFi and a dedicated workspace. Highly recommended for professionals visiting Kigali.',
     replied: false,
     helpful: 9,
-    stayDates: 'Mar 26 ‚Äì Mar 30, 2026',
+    stayDates: 'Mar 26 ñ Mar 30, 2026',
   },
   {
     id: 'R005',
@@ -66,11 +66,11 @@ const reviews = [
     guestAvatar: 'OB',
     rating: 3,
     date: 'March 20, 2026',
-    comment: 'The cottage is nice but had a few maintenance issues ‚Äî the hot water was inconsistent. Jean Pierre was quick to address it but took a day to fix. Good location though.',
+    comment: 'The cottage is nice but had a few maintenance issues ó the hot water was inconsistent. The host was quick to address it but took a day to fix. Good location though.',
     replied: true,
     replyText: "Hi Oliver, I sincerely apologize for the hot water issue. We've since replaced the water heater. Thank you for bringing it to my attention!",
     helpful: 4,
-    stayDates: 'Mar 17 ‚Äì Mar 20, 2026',
+    stayDates: 'Mar 17 ñ Mar 20, 2026',
   },
 ];
 
@@ -128,7 +128,7 @@ export function HostReviews() {
             ))}
           </div>
           <p className="text-[#717171] text-sm">{reviews.length} total reviews</p>
-          <span className="mt-3 text-xs font-semibold bg-green-50 text-green-700 px-3 py-1 rounded-full">‚≠ê Superhost Eligible</span>
+          <span className="mt-3 text-xs font-semibold bg-green-50 text-green-700 px-3 py-1 rounded-full">? Superhost Eligible</span>
         </div>
 
         {/* Rating Breakdown */}
@@ -250,7 +250,7 @@ export function HostReviews() {
                     {review.helpful} found helpful
                   </div>
                   {review.replied && (
-                    <span className="text-xs bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-full">‚úì Replied</span>
+                    <span className="text-xs bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-full">? Replied</span>
                   )}
                 </div>
 

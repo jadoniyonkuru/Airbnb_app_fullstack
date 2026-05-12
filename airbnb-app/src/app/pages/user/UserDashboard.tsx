@@ -15,7 +15,7 @@ export function UserDashboard() {
       {/* Welcome */}
       <div className="mb-8">
         <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>
-          Welcome back, Jean Pierre! 👋
+          Welcome back! 👋
         </h1>
         <p className="text-[#717171] text-sm">Here's what's happening with your bookings.</p>
       </div>

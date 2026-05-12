@@ -1,4 +1,4 @@
-ï»¿import { useState } from 'react';
+import { useState } from 'react';
 import { Search, Send, Paperclip, Phone, Video, MoreHorizontal, Star, ChevronLeft } from 'lucide-react';
 
 const conversations = [
@@ -7,18 +7,18 @@ const conversations = [
     guest: 'Kevin Malone',
     avatar: 'KM',
     property: 'Skyline Penthouse in Kigali Heights',
-    lastMessage: "Hi Jean Pierre! Just wanted to confirm the check-in time for tomorrow.",
+    lastMessage: "Hi! Just wanted to confirm the check-in time for tomorrow.",
     time: '2 min ago',
     unread: 2,
     online: true,
     checkIn: 'May 15, 2026',
     messages: [
-      { id: 1, from: 'guest', text: "Hello Jean Pierre! I'm so excited about my upcoming stay.", time: '10:15 AM', date: 'May 12' },
+      { id: 1, from: 'guest', text: "Hello! I'm so excited about my upcoming stay.", time: '10:15 AM', date: 'May 12' },
       { id: 2, from: 'host', text: "Hi John! Welcome, we're excited to have you! Let me know if you need anything.", time: '10:32 AM', date: 'May 12' },
-      { id: 3, from: 'guest', text: "Thanks! Quick question â€” what's the parking situation like?", time: '11:04 AM', date: 'May 12' },
+      { id: 3, from: 'guest', text: "Thanks! Quick question — what's the parking situation like?", time: '11:04 AM', date: 'May 12' },
       { id: 4, from: 'host', text: "There's free street parking right in front of the building, and a paid garage just 50m away if needed.", time: '11:10 AM', date: 'May 12' },
       { id: 5, from: 'guest', text: "Perfect, that's very helpful!", time: '11:14 AM', date: 'May 12' },
-      { id: 6, from: 'guest', text: "Hi Jean Pierre! Just wanted to confirm the check-in time for tomorrow.", time: '9:00 AM', date: 'Today' },
+      { id: 6, from: 'guest', text: "Hi! Just wanted to confirm the check-in time for tomorrow.", time: '9:00 AM', date: 'Today' },
     ]
   },
   {
@@ -47,14 +47,14 @@ const conversations = [
     online: false,
     checkIn: 'May 18, 2026',
     messages: [
-      { id: 1, from: 'guest', text: "Hi Jean Pierre, is it possible to arrange a late checkout? I have a flight at 6pm.", time: '7:45 AM', date: 'Today' },
+      { id: 1, from: 'guest', text: "Hi, is it possible to arrange a late checkout? I have a flight at 6pm.", time: '7:45 AM', date: 'Today' },
     ]
   },
   {
     id: '4',
     guest: 'Thabo Nkosi',
     avatar: 'TN',
-    property: 'Executive Studio â€” Kimihurura',
+    property: 'Executive Studio — Kimihurura',
     lastMessage: "Great, see you on the 26th! Looking forward to it.",
     time: 'Yesterday',
     unread: 0,
@@ -84,7 +84,7 @@ const conversations = [
 
 const quickReplies = [
   "Check-in is at 3:00 PM. I'll send the access code closer to the date!",
-  "Checkout is at 11:00 AM. Late checkout may be available â€” let me check!",
+  "Checkout is at 11:00 AM. Late checkout may be available — let me check!",
   "WiFi Name: HomeNet_Kigali | Password: Welcome2026!",
   "Thank you for your booking! I'm excited to host you.",
 ];

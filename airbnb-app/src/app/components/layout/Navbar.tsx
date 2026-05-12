@@ -1,4 +1,4 @@
-import { Menu, User, Sun, Moon, Heart } from 'lucide-react';
+import { Menu, User, Sun, Moon, Heart, Pencil, Shuffle, Settings, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { useState, type MouseEvent } from 'react';
 import { toast } from 'sonner';
@@ -70,8 +70,7 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
             <div className="hidden lg:flex items-center gap-1">
               <Link to="/" className={`px-4 py-2 rounded-full hover:text-[#FF5A5F] transition-colors text-sm font-medium ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>Home</Link>
               <Link to="/listings" className={`px-4 py-2 rounded-full hover:text-[#FF5A5F] transition-colors text-sm font-medium ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>Listings</Link>
-              <Link to="/experiences" className={`px-4 py-2 rounded-full hover:text-[#FF5A5F] transition-colors text-sm font-medium ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>Experiences</Link>
-              <a
+<a
                 href="/#contact"
                 onClick={handleContactClick}
                 className={`px-4 py-2 rounded-full hover:text-[#FF5A5F] transition-colors text-sm font-medium cursor-pointer ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}
@@ -137,58 +136,60 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
               >
                 <Menu className={`w-4 h-4 ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`} />
                 <div className="w-8 h-8 bg-[#3C3C3E] rounded-full flex items-center justify-center">
-                  {isAuthenticated && user ? (
-                    <span className="text-white font-semibold text-sm">
-                      {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                    </span>
-                  ) : (
-                    <User className="w-4 h-4 text-white" />
-                  )}
+                  <User className="w-4 h-4 text-white" />
                 </div>
               </button>
 
               {menuOpen && (
-                <div className={`absolute right-0 top-14 w-56 rounded-2xl shadow-2xl border py-2 z-50 ${isDark ? 'bg-[#2C2C2E] border-[#3A3A3C]' : 'bg-white border-[#DDDDDD]'}`}>
+                <div className={`absolute right-0 top-14 z-50 rounded-2xl shadow-2xl border py-2 ${
+                  isAuthenticated && user ? 'w-72' : 'w-56'
+                } ${isDark ? 'bg-[#2C2C2E] border-[#3A3A3C]' : 'bg-white border-[#DDDDDD]'}`}>
+
                   {isAuthenticated && user ? (
                     <>
-                      <div className={`px-4 py-3 border-b ${isDark ? 'border-[#3A3A3C]' : 'border-[#EBEBEB]'}`}>
-                        <p className="text-xs text-[#8E8E93]">Signed in as</p>
-                        <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>{user.name}</p>
+                      {/* Avatar + name + email */}
+                      <div className="flex flex-col items-center pt-5 pb-4 px-4">
+                        <div className="w-20 h-20 rounded-full bg-[#3C3C3E] flex items-center justify-center mb-3 ring-4 ring-[#FF5A5F]/20">
+                          <span className="text-white font-bold text-2xl">
+                            {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                          </span>
+                        </div>
+                        <p className={`text-base font-bold ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>{user.name}</p>
+                        <p className="text-sm text-[#8E8E93] mt-0.5">{user.email}</p>
                       </div>
-                      {user.role === 'HOST' || user.role === 'ADMIN' ? (
-                        <Link to="/dashboard" onClick={() => setMenuOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
-                          My Dashboard
-                        </Link>
-                      ) : (
-                        <>
-                          <Link to="/user/profile" onClick={() => setMenuOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
-                            Profile
-                          </Link>
-                          <Link to="/user/bookings" onClick={() => setMenuOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
-                            My Bookings
-                          </Link>
-                          <Link to="/user/wishlist" onClick={() => setMenuOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
-                            Wishlist
-                          </Link>
-                          <Link to="/user/messages" onClick={() => setMenuOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
-                            Messages
-                          </Link>
-                          <Link to="/user/settings" onClick={() => setMenuOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
-                            Settings
-                          </Link>
-                        </>
-                      )}
-                      <div className={`border-t my-1 ${isDark ? 'border-[#3A3A3C]' : 'border-[#EBEBEB]'}`} />
+
+                      <div className={`border-t mb-1 ${isDark ? 'border-[#3A3A3C]' : 'border-[#EBEBEB]'}`} />
+
+                      {/* Menu items */}
+                      <Link to="/user/profile" onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
+                        <User className="w-4 h-4 shrink-0" />
+                        My Profile
+                      </Link>
+                      <div className={`mx-5 border-t ${isDark ? 'border-[#3A3A3C]' : 'border-[#F0F0F0]'}`} />
+                      <Link to="/user/edit-profile" onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
+                        <Pencil className="w-4 h-4 shrink-0" />
+                        Edit Profile
+                      </Link>
+                      <div className={`mx-5 border-t ${isDark ? 'border-[#3A3A3C]' : 'border-[#F0F0F0]'}`} />
+                      <Link to="/user/activity" onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
+                        <Shuffle className="w-4 h-4 shrink-0" />
+                        Activity Logs
+                      </Link>
+                      <div className={`mx-5 border-t ${isDark ? 'border-[#3A3A3C]' : 'border-[#F0F0F0]'}`} />
+                      <Link to="/user/settings" onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
+                        <Settings className="w-4 h-4 shrink-0" />
+                        Account Settings
+                      </Link>
+                      <div className={`mx-5 border-t ${isDark ? 'border-[#3A3A3C]' : 'border-[#F0F0F0]'}`} />
                       <button
                         onClick={() => { setShowLogoutModal(true); setMenuOpen(false); }}
-                        className={`w-full text-left flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
-                        Logout
+                        className={`w-full flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
+                        <LogOut className="w-4 h-4 shrink-0" />
+                        Sign Out
                       </button>
                     </>
                   ) : (
@@ -201,21 +202,20 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
                         className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
                         Register
                       </Link>
+                      <div className={`border-t my-1 ${isDark ? 'border-[#3A3A3C]' : 'border-[#EBEBEB]'}`} />
+                      <Link to="/experiences" onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/50 hover:bg-white/10' : 'text-[#6C6C70] hover:bg-[#F7F7F7]'}`}>
+                        Experiences
+                      </Link>
+                      <a
+                        href="/#contact"
+                        onClick={(e) => { e.preventDefault(); setMenuOpen(false); handleContactClick(e); }}
+                        className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/50 hover:bg-white/10' : 'text-[#6C6C70] hover:bg-[#F7F7F7]'}`}
+                      >
+                        Help & Contact
+                      </a>
                     </>
                   )}
-                  <div className={`border-t my-1 ${isDark ? 'border-[#3A3A3C]' : 'border-[#EBEBEB]'}`} />
-                  <Link to="/experiences" onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/50 hover:bg-white/10' : 'text-[#6C6C70] hover:bg-[#F7F7F7]'}`}>
-                    Experiences
-                  </Link>
-                  <a
-                    href="/#contact"
-                    onClick={(e) => { e.preventDefault(); setMenuOpen(false); handleContactClick(e); }}
-                    className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/50 hover:bg-white/10' : 'text-[#6C6C70] hover:bg-[#F7F7F7]'}`}
-                  >
-                    Help & Contact
-                  </a>
-
                 </div>
               )}
             </div>

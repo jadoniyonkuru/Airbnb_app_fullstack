@@ -77,7 +77,7 @@ export function AdminProfile() {
                 className="hidden"
                 onChange={handlePhotoChange}
               />
-              <p className="text-white font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Hitayezu Jean Pierre</p>
+              <p className="text-white font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Administrator</p>
               <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>Super Administrator</p>
               <div className="mt-4 flex items-center justify-center gap-2 p-2 rounded-xl" style={{ background: 'rgba(255,56,92,0.15)', border: '1px solid rgba(255,56,92,0.3)' }}>
                 <Shield className="w-4 h-4 text-[#FF385C]" />

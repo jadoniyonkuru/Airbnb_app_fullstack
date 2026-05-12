@@ -52,7 +52,7 @@ export function HostDashboard() {
           <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>
             Host Dashboard
           </h1>
-          <p className="text-[#717171] text-sm">Welcome back, Jean Pierre! Here's your property overview.</p>
+          <p className="text-[#717171] text-sm">Welcome back! Here's your property overview.</p>
         </div>
         <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
           + Add Property

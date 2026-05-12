@@ -5,6 +5,7 @@ import {
   Settings, Shield, User, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
 
 const navSections = [
   {
@@ -47,6 +48,7 @@ const navSections = [
 const SIDEBAR_BG = '#FF385C';
 
 export function AdminLayout() {
+  const { user } = useAuth();
   const location  = useLocation();
   const navigate  = useNavigate();
   const [collapsed,      setCollapsed]      = useState(false);
@@ -127,9 +129,11 @@ export function AdminLayout() {
             style={{ background: 'rgba(255,56,92,0.12)', border: '1px solid rgba(255,56,92,0.22)' }}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">JP</div>
+              <div className="w-9 h-9 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-semibold text-sm truncate">Hitayezu Jean Pierre</p>
+                <p className="text-white font-semibold text-sm truncate">{user?.name}</p>
                 <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem' }}>Super Administrator</p>
               </div>
               <span className="w-2 h-2 bg-green-400 rounded-full shrink-0" />
@@ -344,8 +348,10 @@ export function AdminLayout() {
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FFE4E8')}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#FFF1F3')}
             >
-              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">JP</div>
-              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>Jean Pierre</span>
+              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              </div>
+              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>{user?.name.split(' ')[0]}</span>
             </Link>
           </div>
         </header>

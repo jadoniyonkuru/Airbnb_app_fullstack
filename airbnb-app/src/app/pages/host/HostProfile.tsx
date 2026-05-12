@@ -75,7 +75,7 @@ export function HostProfile() {
                   onChange={handlePhotoChange}
                 />
               </div>
-              <p className="text-[#222222] font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Hitayezu Jean Pierre</p>
+              <p className="text-[#222222] font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Host Profile</p>
               <div className="flex items-center gap-1 mt-0.5">
                 <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
                 <span className="text-xs text-[#717171]">Superhost</span>
@@ -119,16 +119,16 @@ export function HostProfile() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-[#222222] text-sm font-semibold mb-2">First Name</label>
-                    <input defaultValue="Jean Pierre" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                    <input defaultValue="" placeholder="First Name" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
                   </div>
                   <div>
                     <label className="block text-[#222222] text-sm font-semibold mb-2">Last Name</label>
-                    <input defaultValue="Hitayezu" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                    <input defaultValue="" placeholder="Last Name" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[#222222] text-sm font-semibold mb-2">Email Address</label>
-                  <input type="email" defaultValue="jeanpierre.h@email.com" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                  <input type="email" defaultValue="" placeholder="Email address" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>

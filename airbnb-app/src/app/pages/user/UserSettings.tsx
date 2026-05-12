@@ -303,7 +303,7 @@ export function UserSettings() {
                   {[
                     { type: 'Visa', detail: '•••• •••• •••• 4242', expires: 'Expires 08/28', icon: '💳', primary: true },
                     { type: 'Mastercard', detail: '•••• •••• •••• 8891', expires: 'Expires 02/27', icon: '💳', primary: false },
-                    { type: 'PayPal', detail: 'jeanpierre.h@email.com', expires: '', icon: '📧', primary: false },
+                    { type: 'PayPal', detail: 'user@email.com', expires: '', icon: '📧', primary: false },
                   ].map((card, i) => (
                     <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-[#EBEBEB]">
                       <span className="text-2xl">{card.icon}</span>
@@ -325,8 +325,8 @@ export function UserSettings() {
               <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6">
                 <h2 className="text-[#222222] font-semibold mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>Billing Address</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input defaultValue="Jean Pierre" placeholder="First Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
-                  <input defaultValue="Hitayezu" placeholder="Last Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
+                  <input defaultValue="" placeholder="First Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
+                  <input defaultValue="" placeholder="Last Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
                   <input defaultValue="123 Main Street" placeholder="Address" className="sm:col-span-2 px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
                   <input defaultValue="Kigali" placeholder="City" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
                   <input defaultValue="Rwanda" placeholder="Country" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />

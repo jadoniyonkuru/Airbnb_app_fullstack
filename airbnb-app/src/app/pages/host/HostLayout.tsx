@@ -5,6 +5,7 @@ import {
   Settings, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
 
 const navItems = [
   { label: 'Dashboard',   path: '/dashboard',                icon: LayoutDashboard },
@@ -20,8 +21,8 @@ const navItems = [
 
 const mockNotifications = [
   { id: 1, type: 'booking', title: 'New Booking Request',   body: 'James Okafor requested 5 nights at your Kigali apartment.',              time: '2 min ago',  read: false },
-  { id: 2, type: 'review',  title: 'New 5-Star Review',     body: '"Jean Pierre was incredibly responsive and the place was spotless!"',      time: '1 hour ago', read: false },
-  { id: 3, type: 'message', title: 'Message from Emily Chen', body: 'Hi Jean Pierre! Just wanted to confirm the check-in time.',            time: '3 hours ago', read: false },
+  { id: 2, type: 'review',  title: 'New 5-Star Review',     body: '"The host was incredibly responsive and the place was spotless!"',      time: '1 hour ago', read: false },
+  { id: 3, type: 'message', title: 'Message from Emily Chen', body: 'Hi! Just wanted to confirm the check-in time.',            time: '3 hours ago', read: false },
   { id: 4, type: 'earning', title: 'Payout Processed',      body: 'Your payout of $1,240 has been sent to your bank account.',              time: '1 day ago',   read: true  },
   { id: 5, type: 'system',  title: 'Listing Featured',      body: 'Your Nairobi Villa is now featured in search results.',                  time: '2 days ago',  read: true  },
 ];
@@ -31,6 +32,7 @@ const notifColors: Record<string, string> = {
 };
 
 export function HostLayout() {
+  const { user } = useAuth();
   const location  = useLocation();
   const navigate  = useNavigate();
   const [collapsed, setCollapsed]   = useState(false);
@@ -90,10 +92,12 @@ export function HostLayout() {
             style={{ backgroundColor: '#FFF1F3' }}
           >
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">JP</div>
+              <div className="w-11 h-11 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[#222222] font-semibold text-sm truncate" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  Hitayezu Jean Pierre
+                  {user?.name}
                 </p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
@@ -276,8 +280,10 @@ export function HostLayout() {
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FFE4E8')}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#FFF1F3')}
             >
-              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">JP</div>
-              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>Jean Pierre</span>
+              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
+                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              </div>
+              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>{user?.name.split(' ')[0]}</span>
             </Link>
           </div>
         </header>

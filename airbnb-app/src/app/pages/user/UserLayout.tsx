@@ -4,6 +4,7 @@ import {
   LogOut, Bell, ChevronRight, MessageCircle, X
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { label: 'Dashboard', path: '/user/dashboard', icon: LayoutDashboard },
@@ -17,7 +18,7 @@ const navItems = [
 const mockNotifications = [
   { id: 1, type: 'booking', title: 'Booking Confirmed!', body: 'Your stay at Modern Apartment Kigali is confirmed for May 15–20.', time: '5 min ago', read: false },
   { id: 2, type: 'reminder', title: 'Check-in Tomorrow', body: 'Reminder: Your check-in at Nairobi Villa is scheduled for tomorrow at 3:00 PM.', time: '2 hours ago', read: false },
-  { id: 3, type: 'message', title: 'New message from your host', body: 'Hi Jean Pierre! I\'ll send you the door code an hour before check-in.', time: '4 hours ago', read: false },
+  { id: 3, type: 'message', title: 'New message from your host', body: 'Hi there! I\'ll send you the door code an hour before check-in.', time: '4 hours ago', read: false },
   { id: 4, type: 'payment', title: 'Payment Receipt', body: 'Payment of $425 for Kigali apartment booking was processed successfully.', time: '1 day ago', read: true },
   { id: 5, type: 'promo', title: 'Special Offer — 20% Off', body: 'Book your next Paris Studio stay before May 30 and save 20%.', time: '3 days ago', read: true },
 ];
@@ -27,6 +28,7 @@ const notifColors: Record<string, string> = {
 };
 
 export function UserLayout() {
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -69,10 +71,10 @@ export function UserLayout() {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-sm">
-              JP
+              {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[#222222] font-semibold text-sm truncate">Hitayezu Jean Pierre</p>
+              <p className="text-[#222222] font-semibold text-sm truncate">{user?.name}</p>
               <p className="text-xs truncate" style={{ color: '#717171' }}>Guest Account</p>
             </div>
           </div>
@@ -194,8 +196,10 @@ export function UserLayout() {
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FFE4E8')}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#FFF1F3')}
             >
-              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">JP</div>
-              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>Jean Pierre</span>
+              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
+                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              </div>
+              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>{user?.name.split(' ')[0]}</span>
             </Link>
           </div>
         </header>

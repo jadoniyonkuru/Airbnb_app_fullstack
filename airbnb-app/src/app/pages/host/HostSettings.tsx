@@ -279,7 +279,7 @@ export function HostSettings() {
                   {[
                     { type: 'Bank Transfer', detail: 'BK Rwanda •••• 8842', primary: true, icon: '🏦' },
                     { type: 'Mobile Money', detail: 'MTN MoMo +250 789 xxx xxx', primary: false, icon: '📱' },
-                    { type: 'PayPal', detail: 'jeanpierre.h@email.com', primary: false, icon: '💳' },
+                    { type: 'PayPal', detail: 'host@email.com', primary: false, icon: '💳' },
                   ].map((method, i) => (
                     <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-[#EBEBEB]">
                       <span className="text-2xl">{method.icon}</span>
