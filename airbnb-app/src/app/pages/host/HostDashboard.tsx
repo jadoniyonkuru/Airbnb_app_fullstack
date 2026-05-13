@@ -73,9 +73,6 @@ export function HostDashboard() {
           </h1>
           <p className="text-[#717171] text-sm">Welcome back! Here's your property overview.</p>
         </div>
-        <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF5A5F] hover:bg-[#E74C55] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
-          + Add Property
-        </Link>
       </div>
 
       {/* Stats Cards */}

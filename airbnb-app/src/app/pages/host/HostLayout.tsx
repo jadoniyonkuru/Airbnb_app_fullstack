@@ -60,7 +60,6 @@ export function HostLayout() {
           width:    collapsed ? '72px' : '260px',
           minWidth: collapsed ? '72px' : '260px',
           height: '100vh',
-          overflowY: 'auto',
           zIndex: 40,
         }}
       >
@@ -76,9 +75,6 @@ export function HostLayout() {
             textDecoration: 'none',
           }}
         >
-          <div className="w-8 h-8 bg-[#FF5A5F] rounded-xl flex items-center justify-center shrink-0">
-            <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
-          </div>
           {!collapsed && (
             <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>
               Stay<span style={{ color: '#FF5A5F' }}>Ease</span>
@@ -194,10 +190,26 @@ export function HostLayout() {
       </aside>
 
       {/* ── Main Content ────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 bg-white" style={{ marginLeft: collapsed ? '72px' : '260px' }}>
+      <div className="flex-1 flex flex-col min-w-0 bg-white" style={{ marginLeft: collapsed ? '72px' : '260px', height: '100vh', overflow: 'hidden' }}>
 
         {/* Top Bar */}
-        <header className="bg-white border-b border-[#EBEBEB] px-6 py-4 flex items-center justify-end sticky top-0 z-40 shadow-sm">
+        <header className="bg-white border-b border-[#EBEBEB] px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm shrink-0">
+
+          <div className="flex items-center gap-4">
+            <span className="text-[#222222] font-bold text-xl" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              Stay<span style={{ color: '#FF5A5F' }}>Ease</span>
+            </span>
+            <span className="text-[#717171] text-sm">Host</span>
+            <span className="text-[#717171] text-sm">dashboard</span>
+            {user && (
+              <div className="flex items-center gap-2 ml-4">
+                <div className="w-8 h-8 bg-[#FF5A5F] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
+                  {user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                </div>
+                <span className="text-[#222222] font-semibold text-sm">{user.name}</span>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-3">
             {/* Notification Bell */}
@@ -274,7 +286,7 @@ export function HostLayout() {
           </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-8 overflow-auto bg-white">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-white">
           <Outlet />
         </main>
       </div>

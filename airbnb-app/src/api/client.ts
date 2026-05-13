@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-export const BASE_URL = 'https://airbnb-api-c4yx.onrender.com/api/v1';
+const envBase = import.meta.env.VITE_API_URL as string | undefined;
+export const BASE_URL = envBase ?? 'http://localhost:3000/api/v1';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
