@@ -4,7 +4,8 @@ import {
   Activity, ArrowUpRight, TrendingUp,
   UserCheck, Star, CheckCircle2, ShieldCheck,
 } from 'lucide-react';
-import { stats, activities, users } from '../../../data/mockData';
+import { stats, activities } from '../../../data/mockData';
+import { useUsers } from '../../../features/users/hooks';
 import {
   BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -31,6 +32,10 @@ const actIconMap: Record<string, ElementType> = {
 };
 
 export function AdminDashboard() {
+  const { data: apiUsers = [], isLoading: loadingUsers } = useUsers();
+  // Map API users to match table structure if needed, or just use as is
+  // The mock users had a different shape, let's normalize or adapt.
+  const displayUsers = apiUsers.slice(0, 6);
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
 
@@ -196,11 +201,31 @@ export function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EBEBEB]">
-                {users.slice(0, 6).map(user => (
+                {loadingUsers ? (
+                  [1, 2, 3, 4, 5, 6].map(i => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-[#F0F0F0] rounded-full shrink-0" />
+                          <div className="space-y-2 flex-1">
+                            <div className="h-4 bg-[#F0F0F0] rounded w-3/4" />
+                            <div className="h-3 bg-[#F0F0F0] rounded w-1/2" />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-8" /></td>
+                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-20" /></td>
+                    </tr>
+                  ))
+                ) : displayUsers.map(user => (
                   <tr key={user.id} className="hover:bg-[#FFFAF9] transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">{user.avatar}</div>
+                        <div className="w-8 h-8 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+                          {user.name?.charAt(0) || 'U'}
+                        </div>
                         <div>
                           <p className="font-semibold text-sm" style={{ color: '#1C1C1E' }}>{user.name}</p>
                           <p className="text-xs" style={{ color: '#AAAAAA' }}>{user.email}</p>
@@ -209,16 +234,16 @@ export function AdminDashboard() {
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{
-                        background: user.role === 'host' ? '#FFF1F3' : '#F7F7F7',
-                        color:      user.role === 'host' ? '#FF385C'  : '#717171',
-                      }}>{user.role}</span>
+                        background: user.role === 'HOST' ? '#FFF1F3' : '#F7F7F7',
+                        color:      user.role === 'HOST' ? '#FF385C'  : '#717171',
+                      }}>{user.role?.toLowerCase()}</span>
                     </td>
-                    <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#1C1C1E' }}>{user.bookings}</td>
+                    <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#1C1C1E' }}>0</td>
                     <td className="px-5 py-4">
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{
-                        background: user.status === 'active' ? '#F0FDF4' : '#FFF1F2',
-                        color:      user.status === 'active' ? '#15803d' : '#dc2626',
-                      }}>{user.status}</span>
+                        background: '#F0FDF4',
+                        color:      '#15803d',
+                      }}>active</span>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">

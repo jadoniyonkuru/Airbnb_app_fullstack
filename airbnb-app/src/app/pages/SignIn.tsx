@@ -1,10 +1,11 @@
 ﻿import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { useLogin } from '../../features/auth/hooks';
 import { useAuth } from '../context/AuthContext';
 
-const SIDE_IMG = "https://images.unsplash.com/photo-1705321963943-de94bb3f0dd3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBsaXZpbmclMjByb29tJTIwaW50ZXJpb3IlMjBkZXNpZ258ZW58MXx8fHwxNzc4MDUzNjkzfDA&ixlib=rb-4.1.0&q=80&w=1080";
+const SIDE_IMG = "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1080&q=80";
 
 export function SignIn() {
   const navigate  = useNavigate();
@@ -22,8 +23,12 @@ export function SignIn() {
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) {
+      toast.error('Please enter your email');
+      return;
+    }
     loginMutation.mutate(
-      { email, password, role: role.toUpperCase() as 'GUEST' | 'HOST' | 'ADMIN' },
+      { email: email.trim(), password, role: role.toUpperCase() as 'GUEST' | 'HOST' | 'ADMIN' },
       {
         onSuccess: (res) => {
           const { user } = res.data;
@@ -45,8 +50,8 @@ export function SignIn() {
       {/* Left Image Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img src={SIDE_IMG} alt="StayEase" className="w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, rgba(255,56,92,0.85), rgba(34,34,34,0.9))' }} />
-        <div className="absolute inset-0 flex flex-col justify-between p-12">
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, rgba(255,90,95,0.4), rgba(34,34,34,0.5))' }} />
+        <div className="absolute inset-0 flex flex-col justify-between p-12 items-center text-center">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
@@ -54,11 +59,11 @@ export function SignIn() {
             <span className="text-white font-bold text-xl" style={{ fontFamily: "'Poppins', sans-serif" }}>StayEase</span>
           </Link>
           <div>
-            <h2 className="text-white mb-4" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '2.5rem', fontWeight: 700, lineHeight: 1.2 }}>
-              Your next great<br />adventure starts here
+            <h2 className="text-white mb-4" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '2.5rem', fontWeight: 700, lineHeight: 1.2, fontStyle: 'italic' }}>
+              Discover Extraordinary<br />Stays Worldwide
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.8)' }} className="text-base leading-relaxed mb-8">
-              Access thousands of unique stays worldwide. From cozy cabins to luxury villas — we have it all.
+              Unlock access to premium accommodations across the globe. Find your perfect escape today.
             </p>
             <div className="grid grid-cols-3 gap-4">
               {[{ num: '10K+', label: 'Listings' }, { num: '150+', label: 'Cities' }, { num: '4.9★', label: 'Rating' }].map((s, i) => (
@@ -81,10 +86,10 @@ export function SignIn() {
           </Link>
 
           <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-[#FF385C] rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#FF5A5F] rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>Stay<span style={{ color: '#FF385C' }}>Bnb</span></span>
+            <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>Stay<span style={{ color: '#FF5A5F' }}>Ease</span></span>
           </div>
 
           <h1 className="text-[#222222] mb-2" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '2rem', fontWeight: 700 }}>Welcome Back</h1>
@@ -97,7 +102,7 @@ export function SignIn() {
                 onClick={() => setRole(r)}
                 className="py-2.5 rounded-lg text-sm font-semibold capitalize transition-all"
                 style={{
-                  background: role === r ? '#FF385C' : 'transparent',
+                  background: role === r ? '#FF5A5F' : 'transparent',
                   color: role === r ? 'white' : '#717171',
                 }}
               >
@@ -114,14 +119,14 @@ export function SignIn() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA]"
+                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF5A5F] transition-colors placeholder:text-[#AAAAAA]"
                 required
               />
             </div>
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[#222222] text-sm font-semibold">Password</label>
-                <a href="#" className="text-[#FF385C] text-xs font-medium hover:underline">Forgot password?</a>
+                <a href="#" className="text-[#FF5A5F] text-xs font-medium hover:underline">Forgot password?</a>
               </div>
               <div className="relative">
                 <input
@@ -129,7 +134,7 @@ export function SignIn() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA] pr-12"
+                  className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF5A5F] transition-colors placeholder:text-[#AAAAAA] pr-12"
                   required
                 />
                 <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#717171] hover:text-[#222222]">
@@ -138,13 +143,13 @@ export function SignIn() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <input id="remember" type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="w-4 h-4 accent-[#FF385C] rounded" />
+              <input id="remember" type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="w-4 h-4 accent-[#FF5A5F] rounded" />
               <label htmlFor="remember" className="text-[#717171] text-sm">Remember me for 30 days</label>
             </div>
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full bg-[#FF385C] hover:bg-[#E31C5F] disabled:opacity-60 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-[#FF5A5F] hover:bg-[#E74C55] disabled:opacity-60 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2"
             >
               {loginMutation.isPending ? (
                 <>
@@ -174,7 +179,7 @@ export function SignIn() {
 
           <p className="text-center text-[#717171] text-sm">
             Don't have an account?{' '}
-            <Link to="/register" className="text-[#FF385C] font-semibold hover:underline">Create account</Link>
+            <Link to="/register" className="text-[#FF5A5F] font-semibold hover:underline">Create account</Link>
           </p>
         </div>
       </div>

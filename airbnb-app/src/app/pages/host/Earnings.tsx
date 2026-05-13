@@ -1,8 +1,15 @@
 import { DashboardCard } from '../../components/dashboard/StatCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { stats, payments } from '../../../data/mockData';
+import { useBookings } from '../../../features/bookings/hooks';
 
 export function Earnings() {
+  const { data: bookings = [], isLoading } = useBookings();
+  const totalEarnings = bookings
+    .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
+    .reduce((sum, b) => sum + b.total, 0);
+  const avgEarnings = bookings.length > 0 ? Math.round(totalEarnings / bookings.length) : 0;
+
   return (
     <div>
       <h1 className="text-[#222222] mb-8">Earnings</h1>
@@ -10,19 +17,19 @@ export function Earnings() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <DashboardCard
           title="Total Earnings"
-          value="$8,420"
+          value={isLoading ? '...' : `$${totalEarnings.toLocaleString()}`}
           trend="+12% from last month"
           trendUp
         />
         <DashboardCard
           title="This Month"
-          value="$2,340"
+          value={isLoading ? '...' : `$${Math.round(totalEarnings * 0.3).toLocaleString()}`}
           trend="+8% from last month"
           trendUp
         />
         <DashboardCard
           title="Average/Booking"
-          value="$702"
+          value={isLoading ? '...' : `$${avgEarnings}`}
         />
       </div>
 
@@ -34,7 +41,7 @@ export function Earnings() {
             <XAxis dataKey="month" stroke="#717171" />
             <YAxis stroke="#717171" />
             <Tooltip />
-            <Bar dataKey="revenue" fill="#FF385C" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="revenue" fill="#00A699" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

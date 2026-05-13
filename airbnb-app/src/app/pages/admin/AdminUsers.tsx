@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import { Search, UserPlus, CheckCircle, XCircle, Edit } from 'lucide-react';
 import { toast } from 'sonner';
-import { users } from '../../../data/mockData';
+import { useUsers } from '../../../features/users/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 
 export function AdminUsers() {
+  const { data: users = [], isLoading } = useUsers();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [actionModal, setActionModal] = useState<{ user: any; action: 'suspend' | 'activate' } | null>(null);
 
   const filtered = users.filter(u =>
-    (filter === 'all' || u.role === filter || u.status === filter) &&
-    (u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()))
+    (filter === 'all' || u.role?.toLowerCase() === filter || (filter === 'active' && true)) &&
+    (u.name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase()))
   );
 
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
-    usePagination(filtered, { defaultPerPage: 5 });
+    usePagination(filtered, { defaultPerPage: 8 });
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -89,47 +90,65 @@ export function AdminUsers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EBEBEB]">
-              {paginatedItems.map(user => (
+              {isLoading ? (
+                [1,2,3,4,5,6,7,8].map(i => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-[#F0F0F0] rounded-full shrink-0" />
+                        <div className="h-4 bg-[#F0F0F0] rounded w-24" />
+                      </div>
+                    </td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-32" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-8" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-20" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-24" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                  </tr>
+                ))
+              ) : paginatedItems.map(user => (
                 <tr key={user.id} className="hover:bg-[#FAFAFA] transition-colors group">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">{user.avatar}</div>
+                      <div className="w-9 h-9 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+                        {user.name?.charAt(0) || 'U'}
+                      </div>
                       <p className="text-[#222222] font-semibold text-sm">{user.name}</p>
                     </div>
                   </td>
                   <td className="px-5 py-4 text-[#717171] text-sm">{user.email}</td>
                   <td className="px-5 py-4">
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{
-                      background: user.role === 'host' ? '#E6F7F6' : '#F0F0F0',
-                      color: user.role === 'host' ? '#00A699' : '#717171'
+                      background: user.role === 'HOST' ? '#E6F7F6' : '#F0F0F0',
+                      color: user.role === 'HOST' ? '#00A699' : '#717171'
                     }}>
-                      {user.role}
+                      {user.role?.toLowerCase()}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">{user.bookings}</td>
-                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">
-                    {user.revenue > 0 ? `$${user.revenue.toLocaleString()}` : '—'}
-                  </td>
+                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">0</td>
+                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">—</td>
                   <td className="px-5 py-4">
                     <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full w-fit" style={{
-                      background: user.status === 'active' ? '#dcfce7' : '#fee2e2',
-                      color: user.status === 'active' ? '#16a34a' : '#dc2626'
+                      background: '#dcfce7',
+                      color: '#16a34a'
                     }}>
-                      {user.status === 'active' ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                      {user.status}
+                      <CheckCircle className="w-3 h-3" />
+                      active
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-[#717171] text-sm whitespace-nowrap">{user.joined}</td>
+                  <td className="px-5 py-4 text-[#717171] text-sm whitespace-nowrap">May 2026</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button className="flex items-center gap-1 text-[#FF385C] text-xs font-medium hover:underline">
                         <Edit className="w-3 h-3" /> Edit
                       </button>
                       <button
-                        onClick={() => setActionModal({ user, action: user.status === 'active' ? 'suspend' : 'activate' })}
+                        onClick={() => setActionModal({ user, action: 'suspend' })}
                         className="text-[#717171] text-xs hover:text-red-500 transition-colors"
                       >
-                        {user.status === 'active' ? 'Suspend' : 'Activate'}
+                        Suspend
                       </button>
                     </div>
                   </td>

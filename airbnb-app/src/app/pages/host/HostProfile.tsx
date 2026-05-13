@@ -1,8 +1,8 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Camera, Eye, EyeOff, Save, Shield, Star, Home, Calendar, Bell, Globe, Lock } from 'lucide-react';
 
 export function HostProfile() {
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'hosting' | 'notifications'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'notifications'>('profile');
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -39,7 +39,6 @@ export function HostProfile() {
   const tabs = [
     { id: 'profile', label: 'Profile Info', icon: Globe },
     { id: 'password', label: 'Reset Password', icon: Lock },
-    { id: 'hosting', label: 'Hosting Preferences', icon: Home },
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ] as const;
 
@@ -59,7 +58,7 @@ export function HostProfile() {
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover" />
                 ) : (
-                  <div className="w-20 h-20 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xl font-bold">JP</div>
+                  <div className="w-20 h-20 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xl font-bold">SJ</div>
                 )}
                 <button
                   onClick={() => fileInputRef.current?.click()}
@@ -254,39 +253,9 @@ export function HostProfile() {
                 <p className="text-[#222222] font-semibold text-sm mb-3">Security Tips</p>
                 <ul className="space-y-2 text-xs text-[#717171]">
                   <li className="flex items-start gap-2"><span className="text-[#FF385C]">•</span> Use a unique password not used elsewhere</li>
-                  <li className="flex items-start gap-2"><span className="text-[#FF385C]">•</span> Enable two-factor authentication for extra security</li>
                   <li className="flex items-start gap-2"><span className="text-[#FF385C]">•</span> Never share your password with guests or third parties</li>
                   <li className="flex items-start gap-2"><span className="text-[#FF385C]">•</span> Change your password every 3-6 months</li>
                 </ul>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'hosting' && (
-            <div className="bg-white rounded-2xl border border-[#EBEBEB] p-8">
-              <h2 className="text-[#222222] font-semibold mb-6" style={{ fontFamily: "'Poppins', sans-serif" }}>Hosting Preferences</h2>
-              <div className="space-y-6">
-                {[
-                  { label: 'Instant Booking', desc: 'Allow guests to book without prior approval', checked: true },
-                  { label: 'Pet-Friendly Properties', desc: 'Allow guests to bring pets to your listings', checked: false },
-                  { label: 'Long-term Stays', desc: 'Accept bookings of 28 nights or more', checked: true },
-                  { label: 'Flexible Cancellation', desc: 'Offer flexible cancellation policy to guests', checked: false },
-                  { label: 'Self Check-in', desc: 'Enable contactless self check-in for guests', checked: true },
-                ].map((pref, i) => (
-                  <div key={i} className="flex items-start justify-between gap-4 pb-5 border-b border-[#EBEBEB] last:border-0">
-                    <div>
-                      <p className="text-[#222222] font-semibold text-sm">{pref.label}</p>
-                      <p className="text-[#717171] text-xs mt-0.5">{pref.desc}</p>
-                    </div>
-                    <button className="relative w-11 h-6 rounded-full shrink-0 transition-colors" style={{ background: pref.checked ? '#FF385C' : '#DDDDDD' }}>
-                      <span className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all" style={{ left: pref.checked ? '1.375rem' : '0.125rem' }} />
-                    </button>
-                  </div>
-                ))}
-                <button onClick={handleSave} className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-7 py-3.5 rounded-xl font-semibold text-sm transition-all">
-                  <Save className="w-4 h-4" />
-                  {saved ? '✓ Saved!' : 'Save Preferences'}
-                </button>
               </div>
             </div>
           )}

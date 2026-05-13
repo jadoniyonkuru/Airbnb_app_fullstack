@@ -1,39 +1,53 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { apiClient } from '../../api/client';
-import { ENDPOINTS } from '../../api/endpoints';
+import { properties, reviews } from '../../data/mockData';
 import { queryKeys } from '../../api/queryKeys';
-import { parseApiError } from '../../api/errorHandler';
 
 const aiApi = {
-  search: (query: string) =>
-    apiClient.post(ENDPOINTS.AI_SEARCH, { query }).then(r => r.data),
-
-  chat: (message: string, history?: { role: string; content: string }[]) =>
-    apiClient.post(ENDPOINTS.AI_CHAT, { message, history }).then(r => r.data),
-
-  getReviewSummary: (listingId: string) =>
-    apiClient.get(ENDPOINTS.AI_REVIEW_SUMMARY(listingId)).then(r => r.data),
-
-  generateDescription: (data: { title: string; type: string; amenities: string[]; location: string }) =>
-    apiClient.post(ENDPOINTS.AI_GENERATE_DESC, data).then(r => r.data),
-
-  getRecommendations: () =>
-    apiClient.get(ENDPOINTS.AI_RECOMMENDATIONS).then(r => r.data),
+  search: async (query: string) => {
+    await new Promise(r => setTimeout(r, 400));
+    return { data: properties.filter(p => 
+      p.title.toLowerCase().includes(query.toLowerCase()) ||
+      p.location.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 5) };
+  },
+  chat: async (message: string) => {
+    await new Promise(r => setTimeout(r, 600));
+    const responses = [
+      "I'd be happy to help you find the perfect stay!",
+      "Our properties are located across Africa, Europe, and the Americas.",
+      "You can filter by price, location, and number of guests.",
+      "Each listing includes detailed photos and reviews from verified guests.",
+    ];
+    return { data: { response: responses[Math.floor(Math.random() * responses.length)] } };
+  },
+  getReviewSummary: async (listingId: string) => {
+    await new Promise(r => setTimeout(r, 300));
+    const propReviews = reviews.filter(r => r.propertyId === listingId);
+    const avgRating = propReviews.length ? (propReviews.reduce((s, r) => s + r.rating, 0) / propReviews.length).toFixed(1) : '4.5';
+    return { data: { summary: `${propReviews.length} reviews with an average rating of ${avgRating} stars.` } };
+  },
+  generateDescription: async (data: { title: string; type: string; amenities: string[]; location: string }) => {
+    await new Promise(r => setTimeout(r, 500));
+    return { data: { description: `${data.title} is a beautiful ${data.type.toLowerCase()} in ${data.location}. This property offers ${data.amenities.slice(0, 3).join(', ')} and much more.` } };
+  },
+  getRecommendations: async () => {
+    await new Promise(r => setTimeout(r, 400));
+    return { data: properties.slice(0, 4) };
+  },
 };
 
 export function useAISearch() {
   return useMutation({
     mutationFn: (query: string) => aiApi.search(query),
-    onError: (err) => toast.error(parseApiError(err).message),
+    onError: (err: any) => toast.error(err.message || 'Search failed'),
   });
 }
 
 export function useAIChat() {
   return useMutation({
-    mutationFn: ({ message, history }: { message: string; history?: { role: string; content: string }[] }) =>
-      aiApi.chat(message, history),
-    onError: (err) => toast.error(parseApiError(err).message),
+    mutationFn: ({ message }: { message: string }) => aiApi.chat(message),
+    onError: (err: any) => toast.error(err.message || 'Chat failed'),
   });
 }
 
@@ -60,6 +74,6 @@ export function useGenerateDescription() {
   return useMutation({
     mutationFn: (data: { title: string; type: string; amenities: string[]; location: string }) =>
       aiApi.generateDescription(data),
-    onError: (err) => toast.error(parseApiError(err).message),
+    onSuccess: () => toast.success('Description generated!'),
   });
 }

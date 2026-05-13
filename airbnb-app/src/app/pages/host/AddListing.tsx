@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router';
 import { Upload, MapPin, DollarSign, Users, Bed, Bath, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -23,10 +23,47 @@ export function AddListing() {
     amenities: prev.amenities.includes(a) ? prev.amenities.filter(x => x !== a) : [...prev.amenities, a]
   })), []);
 
+  const handleNext = () => {
+    if (step === 0) {
+      if (!form.title.trim()) {
+        toast.error('Please enter a property title');
+        return;
+      }
+      if (!form.description.trim()) {
+        toast.error('Please enter a description');
+        return;
+      }
+    } else if (step === 1) {
+      if (!form.location.trim()) {
+        toast.error('Please enter a city/location');
+        return;
+      }
+      if (!form.address.trim()) {
+        toast.error('Please enter a full address');
+        return;
+      }
+    } else if (step === 3) {
+      if (form.amenities.length === 0) {
+        toast.error('Please select at least one amenity');
+        return;
+      }
+    } else if (step === 5) {
+      if (!form.price.trim()) {
+        toast.error('Please enter a price per night');
+        return;
+      }
+    }
+    setStep(step + 1);
+  };
+
   const handleSubmit = useCallback(() => {
+    if (!form.title.trim() || !form.description.trim() || !form.location.trim() || !form.address.trim() || !form.price.trim() || form.amenities.length === 0) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
     toast.success('Property published successfully!');
     navigate('/dashboard/listings');
-  }, [navigate]);
+  }, [navigate, form]);
 
   const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, title: e.target.value }));
@@ -93,7 +130,7 @@ export function AddListing() {
             <div>
               <label className="block text-[#222222] text-sm font-semibold mb-2">Property Type</label>
               <div className="grid grid-cols-3 gap-3">
-                {['Apartment', 'Villa', 'Studio', 'Cabin', 'Townhouse', 'Other'].map(t => (
+                {['Apartment', 'Villa', 'Studio', 'Cabin', 'Townhouse', 'House', 'Bungalow', 'Loft', 'Penthouse', 'Cottage'].map(t => (
                   <button key={t} onClick={() => setForm(p => ({ ...p, type: t }))} className="py-2.5 rounded-xl border-2 text-sm font-medium transition-all" style={{
                     borderColor: form.type === t ? '#FF385C' : '#DDDDDD',
                     background: form.type === t ? '#FFF1F3' : 'white',
@@ -209,7 +246,7 @@ export function AddListing() {
           Back
         </button>
         {step < STEPS.length - 1 ? (
-          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors">
+          <button onClick={handleNext} className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors">
             Continue <ArrowRight className="w-4 h-4" />
           </button>
         ) : (
@@ -227,8 +264,8 @@ export function AddListing() {
         isOpen={showPublishModal}
         onClose={() => setShowPublishModal(false)}
         onConfirm={handleSubmit}
-        title="Publish Property"
-        message={`Ready to publish "${form.title || 'your property'}"? Once published, it will be visible to guests and available for booking.`}
+        title="Are you sure you want to publish this listing?"
+        message=""
         confirmText="Publish now"
         cancelText="Review details"
         type="info"

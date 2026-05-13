@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, Star, Eye, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
-import { hostListings } from '../../../data/mockData';
+import { useListings, useDeleteListing } from '../../../features/listings/hooks';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 
 import img0 from '../../../imports/image.png';
@@ -14,18 +14,18 @@ import img4 from '../../../imports/image-4.png';
 const imgs = [img0, img1, img2, img3, img4];
 
 export function MyListings() {
-  const [statuses, setStatuses] = useState<Record<string, boolean>>({
-    HL1: true, HL2: true, HL3: false
-  });
+  const { data: hostListings = [], isLoading } = useListings();
+  const deleteListingMutation = useDeleteListing();
+  const [statuses, setStatuses] = useState<Record<string, boolean>>({});
   const [deleteModal, setDeleteModal] = useState<{ id: string; title: string } | null>(null);
-  const toggle = (id: string) => setStatuses(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggle = (id: string) => setStatuses(prev => ({ ...prev, [id]: !(prev[id] ?? true) }));
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>My Listings</h1>
-          <p className="text-[#717171] text-sm">{hostListings.length} active properties</p>
+          <p className="text-[#717171] text-sm">{isLoading ? '...' : hostListings.length} properties</p>
         </div>
         <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
           <Plus className="w-4 h-4" />
@@ -34,17 +34,31 @@ export function MyListings() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {hostListings.map((listing, idx) => (
+        {isLoading ? (
+          [1,2,3].map(i => (
+            <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden animate-pulse">
+              <div className="h-48 bg-[#F0F0F0]" />
+              <div className="p-5 space-y-3">
+                <div className="h-5 bg-[#F0F0F0] rounded w-3/4" />
+                <div className="h-4 bg-[#F0F0F0] rounded w-1/2" />
+                <div className="grid grid-cols-3 gap-3">
+                  {[1,2,3].map(j => <div key={j} className="h-12 bg-[#F0F0F0] rounded-xl" />)}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+        hostListings.map((listing, idx) => (
           <div key={listing.id} className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-lg transition-all">
             <div className="relative">
-              <img src={imgs[idx % imgs.length] as string} alt={listing.title} className="w-full h-48 object-cover" />
+              <img src={listing.image || (imgs[idx % imgs.length] as string)} alt={listing.title} className="w-full h-48 object-cover" />
               <div className="absolute top-3 left-3">
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${statuses[listing.id] ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
-                  {statuses[listing.id] ? '● Active' : '○ Inactive'}
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${(statuses[listing.id] ?? true) ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
+                  {(statuses[listing.id] ?? true) ? '● Active' : '○ Inactive'}
                 </span>
               </div>
-              <button onClick={() => toggle(listing.id)} className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-white transition-colors" style={{ color: statuses[listing.id] ? '#00A699' : '#AAAAAA' }}>
-                {statuses[listing.id] ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+              <button onClick={() => toggle(listing.id)} className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-white transition-colors" style={{ color: (statuses[listing.id] ?? true) ? '#00A699' : '#AAAAAA' }}>
+                {(statuses[listing.id] ?? true) ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
               </button>
             </div>
             <div className="p-5">
@@ -96,7 +110,7 @@ export function MyListings() {
               </div>
             </div>
           </div>
-        ))}
+        )))}
 
         {/* Add New Card */}
         <Link to="/dashboard/add-listing" className="border-2 border-dashed border-[#DDDDDD] rounded-2xl flex flex-col items-center justify-center p-8 hover:border-[#FF385C] hover:bg-[#FFF8F9] transition-all group min-h-72">
@@ -112,11 +126,11 @@ export function MyListings() {
         isOpen={!!deleteModal}
         onClose={() => setDeleteModal(null)}
         onConfirm={() => {
-          toast.success(`${deleteModal?.title} has been deleted`);
+          if (deleteModal) deleteListingMutation.mutate(deleteModal.id);
           setDeleteModal(null);
         }}
-        title="Delete Property"
-        message={`Are you sure you want to delete "${deleteModal?.title}"? This action cannot be undone and all booking history will be lost.`}
+        title="Are you sure you want to delete this listing? ‼️"
+        message=""
         confirmText="Delete"
         cancelText="Keep property"
         type="danger"

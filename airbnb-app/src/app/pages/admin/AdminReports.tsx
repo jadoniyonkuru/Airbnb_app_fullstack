@@ -5,10 +5,22 @@ import {
 } from 'recharts';
 import { Download, TrendingUp, Users, DollarSign, Home } from 'lucide-react';
 import { useId } from 'react';
+import { useBookings } from '../../../features/bookings/hooks';
+import { useUsers } from '../../../features/users/hooks';
+import { useListings } from '../../../features/listings/hooks';
 
 export function AdminReports() {
   const rawId = useId();
   const rptRevId = `rpt-rev-${rawId.replace(/:/g, '')}`;
+  const { data: bookings = [], isLoading: loadingBookings } = useBookings();
+  const { data: users = [], isLoading: loadingUsers } = useUsers();
+  const { data: listings = [], isLoading: loadingListings } = useListings();
+
+  const totalRevenue = bookings
+    .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
+    .reduce((sum, b) => sum + b.total, 0);
+  const bookingRate = bookings.length > 0 ? Math.round((bookings.filter(b => b.status.toLowerCase() === 'completed').length / bookings.length) * 100) : 0;
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="flex items-center justify-between mb-8">
@@ -24,10 +36,10 @@ export function AdminReports() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Revenue YTD', value: '$487,920', change: '+32%', icon: DollarSign, color: '#16a34a' },
-          { label: 'New Users', value: '+267', change: '+18%', icon: Users, color: '#2563eb' },
-          { label: 'New Listings', value: '+52', change: '+12%', icon: Home, color: '#FF385C' },
-          { label: 'Booking Rate', value: '94%', change: '+3%', icon: TrendingUp, color: '#FC642D' },
+          { label: 'Total Revenue YTD', value: loadingBookings ? '...' : `$${totalRevenue.toLocaleString()}`, change: '+32%', icon: DollarSign, color: '#16a34a' },
+          { label: 'Total Users', value: loadingUsers ? '...' : users.length.toString(), change: '+18%', icon: Users, color: '#2563eb' },
+          { label: 'Total Listings', value: loadingListings ? '...' : listings.length.toString(), change: '+12%', icon: Home, color: '#FF385C' },
+          { label: 'Booking Success', value: loadingBookings ? '...' : `${bookingRate}%`, change: '+3%', icon: TrendingUp, color: '#FC642D' },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
             <stat.icon className="w-5 h-5 mb-3" style={{ color: stat.color }} />

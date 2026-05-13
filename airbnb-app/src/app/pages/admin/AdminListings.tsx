@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { Search, CheckCircle, XCircle, Eye, MapPin, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { properties } from '../../../data/mockData';
+import { useListings } from '../../../features/listings/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 
 export function AdminListings() {
+  const { data: properties = [], isLoading } = useListings();
   const [search, setSearch] = useState('');
-  const [listingStatuses, setListingStatuses] = useState<Record<string, 'approved' | 'pending' | 'rejected'>>({
-    '1': 'approved', '2': 'approved', '3': 'approved', '4': 'pending', '5': 'approved', '6': 'pending', '7': 'rejected', '8': 'pending'
-  });
+  const [listingStatuses, setListingStatuses] = useState<Record<string, 'approved' | 'pending' | 'rejected'>>({});
   const [actionModal, setActionModal] = useState<{ id: string; title: string; action: 'approve' | 'reject' } | null>(null);
 
   const approve = (id: string) => {
@@ -27,7 +26,7 @@ export function AdminListings() {
   );
 
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
-    usePagination(filtered, { defaultPerPage: 4 });
+    usePagination(filtered, { defaultPerPage: 6 });
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -47,7 +46,18 @@ export function AdminListings() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
-        {paginatedItems.map(property => {
+        {isLoading ? (
+          [1,2,3,4,5,6].map(i => (
+            <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden animate-pulse">
+              <div className="h-44 bg-[#F0F0F0]" />
+              <div className="p-5 space-y-3">
+                <div className="h-4 bg-[#F0F0F0] rounded w-3/4" />
+                <div className="h-3 bg-[#F0F0F0] rounded w-1/2" />
+                <div className="h-4 bg-[#F0F0F0] rounded w-1/4" />
+              </div>
+            </div>
+          ))
+        ) : paginatedItems.map(property => {
           const status = listingStatuses[property.id] || 'pending';
           return (
             <div key={property.id} className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-md transition-shadow">

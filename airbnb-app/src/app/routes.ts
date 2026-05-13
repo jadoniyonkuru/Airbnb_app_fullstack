@@ -33,6 +33,8 @@ import { UserWishlist } from './pages/user/UserWishlist';
 import { UserProfile } from './pages/user/UserProfile';
 import { UserMessages } from './pages/user/UserMessages';
 import { UserSettings } from './pages/user/UserSettings';
+import { UserPayments } from './pages/user/UserPayments';
+import { UserDashboard } from './pages/user/UserDashboard';
 
 export const router = createBrowserRouter([
   {
@@ -67,10 +69,12 @@ export const router = createBrowserRouter([
         Component: Experiences,
       },
       { path: '/user/bookings', Component: UserBookings },
+      { path: '/user/payments', Component: UserPayments },
       { path: '/user/wishlist', Component: UserWishlist },
       { path: '/user/messages', Component: UserMessages },
       { path: '/user/profile', Component: UserProfile },
       { path: '/user/settings', Component: UserSettings },
+      { path: '/user/dashboard', Component: UserDashboard },
       {
         path: '/dashboard',
         Component: ProtectedHostLayout,

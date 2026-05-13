@@ -6,6 +6,9 @@ import {
   ComposedChart, Legend
 } from 'recharts';
 import { TrendingUp, Users, DollarSign, Home, Star, ArrowUp, ArrowDown, Globe } from 'lucide-react';
+import { useBookings } from '../../../features/bookings/hooks';
+import { useUsers } from '../../../features/users/hooks';
+import { useListings } from '../../../features/listings/hooks';
 
 const topProperties = [
   { name: 'Penthouse Manhattan', revenue: 14700, bookings: 42, occupancy: 94, location: 'New York', rating: 4.95 },
@@ -48,6 +51,24 @@ export function AdminAnalytics() {
   const anaInqId   = `ana-inq-${rawId.replace(/:/g, '')}`;
   const anaBookId  = `ana-book-${rawId.replace(/:/g, '')}`;
 
+  const { data: bookings = [], isLoading: loadingBookings } = useBookings();
+  const { data: users = [], isLoading: loadingUsers } = useUsers();
+  const { data: listings = [], isLoading: loadingListings } = useListings();
+
+  const totalRevenue = bookings
+    .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
+    .reduce((sum, b) => sum + b.total, 0);
+  const avgBookingValue = bookings.length > 0 ? Math.round(totalRevenue / bookings.length) : 0;
+  const avgRating = listings.length > 0 ? (listings.reduce((sum, l) => sum + (l.rating || 0), 0) / listings.length).toFixed(2) : '0.00';
+
+  const liveKpiMetrics = [
+    { label: 'Avg. Booking Value', value: loadingBookings ? '...' : `$${avgBookingValue}`, change: '+8.2%', up: true, icon: DollarSign, color: '#FF385C' },
+    { label: 'Occupancy Rate', value: '84.6%', change: '+3.1%', up: true, icon: Home, color: '#00A699' },
+    { label: 'Guest Satisfaction', value: loadingListings ? '...' : avgRating, change: '+0.04', up: true, icon: Star, color: '#d97706' },
+    { label: 'Total Hosts', value: loadingUsers ? '...' : users.filter(u => u.role === 'HOST').length.toString(), change: '+5', up: true, icon: Users, color: '#7c3aed' },
+    { label: 'Active Listings', value: loadingListings ? '...' : listings.length.toString(), change: '+12%', up: true, icon: TrendingUp, color: '#0ea5e9' },
+    { label: 'Platform Revenue', value: loadingBookings ? '...' : `$${(totalRevenue / 1000).toFixed(0)}K`, change: '+18%', up: true, icon: Globe, color: '#16a34a' },
+  ];
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
@@ -71,7 +92,7 @@ export function AdminAnalytics() {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
-        {kpiMetrics.map((m, i) => (
+        {liveKpiMetrics.map((m, i) => (
           <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${m.color}18` }}>

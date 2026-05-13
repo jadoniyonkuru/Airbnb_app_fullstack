@@ -1,17 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '../../api/client';
-import { ENDPOINTS } from '../../api/endpoints';
+import { stats } from '../../data/mockData';
 import { queryKeys } from '../../api/queryKeys';
-
-const statsApi = {
-  getListingStats: () => apiClient.get(ENDPOINTS.STATS_LISTINGS).then(r => r.data),
-  getUserStats: () => apiClient.get(ENDPOINTS.STATS_USERS).then(r => r.data),
-};
 
 export function useListingStats() {
   return useQuery({
     queryKey: queryKeys.statsListings,
-    queryFn: () => statsApi.getListingStats(),
+    queryFn: async () => {
+      await new Promise(r => setTimeout(r, 300));
+      return { data: stats };
+    },
     select: (data) => data.data,
     staleTime: 1000 * 60 * 5,
   });
@@ -20,7 +17,10 @@ export function useListingStats() {
 export function useUserStatsData() {
   return useQuery({
     queryKey: queryKeys.statsUsers,
-    queryFn: () => statsApi.getUserStats(),
+    queryFn: async () => {
+      await new Promise(r => setTimeout(r, 300));
+      return { data: stats };
+    },
     select: (data) => data.data,
     staleTime: 1000 * 60 * 5,
   });

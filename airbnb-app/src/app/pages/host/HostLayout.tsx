@@ -21,14 +21,12 @@ const navItems = [
 
 const mockNotifications = [
   { id: 1, type: 'booking', title: 'New Booking Request',   body: 'James Okafor requested 5 nights at your Kigali apartment.',              time: '2 min ago',  read: false },
-  { id: 2, type: 'review',  title: 'New 5-Star Review',     body: '"The host was incredibly responsive and the place was spotless!"',      time: '1 hour ago', read: false },
-  { id: 3, type: 'message', title: 'Message from Emily Chen', body: 'Hi! Just wanted to confirm the check-in time.',            time: '3 hours ago', read: false },
-  { id: 4, type: 'earning', title: 'Payout Processed',      body: 'Your payout of $1,240 has been sent to your bank account.',              time: '1 day ago',   read: true  },
-  { id: 5, type: 'system',  title: 'Listing Featured',      body: 'Your Nairobi Villa is now featured in search results.',                  time: '2 days ago',  read: true  },
+  { id: 2, type: 'booking', title: 'Booking Cancelled',     body: 'Emily Chen cancelled her booking for May 15-20.',                      time: '1 hour ago', read: false },
+  { id: 3, type: 'message', title: 'Message from Guest',    body: 'Hi! Just wanted to confirm the check-in time.',                       time: '3 hours ago', read: false },
 ];
 
 const notifColors: Record<string, string> = {
-  booking: '#FF385C', review: '#f59e0b', message: '#00A699', earning: '#16a34a', system: '#6366f1',
+  booking: '#FF5A5F', review: '#f59e0b', message: '#00A699', earning: '#16a34a', system: '#6366f1',
 };
 
 export function HostLayout() {
@@ -57,10 +55,13 @@ export function HostLayout() {
 
       
       <aside
-        className="bg-white border-r border-[#EBEBEB] min-h-screen flex-col shadow-sm hidden md:flex transition-all duration-300"
+        className="bg-white border-r border-[#EBEBEB] min-h-screen flex-col shadow-sm hidden md:flex transition-all duration-300 fixed"
         style={{
           width:    collapsed ? '72px' : '260px',
           minWidth: collapsed ? '72px' : '260px',
+          height: '100vh',
+          overflowY: 'auto',
+          zIndex: 40,
         }}
       >
         
@@ -75,12 +76,12 @@ export function HostLayout() {
             textDecoration: 'none',
           }}
         >
-          <div className="w-8 h-8 bg-[#FF385C] rounded-xl flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 bg-[#FF5A5F] rounded-xl flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
           </div>
           {!collapsed && (
             <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              Stay<span style={{ color: '#FF385C' }}>Bnb</span>
+              Stay<span style={{ color: '#FF5A5F' }}>Ease</span>
             </span>
           )}
         </Link>
@@ -92,7 +93,7 @@ export function HostLayout() {
             style={{ backgroundColor: '#FFF1F3' }}
           >
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+              <div className="w-11 h-11 bg-[#FF5A5F] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
                 {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
               </div>
               <div className="flex-1 min-w-0">
@@ -101,7 +102,7 @@ export function HostLayout() {
                 </p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                  <p className="text-xs" style={{ color: '#717171' }}>Host · Superhost ⭐</p>
+                  <p className="text-xs" style={{ color: '#717171' }}>Host</p>
                 </div>
               </div>
             </div>
@@ -126,7 +127,7 @@ export function HostLayout() {
                 to={item.path}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 relative"
                 style={{
-                  backgroundColor: isActive ? '#FF385C' : 'transparent',
+                  backgroundColor: isActive ? '#FF5A5F' : 'transparent',
                   color:           isActive ? 'white'   : '#484848',
                   justifyContent:  collapsed ? 'center' : 'flex-start',
                 }}
@@ -138,14 +139,14 @@ export function HostLayout() {
                     <span className="text-sm font-medium flex-1">{item.label}</span>
                     {isActive && <ChevronRight className="w-4 h-4 opacity-70" />}
                     {(item as any).badge && !isActive && (
-                      <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-[#FF385C] text-white">
+                      <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-[#FF5A5F] text-white">
                         {(item as any).badge}
                       </span>
                     )}
                   </>
                 )}
                 {collapsed && (item as any).badge && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-[9px] font-bold">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF5A5F] rounded-full flex items-center justify-center text-white text-[9px] font-bold">
                     {(item as any).badge}
                   </span>
                 )}
@@ -166,7 +167,7 @@ export function HostLayout() {
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed
-              ? <PanelLeftOpen  className="w-[18px] h-[18px] shrink-0 text-[#FF385C]" />
+              ? <PanelLeftOpen  className="w-[18px] h-[18px] shrink-0 text-[#FF5A5F]" />
               : <>
                   <PanelLeftClose className="w-[18px] h-[18px] shrink-0" />
                   <span className="text-sm font-medium">Collapse</span>
@@ -186,26 +187,17 @@ export function HostLayout() {
             }}
             title={collapsed ? 'Logout' : undefined}
           >
-            <LogOut className="w-[18px] h-[18px] shrink-0 group-hover:text-[#FF385C] transition-colors" />
-            {!collapsed && <span className="text-sm font-medium group-hover:text-[#FF385C] transition-colors">Logout</span>}
+            <LogOut className="w-[18px] h-[18px] shrink-0 group-hover:text-[#FF5A5F] transition-colors" />
+            {!collapsed && <span className="text-sm font-medium group-hover:text-[#FF5A5F] transition-colors">Logout</span>}
           </button>
         </div>
       </aside>
 
       {/* ── Main Content ────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 bg-white">
+      <div className="flex-1 flex flex-col min-w-0 bg-white" style={{ marginLeft: collapsed ? '72px' : '260px' }}>
 
         {/* Top Bar */}
-        <header className="bg-white border-b border-[#EBEBEB] px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-          <div className="flex items-center gap-2 text-sm" style={{ color: '#717171' }}>
-            <Link to="/" className="hover:text-[#222222] transition-colors font-medium">StayEase</Link>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-[#222222] font-medium capitalize">Host</span>
-            <ChevronRight className="w-3 h-3" />
-            <span style={{ color: '#FF385C', fontWeight: 600 }} className="capitalize">
-              {location.pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
-            </span>
-          </div>
+        <header className="bg-white border-b border-[#EBEBEB] px-6 py-4 flex items-center justify-end sticky top-0 z-40 shadow-sm">
 
           <div className="flex items-center gap-3">
             {/* Notification Bell */}
@@ -216,7 +208,7 @@ export function HostLayout() {
               >
                 <Bell className="w-5 h-5" style={{ color: '#717171' }} />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#FF5A5F] rounded-full flex items-center justify-center text-white text-[10px] font-bold">
                     {unreadCount}
                   </span>
                 )}
@@ -228,12 +220,12 @@ export function HostLayout() {
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-[#222222] text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Notifications</p>
                       {unreadCount > 0 && (
-                        <span className="text-xs font-bold bg-[#FF385C] text-white px-1.5 py-0.5 rounded-full">{unreadCount}</span>
+                        <span className="text-xs font-bold bg-[#FF5A5F] text-white px-1.5 py-0.5 rounded-full">{unreadCount}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       {unreadCount > 0 && (
-                        <button onClick={markAllRead} className="text-xs text-[#FF385C] font-medium hover:underline">Mark all read</button>
+                        <button onClick={markAllRead} className="text-xs text-[#FF5A5F] font-medium hover:underline">Mark all read</button>
                       )}
                       <button onClick={() => setNotifOpen(false)} className="w-6 h-6 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center">
                         <X className="w-3.5 h-3.5 text-[#717171]" />
@@ -257,7 +249,7 @@ export function HostLayout() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <p className="text-[#222222] text-xs font-semibold leading-snug">{n.title}</p>
-                            {!n.read && <span className="w-2 h-2 bg-[#FF385C] rounded-full shrink-0 mt-1" />}
+                            {!n.read && <span className="w-2 h-2 bg-[#FF5A5F] rounded-full shrink-0 mt-1" />}
                           </div>
                           <p className="text-[#717171] text-xs mt-0.5 leading-relaxed line-clamp-2">{n.body}</p>
                           <p className="text-[#AAAAAA] text-[10px] mt-1">{n.time}</p>
@@ -266,24 +258,18 @@ export function HostLayout() {
                     ))}
                   </div>
                   <div className="px-4 py-2.5 border-t border-[#EBEBEB] text-center">
-                    <button className="text-xs text-[#FF385C] font-medium hover:underline">View all notifications</button>
+                    <button className="text-xs text-[#FF5A5F] font-medium hover:underline">View all notifications</button>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Profile avatar — branded */}
+            {/* Profile avatar — user icon only */}
             <Link
-              to="/dashboard/profile"
-              className="flex items-center gap-2 rounded-xl px-3 py-2 transition-colors border border-[#FFD4D8]"
-              style={{ backgroundColor: '#FFF1F3' }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FFE4E8')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#FFF1F3')}
+              to="/dashboard"
+              className="flex items-center justify-center w-10 h-10 rounded-full transition-colors hover:bg-[#F7F7F7]"
             >
-              <div className="w-7 h-7 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
-              </div>
-              <span className="text-xs font-semibold hidden sm:block" style={{ color: '#FF385C' }}>{user?.name.split(' ')[0]}</span>
+              <User className="w-5 h-5" style={{ color: '#717171' }} />
             </Link>
           </div>
         </header>

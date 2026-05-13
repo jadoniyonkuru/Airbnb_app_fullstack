@@ -1,15 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'GUEST' | 'HOST' | 'ADMIN';
-}
+import type { AuthUser, Role } from '../../features/auth/types';
 
 interface AuthContextType {
-  user: User | null;
-  login: (user: User) => void;
+  user: AuthUser | null;
+  login: (user: AuthUser, token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -17,14 +11,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
+  const [user, setUser] = useState<AuthUser | null>(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const login = (userData: User) => {
+  const login = (userData: AuthUser, token: string) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', token);
   };
 
   const logout = () => {

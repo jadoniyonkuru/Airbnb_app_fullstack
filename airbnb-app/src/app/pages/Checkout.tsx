@@ -1,8 +1,8 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
 import { ArrowLeft, CreditCard, Shield, Check, MapPin, Star, Lock } from 'lucide-react';
 import { toast } from 'sonner';
-import { properties } from '../../data/mockData';
+import { useListing } from '../../features/listings/hooks';
 import { Navbar } from '../components/layout/Navbar';
 import { ConfirmModal } from '../components/shared/ConfirmModal';
 
@@ -15,7 +15,7 @@ const paymentMethods = [
 export function Checkout() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const property = properties.find(p => p.id === id) || properties[0];
+  const { data: property, isLoading } = useListing(id || '');
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [cardNum, setCardNum] = useState('');
   const [expiry, setExpiry] = useState('');
@@ -23,6 +23,38 @@ export function Checkout() {
   const [cardName, setCardName] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  if (isLoading || !property) {
+    return (
+      <div className="min-h-screen bg-[#F7F7F7]" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <Navbar />
+        <div className="max-w-6xl mx-auto px-6 py-10">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-[#F0F0F0] rounded w-1/3" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 space-y-4">
+                  <div className="h-6 bg-[#F0F0F0] rounded w-1/2" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="h-12 bg-[#F0F0F0] rounded-xl" />
+                    <div className="h-12 bg-[#F0F0F0] rounded-xl" />
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
+                <div className="h-48 bg-[#F0F0F0]" />
+                <div className="p-6 space-y-3">
+                  <div className="h-5 bg-[#F0F0F0] rounded w-3/4" />
+                  <div className="h-4 bg-[#F0F0F0] rounded w-1/2" />
+                  <div className="h-4 bg-[#F0F0F0] rounded w-2/3" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const nights = 5;
   const subtotal = property.price * nights;

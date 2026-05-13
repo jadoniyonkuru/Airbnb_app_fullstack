@@ -1,6 +1,16 @@
 import { DashboardCard } from '../../components/dashboard';
 import { Home, Calendar, DollarSign, Star, Eye, Edit, Trash2, ToggleLeft, ToggleRight, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
-import { stats, hostListings, hostEarnings, bookings } from '../../../data/mockData';
+import { useListings } from '../../../features/listings/hooks';
+import { useBookings } from '../../../features/bookings/hooks';
+// TODO: Replace with API when earnings/stats endpoint is available
+const hostEarnings = [
+  { month: 'Jan', earnings: 1200 }, { month: 'Feb', earnings: 1800 },
+  { month: 'Mar', earnings: 2400 }, { month: 'Apr', earnings: 2100 },
+  { month: 'May', earnings: 3200 }, { month: 'Jun', earnings: 2800 },
+  { month: 'Jul', earnings: 3600 }, { month: 'Aug', earnings: 4100 },
+  { month: 'Sep', earnings: 3400 }, { month: 'Oct', earnings: 2900 },
+  { month: 'Nov', earnings: 3800 }, { month: 'Dec', earnings: 4200 },
+];
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer
@@ -38,11 +48,20 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function HostDashboard() {
   const rawId = useId();
   const gradientId = `hd-grad-${rawId.replace(/:/g, '')}`;
-  const [listingStatus, setListingStatus] = useState<Record<string, boolean>>({
-    HL1: true, HL2: true, HL3: false
-  });
+  const { data: hostListings = [], isLoading: loadingListings } = useListings();
+  const { data: bookings = [], isLoading: loadingBookings } = useBookings();
+  const [showAllBookings, setShowAllBookings] = useState(false);
 
-  const toggleListing = (id: string) => setListingStatus(prev => ({ ...prev, [id]: !prev[id] }));
+  const totalListingsCount = hostListings.length;
+  const activeBookingsCount = bookings.filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'pending').length;
+  const totalEarnings = bookings
+    .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
+    .reduce((sum, b) => sum + b.total, 0);
+  const avgRating = hostListings.length > 0 
+    ? (hostListings.reduce((sum, l) => sum + (l.rating || 0), 0) / hostListings.length).toFixed(1)
+    : '0.0';
+
+  const displayedBookings = showAllBookings ? bookings : bookings.slice(0, 3);
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -54,17 +73,17 @@ export function HostDashboard() {
           </h1>
           <p className="text-[#717171] text-sm">Welcome back! Here's your property overview.</p>
         </div>
-        <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
+        <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF5A5F] hover:bg-[#E74C55] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
           + Add Property
         </Link>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <DashboardCard title="Total Listings"  value="6"      icon={Home}      trend="+2 this month" trendUp />
-        <DashboardCard title="Active Bookings" value="12"     icon={Calendar}  trend="+5 this week"  trendUp />
-        <DashboardCard title="Total Earnings"  value="$8,420" icon={DollarSign} trend="+12%"          trendUp />
-        <DashboardCard title="Avg Rating"      value="4.9★"  icon={Star}      subtitle="Based on 127 reviews" />
+        <DashboardCard title="Total Listings"  value={loadingListings ? '...' : totalListingsCount.toString()}      icon={Home}      trend="+2 this month" trendUp />
+        <DashboardCard title="Active Bookings" value={loadingBookings ? '...' : activeBookingsCount.toString()}     icon={Calendar}  trend="+5 this week"  trendUp />
+        <DashboardCard title="Total Earnings"  value={loadingBookings ? '...' : `$${totalEarnings.toLocaleString()}`} icon={DollarSign} trend="+12%"          trendUp />
+        <DashboardCard title="Avg Rating"      value={loadingListings ? '...' : `${avgRating}★`}  icon={Star}      subtitle="Based on overall performance" />
       </div>
 
       {/* Charts Row */}
@@ -84,15 +103,15 @@ export function HostDashboard() {
             <AreaChart data={hostEarnings}>
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FF385C" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#FF385C" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#FF5A5F" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#FF5A5F" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#717171' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: '#717171' }} axisLine={false} tickLine={false} tickFormatter={v => `$${v/1000}k`} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="earnings" stroke="#FF385C" strokeWidth={2.5} fill={`url(#${gradientId})`} dot={false} activeDot={{ r: 5, fill: '#FF385C' }} />
+              <Area type="monotone" dataKey="earnings" stroke="#FF5A5F" strokeWidth={2.5} fill={`url(#${gradientId})`} dot={false} activeDot={{ r: 5, fill: '#FF5A5F' }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -102,7 +121,7 @@ export function HostDashboard() {
           <h2 className="text-[#222222] font-semibold mb-6" style={{ fontFamily: "'Poppins', sans-serif" }}>Performance</h2>
           <div className="space-y-5">
             {[
-              { label: 'Occupancy Rate', value: 87, color: '#FF385C' },
+              { label: 'Occupancy Rate', value: 87, color: '#FF5A5F' },
               { label: 'Response Rate', value: 95, color: '#00A699' },
               { label: 'Guest Satisfaction', value: 98, color: '#FC642D' },
               { label: 'Listing Views', value: 73, color: '#484848' },
@@ -133,132 +152,48 @@ export function HostDashboard() {
         </div>
       </div>
 
-      {/* Property Gallery + Recent Bookings */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* My Properties */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
-          <div className="flex items-center justify-between p-6 border-b border-[#EBEBEB]">
-            <h2 className="text-[#222222] font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>My Properties</h2>
-            <Link to="/dashboard/listings" className="text-[#FF385C] text-sm font-medium hover:underline flex items-center gap-1">
-              View all <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-          <div className="divide-y divide-[#EBEBEB]">
-            {hostListings.map((listing, idx) => (
-              <div key={listing.id} className="p-5 hover:bg-[#FAFAFA] transition-colors">
-                <div className="flex gap-4">
-                  <img
-                    src={propertyImages[idx % propertyImages.length] as string}
-                    alt={listing.title}
-                    className="w-20 h-20 rounded-xl object-cover shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <div>
-                        <p className="text-[#222222] font-semibold text-sm">{listing.title}</p>
-                        <p className="text-[#717171] text-xs mt-0.5">{listing.location}</p>
-                      </div>
-                      <button
-                        onClick={() => toggleListing(listing.id)}
-                        className="shrink-0 transition-colors"
-                        style={{ color: listingStatus[listing.id] ? '#00A699' : '#DDDDDD' }}
-                      >
-                        {listingStatus[listing.id] ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-[#717171] mb-3">
-                      <span className="flex items-center gap-1"><Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />{listing.rating}</span>
-                      <span>{listing.bookings} bookings</span>
-                      <span className="font-semibold text-[#222222]">${listing.price}/night</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${listingStatus[listing.id] ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
-                        {listingStatus[listing.id] ? '● Active' : '○ Inactive'}
-                      </span>
-                      <button className="p-1.5 rounded-lg hover:bg-[#F7F7F7] transition-colors" title="Edit">
-                        <Edit className="w-3.5 h-3.5 text-[#717171]" />
-                      </button>
-                      <button className="p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="Delete">
-                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                      </button>
-                      <button className="p-1.5 rounded-lg hover:bg-[#F7F7F7] transition-colors" title="View">
-                        <Eye className="w-3.5 h-3.5 text-[#717171]" />
-                      </button>
-                    </div>
-                  </div>
+      {/* Recent Bookings */}
+      <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden flex flex-col mb-8">
+        <div className="flex items-center justify-between p-6 border-b border-[#EBEBEB] shrink-0">
+          <h2 className="text-[#222222] font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Recent Reservations</h2>
+          <Link to="/dashboard/bookings" className="text-[#FF5A5F] text-xs font-medium hover:underline">View all</Link>
+        </div>
+        <div className="divide-y divide-[#EBEBEB] flex-1 overflow-y-auto">
+          {displayedBookings.map(booking => (
+            <div key={booking.id} className="p-4 hover:bg-[#FAFAFA] transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 bg-[#FF5A5F] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+                  {booking.guestAvatar}
                 </div>
-               
-                 <div className="mt-3 ml-24">
-                  <div className="flex justify-between text-xs text-[#717171] mb-1">
-                    <span>Occupancy</span>
-                    <span>{listing.occupancyRate}%</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-[#F0F0F0]">
-                    <div className="h-1.5 rounded-full bg-[#FF385C]" style={{ width: `${listing.occupancyRate}%` }} />
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#222222] font-semibold text-xs truncate">{booking.guest}</p>
+                  <p className="text-[#717171] text-xs truncate">{booking.propertyTitle.split(' ').slice(0, 2).join(' ')}...</p>
                 </div>
+                <span className="text-[#222222] font-bold text-xs shrink-0">${booking.total}</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Bookings */}
-        <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
-          <div className="flex items-center justify-between p-5 border-b border-[#EBEBEB]">
-            <h2 className="text-[#222222] font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Recent Reservations</h2>
-            <Link to="/dashboard/bookings" className="text-[#FF385C] text-xs font-medium hover:underline">View all</Link>
-          </div>
-          <div className="divide-y divide-[#EBEBEB]">
-            {bookings.slice(0, 4).map(booking => (
-              <div key={booking.id} className="p-4 hover:bg-[#FAFAFA] transition-colors">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
-                    {booking.guestAvatar}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[#222222] font-semibold text-xs truncate">{booking.guest}</p>
-                    <p className="text-[#717171] text-xs truncate">{booking.propertyTitle.split(' ').slice(0, 3).join(' ')}...</p>
-                  </div>
-                  <span className="text-[#222222] font-bold text-xs shrink-0">${booking.total}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#717171] text-xs">{booking.checkIn}</span>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    booking.status === 'confirmed' ? 'bg-green-50 text-green-600' :
-                    booking.status === 'pending' ? 'bg-yellow-50 text-yellow-600' :
-                    'bg-blue-50 text-blue-600'
-                  }`}>
-                    {booking.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="p-4 border-t border-[#EBEBEB]">
-            <div className="p-3 rounded-xl text-center" style={{ background: '#FFF1F3' }}>
-              <p className="text-[#FF385C] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>$8,420</p>
-              <p className="text-[#717171] text-xs">Total this year</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Image Showcase */}
-      <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[#222222] font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>Property Gallery</h2>
-          <span className="text-[#717171] text-xs">{propertyImages.length} photos</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {propertyImages.map((img, i) => (
-            <div key={i} className="relative group rounded-xl overflow-hidden aspect-square cursor-pointer">
-              <img src={img as string} alt={`Property ${i + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Eye className="w-5 h-5 text-white" />
+              <div className="flex items-center justify-between">
+                <span className="text-[#717171] text-xs">{booking.checkIn}</span>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  booking.status === 'confirmed' ? 'bg-green-50 text-green-600' :
+                  booking.status === 'pending' ? 'bg-yellow-50 text-yellow-600' :
+                  'bg-blue-50 text-blue-600'
+                }`}>
+                  {booking.status}
+                </span>
               </div>
             </div>
           ))}
         </div>
+        {bookings.length > 3 && !showAllBookings && (
+          <div className="border-t border-[#EBEBEB] p-4 text-center shrink-0">
+            <button
+              onClick={() => setShowAllBookings(true)}
+              className="text-[#FF5A5F] text-sm font-semibold hover:underline"
+            >
+              View More ({bookings.length - 3} more)
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

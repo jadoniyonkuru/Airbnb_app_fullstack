@@ -4,7 +4,7 @@ import { Eye, EyeOff, ArrowLeft, Check } from 'lucide-react';
 import { useRegister } from '../../features/auth/hooks';
 import { useAuth } from '../context/AuthContext';
 
-const SIDE_IMG = "https://images.unsplash.com/photo-1775866914767-7e4646f2481a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBob3RlbCUyMHJvb20lMjBwcmVtaXVtJTIwaW50ZXJpb3J8ZW58MXx8fHwxNzc4MDYxNzk0fDA&ixlib=rb-4.1.0&q=80&w=1080";
+const SIDE_IMG = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1080&q=80";
 
 export function Register() {
   const navigate = useNavigate();
@@ -46,14 +46,23 @@ export function Register() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) { setPwMismatch(true); return; }
+    if (password !== confirmPassword) { 
+      setPwMismatch(true); 
+      toast.error('Passwords do not match');
+      return; 
+    }
+    if (!fullName.trim() || !email.trim() || !username.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
     setPwMismatch(false);
     registerMutation.mutate(
-      { name: fullName, username, email, phone, password, role: role.toUpperCase() as 'GUEST' | 'HOST' },
+      { name: fullName.trim(), username: username.trim(), email: email.trim(), phone, password, role: role.toUpperCase() as 'GUEST' | 'HOST' },
       {
         onSuccess: (res) => {
           authLogin(res.data.user);
-          navigate('/signin');
+          toast.success('Account created successfully!');
+          navigate('/');
         },
       }
     );
@@ -63,8 +72,8 @@ export function Register() {
     <div className="min-h-screen bg-white flex" style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden order-last">
         <img src={SIDE_IMG} alt="StayEase" className="w-full h-full object-cover" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top left, rgba(0,166,153,0.9), rgba(34,34,34,0.85))' }} />
-        <div className="absolute inset-0 flex flex-col justify-between p-12">
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top left, rgba(0,166,153,0.4), rgba(34,34,34,0.5))' }} />
+        <div className="absolute inset-0 flex flex-col justify-between p-12 items-center text-center">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
               <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
@@ -72,16 +81,16 @@ export function Register() {
             <span className="text-white font-bold text-xl" style={{ fontFamily: "'Poppins', sans-serif" }}>StayEase</span>
           </Link>
           <div>
-            <h2 className="text-white mb-4" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '2.5rem', fontWeight: 700, lineHeight: 1.2 }}>
-              Join over 50,000<br />happy travellers
+            <h2 className="text-white mb-4" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '2.5rem', fontWeight: 700, lineHeight: 1.2, fontStyle: 'italic' }}>
+              Begin Your Journey<br />With Us Today
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.8)' }} className="text-base leading-relaxed mb-8">
-              Create your free account in minutes and start exploring the world's most unique stays.
+              Join thousands of travelers discovering unforgettable experiences. Your adventure awaits.
             </p>
             <div className="space-y-4">
               {['Free to sign up — no hidden fees', 'Instant booking confirmation', 'Secure payments & full refund policy', '24/7 guest support'].map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-[#FF385C] rounded-full flex items-center justify-center shrink-0">
+                <div key={i} className="flex items-center gap-3 justify-center">
+                  <div className="w-6 h-6 bg-[#FF5A5F] rounded-full flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3 text-white" strokeWidth={3} />
                   </div>
                   <span style={{ color: 'rgba(255,255,255,0.85)' }} className="text-sm">{item}</span>
@@ -100,10 +109,10 @@ export function Register() {
           </Link>
 
           <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-[#FF385C] rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#FF5A5F] rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>Stay<span style={{ color: '#FF385C' }}>Bnb</span></span>
+            <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>Stay<span style={{ color: '#FF5A5F' }}>Ease</span></span>
           </div>
 
           <h1 className="text-[#222222] mb-2" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '2rem', fontWeight: 700 }}>Create Account</h1>
@@ -119,11 +128,11 @@ export function Register() {
                 onClick={() => setRole(r.value as 'guest' | 'host')}
                 className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all"
                 style={{
-                  borderColor: role === r.value ? '#FF385C' : '#DDDDDD',
+                  borderColor: role === r.value ? '#FF5A5F' : '#DDDDDD',
                   background:  role === r.value ? '#FFF1F3' : 'white',
                 }}
               >
-                <span className="text-sm font-semibold" style={{ color: role === r.value ? '#FF385C' : '#222222' }}>{r.title}</span>
+                <span className="text-sm font-semibold" style={{ color: role === r.value ? '#FF5A5F' : '#222222' }}>{r.title}</span>
                 <span className="text-xs text-center" style={{ color: '#717171' }}>{r.desc}</span>
               </button>
             ))}
@@ -133,28 +142,28 @@ export function Register() {
             <div>
               <label className="block text-[#222222] text-sm font-semibold mb-2">Full Name</label>
               <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Kevin Malone"
-                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA]" required />
+                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF5A5F] transition-colors placeholder:text-[#AAAAAA]" required />
             </div>
             <div>
               <label className="block text-[#222222] text-sm font-semibold mb-2">Username</label>
               <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="johndoe123"
-                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA]" required />
+                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF5A5F] transition-colors placeholder:text-[#AAAAAA]" required />
             </div>
             <div>
               <label className="block text-[#222222] text-sm font-semibold mb-2">Phone Number</label>
               <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="07859346666"
-                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA]" required />
+                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF5A5F] transition-colors placeholder:text-[#AAAAAA]" required />
             </div>
             <div>
               <label className="block text-[#222222] text-sm font-semibold mb-2">Email Address</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com"
-                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA]" required />
+                className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF5A5F] transition-colors placeholder:text-[#AAAAAA]" required />
             </div>
             <div>
               <label className="block text-[#222222] text-sm font-semibold mb-2">Password</label>
               <div className="relative">
                 <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a strong password"
-                  className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA] pr-12" required />
+                  className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] bg-white text-[#222222] text-sm outline-none focus:border-[#FF5A5F] transition-colors placeholder:text-[#AAAAAA] pr-12" required />
                 <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#717171] hover:text-[#222222]">
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -174,7 +183,7 @@ export function Register() {
               <label className="block text-[#222222] text-sm font-semibold mb-2">Confirm Password</label>
               <div className="relative">
                 <input type={showCpw ? 'text' : 'password'} value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setPwMismatch(false); }} placeholder="Repeat your password"
-                  className={`w-full px-4 py-3.5 rounded-xl border bg-white text-[#222222] text-sm outline-none transition-colors placeholder:text-[#AAAAAA] pr-12 ${pwMismatch ? 'border-red-400 focus:border-red-400' : 'border-[#DDDDDD] focus:border-[#FF385C]'}`} required />
+                  className={`w-full px-4 py-3.5 rounded-xl border bg-white text-[#222222] text-sm outline-none transition-colors placeholder:text-[#AAAAAA] pr-12 ${pwMismatch ? 'border-red-400 focus:border-red-400' : 'border-[#DDDDDD] focus:border-[#FF5A5F]'}`} required />
                 <button type="button" onClick={() => setShowCpw(!showCpw)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#717171] hover:text-[#222222]">
                   {showCpw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -188,19 +197,19 @@ export function Register() {
             </div>
 
             <div className="flex items-start gap-2">
-              <input id="agree" type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} className="w-4 h-4 mt-0.5 accent-[#FF385C]" required />
+              <input id="agree" type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} className="w-4 h-4 mt-0.5 accent-[#FF5A5F]" required />
               <label htmlFor="agree" className="text-[#717171] text-sm leading-relaxed">
                 I agree to StayEase's{' '}
-                <a href="#" className="text-[#FF385C] font-medium hover:underline">Terms of Service</a>
+                <a href="#" className="text-[#FF5A5F] font-medium hover:underline">Terms of Service</a>
                 {' '}and{' '}
-                <a href="#" className="text-[#FF385C] font-medium hover:underline">Privacy Policy</a>
+                <a href="#" className="text-[#FF5A5F] font-medium hover:underline">Privacy Policy</a>
               </label>
             </div>
 
             <button
               type="submit"
               disabled={registerMutation.isPending}
-              className="w-full bg-[#FF385C] hover:bg-[#E31C5F] disabled:opacity-60 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-[#FF5A5F] hover:bg-[#E74C55] disabled:opacity-60 disabled:cursor-not-allowed text-white py-4 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2"
             >
               {registerMutation.isPending ? (
                 <>
@@ -230,7 +239,7 @@ export function Register() {
 
           <p className="text-center text-[#717171] text-sm">
             Already have an account?{' '}
-            <Link to="/signin" className="text-[#FF385C] font-semibold hover:underline">Sign in</Link>
+            <Link to="/signin" className="text-[#FF5A5F] font-semibold hover:underline">Sign in</Link>
           </p>
         </div>
       </div>

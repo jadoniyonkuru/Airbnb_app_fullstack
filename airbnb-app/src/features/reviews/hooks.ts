@@ -1,29 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { apiClient } from '../../api/client';
-import { ENDPOINTS } from '../../api/endpoints';
+import { reviews } from '../../data/mockData';
 import { queryKeys } from '../../api/queryKeys';
-import { parseApiError } from '../../api/errorHandler';
-import type { ReviewsResponse, ReviewResponse, CreateReviewRequest } from './types';
-
-const reviewsApi = {
-  getByListing: (listingId: string) =>
-    apiClient.get<ReviewsResponse>(ENDPOINTS.LISTING_REVIEWS(listingId)).then(r => r.data),
-
-  create: (listingId: string, data: CreateReviewRequest) =>
-    apiClient.post<ReviewResponse>(ENDPOINTS.LISTING_REVIEWS(listingId), data).then(r => r.data),
-
-  update: (id: string, data: Partial<CreateReviewRequest>) =>
-    apiClient.put<ReviewResponse>(ENDPOINTS.REVIEW(id), data).then(r => r.data),
-
-  delete: (id: string) =>
-    apiClient.delete(ENDPOINTS.REVIEW(id)).then(r => r.data),
-};
+import type { Review } from './types';
 
 export function useListingReviews(listingId: string) {
   return useQuery({
     queryKey: queryKeys.listingReviews(listingId),
-    queryFn: () => reviewsApi.getByListing(listingId),
+    queryFn: async () => {
+      await new Promise(r => setTimeout(r, 200));
+      return { data: reviews.filter(r => r.propertyId === listingId) };
+    },
     select: (data) => data.data ?? [],
     enabled: !!listingId,
     staleTime: 1000 * 60 * 5,
@@ -33,24 +20,36 @@ export function useListingReviews(listingId: string) {
 export function useCreateReview(listingId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateReviewRequest) => reviewsApi.create(listingId, data),
+    mutationFn: async (data: { rating: number; comment: string }) => {
+      await new Promise(r => setTimeout(r, 300));
+      const newReview = {
+        id: `R${Date.now()}`,
+        propertyId: listingId,
+        rating: data.rating,
+        comment: data.comment,
+        date: new Date().toISOString().split('T')[0],
+        status: 'pending',
+      };
+      return { data: newReview };
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.listingReviews(listingId) });
       qc.invalidateQueries({ queryKey: queryKeys.listing(listingId) });
       toast.success('Review submitted!');
     },
-    onError: (err) => toast.error(parseApiError(err).message),
   });
 }
 
 export function useDeleteReview(listingId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => reviewsApi.delete(id),
+    mutationFn: async (id: string) => {
+      await new Promise(r => setTimeout(r, 200));
+      return { success: true };
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.listingReviews(listingId) });
       toast.success('Review deleted.');
     },
-    onError: (err) => toast.error(parseApiError(err).message),
   });
 }

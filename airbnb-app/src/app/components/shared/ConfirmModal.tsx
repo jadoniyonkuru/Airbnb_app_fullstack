@@ -1,4 +1,4 @@
-import { AlertTriangle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -49,7 +49,6 @@ export function ConfirmModal({
                 className="w-12 h-12 rounded-full flex items-center justify-center"
                 style={{ background: color.bg }}
               >
-                <AlertTriangle className="w-5 h-5" style={{ color: color.icon }} />
               </div>
               <button
                 onClick={onClose}

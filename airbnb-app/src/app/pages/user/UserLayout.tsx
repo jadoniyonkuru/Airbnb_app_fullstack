@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router';
 import {
   LayoutDashboard, Calendar, Heart, User, Settings,
-  LogOut, Bell, ChevronRight, MessageCircle, X
+  LogOut, Bell, ChevronRight, MessageCircle, X, CreditCard
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -9,8 +9,9 @@ import { useAuth } from '../../context/AuthContext';
 const navItems = [
   { label: 'Dashboard', path: '/user/dashboard', icon: LayoutDashboard },
   { label: 'My Bookings', path: '/user/bookings', icon: Calendar },
+  { label: 'Payments', path: '/user/payments', icon: CreditCard },
   { label: 'Wishlist', path: '/user/wishlist', icon: Heart },
-  { label: 'Messages', path: '/user/messages', icon: MessageCircle },
+  { label: 'Notes', path: '/user/messages', icon: MessageCircle },
   { label: 'Profile', path: '/user/profile', icon: User },
   { label: 'Settings', path: '/user/settings', icon: Settings },
 ];
@@ -188,9 +189,9 @@ export function UserLayout() {
               )}
             </div>
 
-            {/* Profile avatar — branded */}
+            {/* Profile avatar — branded - clicking goes to dashboard */}
             <Link
-              to="/user/profile"
+              to="/user/dashboard"
               className="flex items-center gap-2 rounded-xl px-3 py-2 transition-colors border border-[#FFD4D8]"
               style={{ backgroundColor: '#FFF1F3' }}
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FFE4E8')}

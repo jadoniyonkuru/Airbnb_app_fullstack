@@ -6,15 +6,15 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Navbar } from '../components/layout/Navbar';
-import { properties } from '../../data/mockData';
 import { FilterModal, FilterState, DEFAULT_FILTERS } from '../components/shared/FilterModal';
 import { Pagination } from '../components/shared/Pagination';
 import { usePagination } from '../components/shared/usePagination';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { useListings, useSearchListings } from '../../features/listings/hooks';
+import type { MappedListing } from '../../features/listings/types';
 
-type Property = typeof properties[0] & { lat?: number; lng?: number };
+type Property = MappedListing & { lat?: number; lng?: number };
 
 /* ─── Map helpers ───────────────────────────────────────────────── */
 const CITY_CENTRES: Record<string, [number, number]> = {
@@ -294,9 +294,12 @@ function ListingsMapView({
 
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  /* Fetch listings from API */
+  const { data: apiListings = [], isLoading: isLoadingListings } = useListings();
+
   /* base filter */
   const filtered = useMemo((): Property[] => {
-    return (properties as Property[]).filter(p => {
+    return (apiListings as Property[]).filter(p => {
       if (search) {
         const q = search.toLowerCase();
         if (!p.title.toLowerCase().includes(q) && !p.location.toLowerCase().includes(q)) return false;
@@ -312,7 +315,7 @@ function ListingsMapView({
       if (filters.quickFilters.includes('pool')    && !p.amenities.includes('Pool'))    return false;
       return true;
     });
-  }, [search, filters]);
+  }, [search, filters, apiListings]);
 
   /* map-area filter — what the list shows */
   const inBounds = useMemo((): Property[] => {
@@ -434,23 +437,6 @@ function ListingsMapView({
                     onBlur={e  => (e.target.style.borderColor = '#DDDDDD')}
                   />
                 </div>
-
-                <button
-                  onClick={() => setShowFilters(true)}
-                  className="relative flex items-center gap-1.5 border rounded-xl px-3 py-2 text-xs font-medium transition-colors"
-                  style={{
-                    borderColor: activeFC > 0 ? '#1C1C1E' : '#DDDDDD',
-                    color: '#1C1C1E',
-                    background: activeFC > 0 ? '#F8F7F4' : 'white',
-                  }}
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                  Filters
-                  {activeFC > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
-                      style={{ background: '#FF5A5F' }}>{activeFC}</span>
-                  )}
-                </button>
               </div>
             </div>
           </div>
@@ -616,47 +602,8 @@ function ListingsGrid() {
                 onBlur={e  => (e.target.style.borderColor = '#DDDDDD')}
               />
             </div>
-            <button
-              onClick={() => setShowFilters(true)}
-              className="relative flex items-center gap-2 border px-4 py-3 rounded-xl hover:bg-[#F7F7F7] transition-colors text-sm font-medium"
-              style={{
-                borderColor: activeFC > 0 ? '#1C1C1E' : '#DDDDDD',
-                color: '#222222',
-                background: activeFC > 0 ? '#F8F7F4' : 'white',
-              }}
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filters
-              {activeFC > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-                  style={{ background: '#FF5A5F' }}>{activeFC}</span>
-              )}
-            </button>
           </div>
         </div>
-
-        {/* Quick price filter - inline */}
-        {showFilters && (
-          <div className="bg-white border border-[#EBEBEB] rounded-2xl p-5 mb-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif", color: '#222222' }}>
-                Quick Filter
-              </h3>
-              <button onClick={() => setShowFilters(false)}>
-                <X className="w-4 h-4" style={{ color: '#717171' }} />
-              </button>
-            </div>
-            <label className="block text-sm font-semibold mb-2" style={{ color: '#222222' }}>
-              Max price: <span style={{ color: '#FF5A5F' }}>${maxPrice}/night</span>
-            </label>
-            <input type="range" min={50} max={500} value={maxPrice}
-              onChange={e => setMaxPrice(Number(e.target.value))}
-              className="w-full" style={{ accentColor: '#FF5A5F' }} />
-            <div className="flex justify-between text-xs mt-1" style={{ color: '#717171' }}>
-              <span>$50</span><span>$500</span>
-            </div>
-          </div>
-        )}
 
         {/* Category tabs */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1 no-scrollbar">

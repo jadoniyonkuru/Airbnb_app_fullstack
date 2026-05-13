@@ -18,7 +18,6 @@ const TOKYO_IMG  = "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf
 const BARCELONA_IMG = "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=1080&q=80";
 const CAPETOWN_IMG  = "https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1080&q=80";
 const ZANZIBAR_IMG  = "https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=1080&q=80";
-const HOST_IMG   = "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1080&q=80";
 
 // ── Type filter tabs ──────────────────────────────────────────────────────────
 const FILTERS = ['All', 'Villas', 'Apartments', 'Cabins', 'Beachfront', 'City Stays'];
@@ -235,7 +234,7 @@ export function Home() {
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-semibold border-2 transition-all duration-200 hover:bg-[#1C1C1E] hover:text-white hover:border-[#1C1C1E]"
               style={{ borderColor: '#1C1C1E', color: '#1C1C1E' }}
             >
-              View all properties <ArrowRight className="w-4 h-4" />
+              View all <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -356,69 +355,6 @@ export function Home() {
                 </div>
               </Link>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── LIST YOUR SPACE ──────────────────────────────────────────────────── */}
-      <section className="py-16 px-6 lg:px-16" style={{ background: '#F8F7F4' }}>
-        <div className="max-w-[1760px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-            {/* Image */}
-            <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '4/3' }}>
-              <img src={HOST_IMG} alt="Hosting" className="w-full h-full object-cover" />
-            </div>
-
-            {/* Text */}
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] mb-4" style={{ color: '#FF5A5F' }}>Earn with your space</p>
-              <h2
-                className="mb-5"
-                style={{
-                  fontFamily: "'Poppins', sans-serif",
-                  fontWeight: 800,
-                  fontSize: 'clamp(1.8rem, 3vw, 2.6rem)',
-                  lineHeight: 1.15,
-                  color: '#1C1C1E',
-                }}
-              >
-                Your property,<br />your income stream.
-              </h2>
-              <p className="mb-8 leading-relaxed" style={{ color: '#6C6C70', fontSize: '1rem', maxWidth: 420 }}>
-                List for free and connect with thousands of vetted travellers. You control the pricing, schedule, and house rules — we handle everything else.
-              </p>
-
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {[
-                  { val: '$1,900', lab: 'Avg. monthly income' },
-                  { val: '48 hrs', lab: 'Time to first booking' },
-                  { val: '0%',    lab: 'Listing fee' },
-                  { val: '96%',   lab: 'Host satisfaction' },
-                ].map((s, i) => (
-                  <div
-                    key={i}
-                    className="rounded-xl p-4"
-                    style={{ background: '#FFFFFF', border: '1.5px solid #E5E5E5' }}
-                  >
-                    <p
-                      className="font-extrabold mb-0.5"
-                      style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.4rem', color: '#1C1C1E' }}
-                    >
-                      {s.val}
-                    </p>
-                    <p className="text-xs" style={{ color: '#8E8E93' }}>{s.lab}</p>
-                  </div>
-                ))}
-              </div>
-
-              <Link
-                to="/host/dashboard"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: '#1C1C1E' }}
-              >
-                Start listing your space <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
           </div>
         </div>
       </section>

@@ -4,7 +4,7 @@ import {
   MapPin, Clock, CreditCard, Eye,
   AlertTriangle,
 } from 'lucide-react';
-import { bookings as initialBookings } from '../../../data/mockData';
+import { useBookings, useUpdateBooking } from '../../../features/bookings/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 
@@ -306,7 +306,9 @@ function Toast({ message, type }: { message: string; type: 'success' | 'error' }
 
 /* ─── Main page ──────────────────────────────────────────────────────── */
 export function AdminBookings() {
-  const [bookingList, setBookingList] = useState<Booking[]>(initialBookings as Booking[]);
+  const { data: bookings = [], isLoading: loadingBookings } = useBookings();
+  const updateBookingMutation = useUpdateBooking();
+
   const [search,        setSearch]        = useState('');
   const [filterStatus,  setFilterStatus]  = useState<BookingStatus | 'all'>('all');
   const [viewBooking,   setViewBooking]   = useState<Booking | null>(null);
@@ -318,12 +320,8 @@ export function AdminBookings() {
     setTimeout(() => setToast(null), 3200);
   };
 
-  const updateStatus = (id: string, status: BookingStatus) => {
-    setBookingList(prev => prev.map(b => b.id === id ? { ...b, status } : b));
-  };
-
   const handleConfirm = (booking: Booking) => {
-    updateStatus(booking.id, 'confirmed');
+    updateBookingMutation.mutate({ id: booking.id, data: { status: 'CONFIRMED' } });
     setViewBooking(null);
     showToast(`Booking ${booking.id} confirmed successfully.`);
   };
@@ -335,16 +333,16 @@ export function AdminBookings() {
 
   const handleConfirmCancel = (reason: string) => {
     if (!cancelBooking) return;
-    updateStatus(cancelBooking.id, 'cancelled');
+    updateBookingMutation.mutate({ id: cancelBooking.id, data: { status: 'CANCELLED' } });
     setCancelBooking(null);
     showToast(`Booking ${cancelBooking.id} has been cancelled.`);
   };
 
-  const filtered = bookingList.filter(b => {
-    const matchSearch = b.guest.toLowerCase().includes(search.toLowerCase()) ||
-      b.propertyTitle.toLowerCase().includes(search.toLowerCase()) ||
+  const filtered = bookings.filter(b => {
+    const matchSearch = (b.guest?.toLowerCase().includes(search.toLowerCase()) || false) ||
+      (b.propertyTitle?.toLowerCase().includes(search.toLowerCase()) || false) ||
       b.id.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === 'all' || b.status === filterStatus;
+    const matchStatus = filterStatus === 'all' || b.status.toLowerCase() === filterStatus;
     return matchSearch && matchStatus;
   });
 
@@ -352,11 +350,11 @@ export function AdminBookings() {
     usePagination(filtered, { defaultPerPage: 8 });
 
   const counts = {
-    all:       bookingList.length,
-    confirmed: bookingList.filter(b => b.status === 'confirmed').length,
-    pending:   bookingList.filter(b => b.status === 'pending').length,
-    completed: bookingList.filter(b => b.status === 'completed').length,
-    cancelled: bookingList.filter(b => b.status === 'cancelled').length,
+    all:       bookings.length,
+    confirmed: bookings.filter(b => b.status.toLowerCase() === 'confirmed').length,
+    pending:   bookings.filter(b => b.status.toLowerCase() === 'pending').length,
+    completed: bookings.filter(b => b.status.toLowerCase() === 'completed').length,
+    cancelled: bookings.filter(b => b.status.toLowerCase() === 'cancelled').length,
   };
 
   return (
@@ -423,15 +421,37 @@ export function AdminBookings() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EBEBEB]">
-              {paginatedItems.length === 0 && (
+              {loadingBookings ? (
+                [1,2,3,4,5].map(i => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-[#F0F0F0] rounded-full shrink-0" />
+                        <div className="h-4 bg-[#F0F0F0] rounded w-24" />
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-[#F0F0F0] rounded-lg shrink-0" />
+                        <div className="h-4 bg-[#F0F0F0] rounded w-32" />
+                      </div>
+                    </td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-40" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-8" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-12" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-24" /></td>
+                  </tr>
+                ))
+              ) : paginatedItems.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-5 py-12 text-center text-sm" style={{ color: '#AAAAAA' }}>
                     No bookings match your search.
                   </td>
                 </tr>
-              )}
-              {paginatedItems.map((booking: Booking) => {
-                const s = STATUS[booking.status];
+              ) : paginatedItems.map((booking: Booking) => {
+                const s = STATUS[booking.status.toLowerCase() as BookingStatus] || STATUS.pending;
                 return (
                   <tr key={booking.id} className="hover:bg-[#FFFAF9] transition-colors">
                     <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#FF385C' }}>{booking.id}</td>

@@ -1,7 +1,6 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import {
-  Shield, Bell, CreditCard, Globe, Trash2, Download,
-  ChevronRight, Smartphone, Monitor, LogOut, AlertTriangle, Save
+  Shield, Bell, CreditCard, Globe, ChevronRight, Save
 } from 'lucide-react';
 
 const settingsSections = [
@@ -11,15 +10,8 @@ const settingsSections = [
   { id: 'privacy', label: 'Privacy & Data', icon: Globe },
 ];
 
-const activeSessions = [
-  { device: 'MacBook Pro', location: 'Kigali, Rwanda', lastActive: 'Active now', browser: 'Chrome 124', current: true },
-  { device: 'iPhone 15', location: 'Kigali, Rwanda', lastActive: '2 hours ago', browser: 'Safari Mobile', current: false },
-  { device: 'Windows PC', location: 'Nairobi, Kenya', lastActive: '3 days ago', browser: 'Firefox 125', current: false },
-];
-
 export function HostSettings() {
   const [activeSection, setActiveSection] = useState('account');
-  const [twoFactor, setTwoFactor] = useState(false);
   const [saved, setSaved] = useState(false);
   const [currency, setCurrency] = useState('USD');
   const [language, setLanguage] = useState('English');
@@ -82,130 +74,46 @@ export function HostSettings() {
 
           {/* Account & Security */}
           {activeSection === 'account' && (
-            <>
-              <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6">
-                <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Account Preferences</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-[#222222] text-sm font-semibold mb-2">Display Language</label>
-                    <select value={language} onChange={e => setLanguage(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] bg-white transition-colors">
-                      <option>English</option>
-                      <option>French</option>
-                      <option>Kinyarwanda</option>
-                      <option>Swahili</option>
-                      <option>Spanish</option>
-                      <option>Arabic</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[#222222] text-sm font-semibold mb-2">Currency</label>
-                    <select value={currency} onChange={e => setCurrency(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] bg-white transition-colors">
-                      <option value="USD">USD – US Dollar</option>
-                      <option value="EUR">EUR – Euro</option>
-                      <option value="GBP">GBP – British Pound</option>
-                      <option value="RWF">RWF – Rwandan Franc</option>
-                      <option value="KES">KES – Kenyan Shilling</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[#222222] text-sm font-semibold mb-2">Timezone</label>
-                    <select value={timezone} onChange={e => setTimezone(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] bg-white transition-colors">
-                      <option value="Africa/Kigali">Africa/Kigali (UTC+2)</option>
-                      <option value="Africa/Nairobi">Africa/Nairobi (UTC+3)</option>
-                      <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
-                      <option value="America/New_York">America/New_York (UTC-5)</option>
-                      <option value="UTC">UTC (UTC+0)</option>
-                    </select>
-                  </div>
-                  <button onClick={handleSave} className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors">
-                    <Save className="w-4 h-4" />
-                    {saved ? '✓ Saved!' : 'Save Preferences'}
-                  </button>
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6">
+              <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Account Preferences</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[#222222] text-sm font-semibold mb-2">Display Language</label>
+                  <select value={language} onChange={e => setLanguage(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] bg-white transition-colors">
+                    <option>English</option>
+                    <option>French</option>
+                    <option>Kinyarwanda</option>
+                    <option>Swahili</option>
+                    <option>Spanish</option>
+                    <option>Arabic</option>
+                  </select>
                 </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6">
-                <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Security</h2>
-                <div className="space-y-4">
-                  {/* 2FA */}
-                  <div className="flex items-start justify-between gap-4 p-4 rounded-xl border border-[#EBEBEB]">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: twoFactor ? '#E6F7F6' : '#F7F7F7' }}>
-                        <Smartphone className="w-5 h-5" style={{ color: twoFactor ? '#00A699' : '#717171' }} />
-                      </div>
-                      <div>
-                        <p className="text-[#222222] font-semibold text-sm">Two-Factor Authentication</p>
-                        <p className="text-[#717171] text-xs mt-0.5">Add an extra layer of security to your account using your phone.</p>
-                        <span className={`inline-block mt-1.5 text-xs font-semibold px-2 py-0.5 rounded-full ${twoFactor ? 'bg-green-50 text-green-700' : 'bg-[#FFF1F3] text-[#FF385C]'}`}>
-                          {twoFactor ? '✓ Enabled' : 'Not enabled'}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setTwoFactor(!twoFactor)}
-                      className="relative w-11 h-6 rounded-full shrink-0 transition-colors mt-1"
-                      style={{ background: twoFactor ? '#FF385C' : '#DDDDDD' }}
-                    >
-                      <span className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all" style={{ left: twoFactor ? '1.375rem' : '0.125rem' }} />
-                    </button>
-                  </div>
-
-                  {/* Active Sessions */}
-                  <div>
-                    <p className="text-[#222222] font-semibold text-sm mb-3">Active Sessions</p>
-                    <div className="space-y-3">
-                      {activeSessions.map((s, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-[#EBEBEB]">
-                          <div className="w-9 h-9 rounded-xl bg-[#F7F7F7] flex items-center justify-center shrink-0">
-                            <Monitor className="w-4 h-4 text-[#717171]" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-[#222222] text-sm font-semibold">{s.device}</p>
-                              {s.current && <span className="text-xs bg-green-50 text-green-700 font-semibold px-2 py-0.5 rounded-full">Current</span>}
-                            </div>
-                            <p className="text-[#717171] text-xs">{s.browser} · {s.location} · {s.lastActive}</p>
-                          </div>
-                          {!s.current && (
-                            <button className="text-xs text-[#FF385C] font-semibold hover:underline">
-                              <LogOut className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <button className="mt-3 text-sm text-[#FF385C] font-semibold hover:underline">Sign out all other sessions</button>
-                  </div>
+                <div>
+                  <label className="block text-[#222222] text-sm font-semibold mb-2">Currency</label>
+                  <select value={currency} onChange={e => setCurrency(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] bg-white transition-colors">
+                    <option value="USD">USD – US Dollar</option>
+                    <option value="EUR">EUR – Euro</option>
+                    <option value="GBP">GBP – British Pound</option>
+                    <option value="RWF">RWF – Rwandan Franc</option>
+                    <option value="KES">KES – Kenyan Shilling</option>
+                  </select>
                 </div>
-              </div>
-
-              {/* Danger Zone */}
-              <div className="bg-white rounded-2xl border border-red-100 p-6">
-                <h2 className="text-red-600 font-semibold mb-4 flex items-center gap-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  <AlertTriangle className="w-4 h-4" /> Danger Zone
-                </h2>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-red-100 bg-red-50">
-                    <div>
-                      <p className="text-[#222222] text-sm font-semibold">Download My Data</p>
-                      <p className="text-[#717171] text-xs mt-0.5">Export all your account data and listing history.</p>
-                    </div>
-                    <button className="flex items-center gap-2 text-sm font-semibold text-[#484848] border border-[#DDDDDD] px-4 py-2 rounded-xl hover:bg-white transition-colors bg-white">
-                      <Download className="w-4 h-4" /> Export
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-red-200 bg-red-50">
-                    <div>
-                      <p className="text-red-600 text-sm font-semibold">Delete Account</p>
-                      <p className="text-[#717171] text-xs mt-0.5">Permanently delete your account and all associated data.</p>
-                    </div>
-                    <button className="flex items-center gap-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl transition-colors">
-                      <Trash2 className="w-4 h-4" /> Delete
-                    </button>
-                  </div>
+                <div>
+                  <label className="block text-[#222222] text-sm font-semibold mb-2">Timezone</label>
+                  <select value={timezone} onChange={e => setTimezone(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] bg-white transition-colors">
+                    <option value="Africa/Kigali">Africa/Kigali (UTC+2)</option>
+                    <option value="Africa/Nairobi">Africa/Nairobi (UTC+3)</option>
+                    <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
+                    <option value="America/New_York">America/New_York (UTC-5)</option>
+                    <option value="UTC">UTC (UTC+0)</option>
+                  </select>
                 </div>
+                <button onClick={handleSave} className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors">
+                  <Save className="w-4 h-4" />
+                  {saved ? '✓ Saved!' : 'Save Preferences'}
+                </button>
               </div>
-            </>
+            </div>
           )}
 
           {/* Notifications */}

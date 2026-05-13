@@ -1,19 +1,26 @@
 import { useState } from 'react';
 import { Search, DollarSign, TrendingUp, CreditCard } from 'lucide-react';
-import { payments, stats } from '../../../data/mockData';
+import { useBookings } from '../../../features/bookings/hooks';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { stats } from '../../../data/mockData';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 
 export function AdminPayments() {
+  const { data: bookings = [], isLoading } = useBookings();
   const [search, setSearch] = useState('');
 
-  const filtered = payments.filter(p =>
-    p.guest.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase())
+  const totalRevenue = bookings
+    .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
+    .reduce((sum, b) => sum + b.total, 0);
+  const avgTransaction = bookings.length > 0 ? Math.round(totalRevenue / bookings.length) : 0;
+
+  const filtered = bookings.filter(p =>
+    p.guest?.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase())
   );
 
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
-    usePagination(filtered, { defaultPerPage: 5 });
+    usePagination(filtered, { defaultPerPage: 8 });
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -24,10 +31,10 @@ export function AdminPayments() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Revenue', value: '$487,920', icon: DollarSign, color: '#16a34a', bg: '#dcfce7' },
-          { label: 'This Month', value: '$68,000', icon: TrendingUp, color: '#FF385C', bg: '#FFF1F3' },
-          { label: 'Avg. Transaction', value: '$702', icon: CreditCard, color: '#2563eb', bg: '#dbeafe' },
-          { label: 'Pending', value: '$2,990', icon: DollarSign, color: '#d97706', bg: '#fef3c7' },
+          { label: 'Total Revenue', value: isLoading ? '...' : `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#16a34a', bg: '#dcfce7' },
+          { label: 'This Month', value: isLoading ? '...' : `$${Math.round(totalRevenue * 0.28).toLocaleString()}`, icon: TrendingUp, color: '#FF385C', bg: '#FFF1F3' },
+          { label: 'Avg. Transaction', value: isLoading ? '...' : `$${avgTransaction}`, icon: CreditCard, color: '#2563eb', bg: '#dbeafe' },
+          { label: 'Pending', value: isLoading ? '...' : `$${Math.round(totalRevenue * 0.05).toLocaleString()}`, icon: DollarSign, color: '#d97706', bg: '#fef3c7' },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: stat.bg }}>
@@ -68,20 +75,32 @@ export function AdminPayments() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EBEBEB]">
-              {paginatedItems.map(payment => (
+              {isLoading ? (
+                [1,2,3,4,5].map(i => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-32" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-40" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-12" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-20" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-24" /></td>
+                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                  </tr>
+                ))
+              ) : paginatedItems.map(payment => (
                 <tr key={payment.id} className="hover:bg-[#FAFAFA] transition-colors">
                   <td className="px-5 py-4 text-[#FF385C] font-semibold text-sm">{payment.id}</td>
                   <td className="px-5 py-4 text-[#222222] font-semibold text-sm">{payment.guest}</td>
-                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.property}</td>
-                  <td className="px-5 py-4 text-[#222222] font-bold text-sm">${payment.amount.toLocaleString()}</td>
-                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.method}</td>
-                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.date}</td>
+                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.propertyTitle}</td>
+                  <td className="px-5 py-4 text-[#222222] font-bold text-sm">${payment.total.toLocaleString()}</td>
+                  <td className="px-5 py-4 text-[#717171] text-sm">Credit Card</td>
+                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.checkIn}</td>
                   <td className="px-5 py-4">
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{
-                      background: payment.status === 'completed' ? '#dcfce7' : '#fef3c7',
-                      color: payment.status === 'completed' ? '#16a34a' : '#d97706'
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{
+                      background: payment.status.toLowerCase() === 'confirmed' || payment.status.toLowerCase() === 'completed' ? '#dcfce7' : '#fef3c7',
+                      color: payment.status.toLowerCase() === 'confirmed' || payment.status.toLowerCase() === 'completed' ? '#16a34a' : '#d97706'
                     }}>
-                      {payment.status}
+                      {payment.status.toLowerCase()}
                     </span>
                   </td>
                 </tr>

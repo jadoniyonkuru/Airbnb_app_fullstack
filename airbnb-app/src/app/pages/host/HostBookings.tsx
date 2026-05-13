@@ -1,4 +1,4 @@
-import { bookings } from '../../../data/mockData';
+import { useBookings } from '../../../features/bookings/hooks';
 import { MapPin, Calendar } from 'lucide-react';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
@@ -11,6 +11,7 @@ const statusConfig: Record<string, { color: string; bg: string }> = {
 };
 
 export function HostBookings() {
+  const { data: bookings = [], isLoading } = useBookings();
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
     usePagination(bookings, { defaultPerPage: 4 });
 

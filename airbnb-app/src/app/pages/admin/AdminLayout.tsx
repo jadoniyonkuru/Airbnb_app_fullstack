@@ -45,7 +45,7 @@ const navSections = [
     ],
   },
 ];
-const SIDEBAR_BG = '#FF385C';
+const SIDEBAR_BG = '#FF5A5F';
 
 export function AdminLayout() {
   const { user } = useAuth();
@@ -115,7 +115,7 @@ export function AdminLayout() {
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <span className="text-white font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                Stay<span style={{ color: '#FF385C' }}>Bnb</span>
+                Stay<span style={{ color: '#FF385C' }}>Ease</span>
               </span>
               <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.65rem', lineHeight: 1, marginTop: 2 }}>Admin Panel</p>
             </div>
@@ -337,9 +337,9 @@ export function AdminLayout() {
               )}
             </div>
 
-            {/* Profile */}
+            {/* Profile - clicking goes to dashboard */}
             <Link
-              to="/admin-dashboard/profile"
+              to="/admin-dashboard"
               className="flex items-center gap-2 rounded-xl px-3 py-2 transition-colors border"
               style={{
                 backgroundColor: '#FFF1F3',
