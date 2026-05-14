@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Navbar } from '../components/layout/Navbar';
 import { HeroSearch } from '../components/shared/HeroSearch';
-import { testimonials } from '../../data/mockData';
+import { useAllReviews } from '../../features/reviews/hooks';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { useListings } from '../../features/listings/hooks';
@@ -369,37 +369,34 @@ export function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div
-                key={t.id}
-                className="bg-white rounded-2xl p-7"
-                style={{ border: '1.5px solid #EBEBEB' }}
-              >
-                <div className="flex gap-0.5 mb-5">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4" style={{ fill: '#F5A623', color: '#F5A623' }} />
-                  ))}
-                </div>
-                <p
-                  className="text-sm leading-relaxed mb-6"
-                  style={{ color: '#3C3C3E', fontStyle: 'italic', lineHeight: 1.75 }}
-                >
-                  "{t.comment}"
-                </p>
-                <div className="flex items-center gap-3 pt-5" style={{ borderTop: '1px solid #F2F2F2' }}>
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-                    style={{ background: '#1C1C1E' }}
-                  >
-                    {t.avatar}
+            {(() => {
+              const { data: reviews = [] } = useAllReviews();
+              return (reviews || []).slice(0, 3).map((t: any) => {
+                const initials = (t.user?.name || t.user?.email || 'G').split(' ').map((s: string) => s[0]).slice(0,2).join('').toUpperCase();
+                const rating = t.rating ?? 5;
+                return (
+                  <div key={t.id} className="bg-white rounded-2xl p-7" style={{ border: '1.5px solid #EBEBEB' }}>
+                    <div className="flex gap-0.5 mb-5">
+                      {Array.from({ length: rating }).map((_, i) => (
+                        <Star key={i} className="w-4 h-4" style={{ fill: '#F5A623', color: '#F5A623' }} />
+                      ))}
+                    </div>
+                    <p className="text-sm leading-relaxed mb-6" style={{ color: '#3C3C3E', fontStyle: 'italic', lineHeight: 1.75 }}>
+                      "{t.comment || t.body || 'Great stay!'}"
+                    </p>
+                    <div className="flex items-center gap-3 pt-5" style={{ borderTop: '1px solid #F2F2F2' }}>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ background: '#1C1C1E' }}>
+                        {initials}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: '#1C1C1E' }}>{t.user?.name ?? t.user?.email}</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#8E8E93' }}>{t.user?.location ?? t.location} · {t.listing?.title ?? t.property}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: '#1C1C1E' }}>{t.name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: '#8E8E93' }}>{t.location} · {t.property}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+                );
+              });
+            })()}
           </div>
         </div>
       </section>

@@ -15,7 +15,7 @@ const reviews = [
     comment: 'Amazing place! Very clean and comfortable. The host was incredibly helpful and responsive throughout the entire stay. The apartment is exactly as described and the location is perfect.',
     replied: false,
     helpful: 12,
-    stayDates: 'Apr 20 – Apr 25, 2026',
+    stayDates: 'Apr 20 ï¿½ Apr 25, 2026',
   },
   {
     id: 'R002',
@@ -29,7 +29,7 @@ const reviews = [
     replied: true,
     replyText: "Thank you so much, Marie! It was a pleasure hosting you. Glad you enjoyed the garden! We're working on the parking situation.",
     helpful: 8,
-    stayDates: 'Apr 14 – Apr 18, 2026',
+    stayDates: 'Apr 14 ï¿½ Apr 18, 2026',
   },
   {
     id: 'R003',
@@ -43,11 +43,11 @@ const reviews = [
     replied: true,
     replyText: "Thank you Lucas! So happy you had a great time. You're welcome back anytime!",
     helpful: 15,
-    stayDates: 'Apr 5 – Apr 10, 2026',
+    stayDates: 'Apr 5 ï¿½ Apr 10, 2026',
   },
   {
     id: 'R004',
-    property: 'Executive Studio — Kimihurura',
+    property: 'Executive Studio ï¿½ Kimihurura',
     propertyImg: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&h=60&fit=crop',
     guest: 'Thabo Nkosi',
     guestAvatar: 'PP',
@@ -56,7 +56,7 @@ const reviews = [
     comment: 'The executive suite exceeded all expectations. Perfect for a business trip with fast WiFi and a dedicated workspace. Highly recommended for professionals visiting Kigali.',
     replied: false,
     helpful: 9,
-    stayDates: 'Mar 26 – Mar 30, 2026',
+    stayDates: 'Mar 26 ï¿½ Mar 30, 2026',
   },
   {
     id: 'R005',
@@ -66,11 +66,11 @@ const reviews = [
     guestAvatar: 'OB',
     rating: 3,
     date: 'March 20, 2026',
-    comment: 'The cottage is nice but had a few maintenance issues — the hot water was inconsistent. The host was quick to address it but took a day to fix. Good location though.',
+    comment: 'The cottage is nice but had a few maintenance issues ï¿½ the hot water was inconsistent. The host was quick to address it but took a day to fix. Good location though.',
     replied: true,
     replyText: "Hi Oliver, I sincerely apologize for the hot water issue. We've since replaced the water heater. Thank you for bringing it to my attention!",
     helpful: 4,
-    stayDates: 'Mar 17 – Mar 20, 2026',
+    stayDates: 'Mar 17 ï¿½ Mar 20, 2026',
   },
 ];
 
@@ -128,7 +128,6 @@ export function HostReviews() {
             ))}
           </div>
           <p className="text-[#717171] text-sm">{reviews.length} total reviews</p>
-          <span className="mt-3 text-xs font-semibold bg-green-50 text-green-700 px-3 py-1 rounded-full">? Superhost Eligible</span>
         </div>
 
         {/* Rating Breakdown */}

@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, Star, Eye, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { useListings, useDeleteListing } from '../../../features/listings/hooks';
+import { useAuth } from '../../context/AuthContext';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 
 import img0 from '../../../imports/image.png';
@@ -15,6 +16,11 @@ const imgs = [img0, img1, img2, img3, img4];
 
 export function MyListings() {
   const { data: hostListings = [], isLoading } = useListings();
+  const { user } = useAuth();
+  const myListings = (hostListings || []).filter(l => {
+    const hostName = (l.host || '').toString();
+    return user ? (hostName === user.name || hostName === user.email) : false;
+  });
   const deleteListingMutation = useDeleteListing();
   const [statuses, setStatuses] = useState<Record<string, boolean>>({});
   const [deleteModal, setDeleteModal] = useState<{ id: string; title: string } | null>(null);
@@ -48,7 +54,7 @@ export function MyListings() {
             </div>
           ))
         ) : (
-        hostListings.map((listing, idx) => (
+        myListings.map((listing, idx) => (
           <div key={listing.id} className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-lg transition-all">
             <div className="relative">
               <img src={listing.image || (imgs[idx % imgs.length] as string)} alt={listing.title} className="w-full h-48 object-cover" />

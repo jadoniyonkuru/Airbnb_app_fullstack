@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Star, CheckCircle, XCircle, Flag } from 'lucide-react';
-import { reviews } from '../../../data/mockData';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
+import { useAllReviews } from '../../../features/reviews/hooks';
 
 export function AdminReviews() {
+  const { data: reviews = [] } = useAllReviews();
   const [reviewStatuses, setReviewStatuses] = useState<Record<string, string>>(
-    Object.fromEntries(reviews.map(r => [r.id, r.status]))
+    Object.fromEntries((reviews || []).map((r: any) => [r.id, r.status || 'pending']))
   );
 
   const approve = (id: string) => setReviewStatuses(prev => ({ ...prev, [id]: 'approved' }));

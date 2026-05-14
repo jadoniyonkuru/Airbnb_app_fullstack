@@ -1,4 +1,4 @@
-import { stats } from '../../../data/mockData';
+import { useListingStats } from '../../../features/statistics/hooks';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell
@@ -15,6 +15,8 @@ export function AdminReports() {
   const { data: bookings = [], isLoading: loadingBookings } = useBookings();
   const { data: users = [], isLoading: loadingUsers } = useUsers();
   const { data: listings = [], isLoading: loadingListings } = useListings();
+  const { data: listingStats } = useListingStats();
+  const stats = listingStats ?? { monthlyRevenue: [], userGrowth: [], categoryRevenue: [] };
 
   const totalRevenue = bookings
     .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')

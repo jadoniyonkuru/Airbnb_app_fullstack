@@ -16,6 +16,7 @@ import {
   Tooltip, ResponsiveContainer
 } from 'recharts';
 import { Link } from 'react-router';
+import AIRecommendations from '../../components/ai/AIRecommendations';
 import { useState, useId } from 'react';
 
 const propertyImages = [
@@ -141,11 +142,15 @@ export function HostDashboard() {
                 <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
               </div>
               <div>
-                <p className="text-[#222222] font-semibold text-sm">Superhost Status</p>
-                <p className="text-[#717171] text-xs">You qualify! </p>
+                <p className="text-[#222222] font-semibold text-sm">Host Status</p>
+                <p className="text-[#717171] text-xs">Good standing</p>
               </div>
             </div>
           </div>
+        </div>
+        {/* AI Recommendations */}
+        <div>
+          <AIRecommendations />
         </div>
       </div>
 

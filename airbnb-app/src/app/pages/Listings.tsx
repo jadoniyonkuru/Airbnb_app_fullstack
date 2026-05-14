@@ -179,7 +179,7 @@ function MapCard({
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const badge = p.rating >= 4.9 ? 'Superhost' : p.reviews > 150 ? 'Guest favourite' : null;
+  const badge = p.rating >= 4.9 ? 'Top rated' : p.reviews > 150 ? 'Guest favourite' : null;
 
   return (
     <div ref={cardRef} onMouseEnter={() => onHover(p.id)} onMouseLeave={() => onHover(null)}>

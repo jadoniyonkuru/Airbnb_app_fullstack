@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { HostDashboard } from './host/HostDashboard';
 import { AdminDashboard } from './admin/AdminDashboard';
+import { UserDashboard } from './user/UserDashboard';
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -10,7 +11,9 @@ export function Dashboard() {
       return <AdminDashboard />;
     case 'HOST':
       return <HostDashboard />;
+    case 'GUEST':
+      return <UserDashboard />;
     default:
-      return <HostDashboard />;
+      return <UserDashboard />;
   }
 }

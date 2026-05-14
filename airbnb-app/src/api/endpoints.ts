@@ -36,9 +36,9 @@ export const ENDPOINTS = {
   // AI
   AI_SEARCH:       '/ai/search',
   AI_CHAT:         '/ai/chat',
-  AI_REVIEW_SUMMARY: (listingId: string) => `/ai/reviews/${listingId}/summary`,
-  AI_GENERATE_DESC: '/ai/generate-description',
-  AI_RECOMMENDATIONS: '/ai/recommendations',
+  AI_REVIEW_SUMMARY: (listingId: string) => `/ai/listings/${listingId}/review-summary`,
+  AI_GENERATE_DESC: (listingId: string) => `/ai/listings/${listingId}/generate-description`,
+  AI_RECOMMENDATIONS: '/ai/recommend',
 
   // Statistics
   STATS_LISTINGS:  '/statistics/listings',

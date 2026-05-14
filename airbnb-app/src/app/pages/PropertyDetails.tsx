@@ -3,6 +3,8 @@ import { Navbar } from '../components/layout/Navbar';
 import { Star, Users, Bed, Bath, Wifi, Car, Wind, Utensils, MapPin, Share, Heart, ChevronLeft, Check, ArrowRight } from 'lucide-react';
 import { useListing } from '../../features/listings/hooks';
 import { useAuth } from '../context/AuthContext';
+import ReviewSummary from '../components/ai/ReviewSummary';
+import AIChat from '../components/ai/AIChat';
 
 export function PropertyDetails() {
   const { id } = useParams();
@@ -153,7 +155,7 @@ export function PropertyDetails() {
             <div className="border-b border-[#EBEBEB] pb-6 mb-6">
               <div className="space-y-4">
                 {[
-                  { icon: Star, title: 'Superhost', desc: 'Experienced, highly-rated host committed to great stays.' },
+                  { icon: Star, title: 'Top Host', desc: 'Experienced, highly-rated host committed to great stays.' },
                   { icon: Check, title: 'Self check-in', desc: 'Check yourself in with a lockbox.' },
                   { icon: MapPin, title: `${property.location}`, desc: 'Great location, loved by previous guests.' },
                 ].map((item, i) => (
@@ -217,6 +219,9 @@ export function PropertyDetails() {
                 ))}
               </div>
             </div>
+            <div className="mt-6">
+              <ReviewSummary listingId={property.id} />
+            </div>
           </div>
 
           {/* Right: Booking Card */}
@@ -270,6 +275,9 @@ export function PropertyDetails() {
                   <span>${total}</span>
                 </div>
               </div>
+            </div>
+            <div className="mt-6">
+              <AIChat listingId={property.id} />
             </div>
           </div>
         </div>

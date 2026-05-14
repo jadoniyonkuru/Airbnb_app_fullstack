@@ -4,34 +4,48 @@ import { toast } from 'sonner';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
+import { useUsers } from '../../../features/users/hooks';
 
-type HostStatus = 'superhost' | 'active' | 'pending' | 'suspended';
+type HostStatus = 'top' | 'active' | 'pending' | 'suspended';
 
 const statusConfig = {
-  superhost: { label: 'Superhost', color: '#d97706', bg: '#fffbeb', Icon: Star },
+  top:       { label: 'Top Host', color: '#d97706', bg: '#fffbeb', Icon: Star },
   active:    { label: 'Active',    color: '#16a34a', bg: '#f0fdf4', Icon: CheckCircle },
   pending:   { label: 'Pending',   color: '#d97706', bg: '#fffbeb', Icon: AlertCircle },
   suspended: { label: 'Suspended', color: '#dc2626', bg: '#fef2f2', Icon: XCircle },
 };
 
-const hosts = [
-  { id: '1', name: 'Claudine Uwera',  email: 'claudine.u@email.com',  avatar: 'CU', location: 'Kigali, Rwanda',          listings: 3, bookings: 24, revenue: 4820,  rating: 4.9,  reviews: 127, status: 'superhost' as HostStatus, joined: 'Jan 2024', verified: true,  responseRate: '99%', responseTime: 'Within 1 hour' },
-  { id: '2', name: 'Boniface Mwamba',   email: 'b.mwamba@email.com',   avatar: 'BM', location: 'Nairobi, Kenya',           listings: 2, bookings: 18, revenue: 6240,  rating: 5.0,  reviews: 89,  status: 'superhost' as HostStatus, joined: 'Feb 2024', verified: true,  responseRate: '97%', responseTime: 'Within 2 hours' },
-  { id: '3', name: 'Isabelle Renard',   email: 'isabelle.r@email.com',  avatar: 'IR', location: 'Paris, France',            listings: 1, bookings: 31, revenue: 3720,  rating: 4.8,  reviews: 203, status: 'active'    as HostStatus, joined: 'Nov 2023', verified: true,  responseRate: '95%', responseTime: 'Within 3 hours' },
-  { id: '4', name: 'Marcus Thompson', email: 'm.thompson@email.com',avatar: 'MT', location: 'New York, USA',            listings: 4, bookings: 42, revenue: 14700, rating: 4.95, reviews: 156, status: 'superhost' as HostStatus, joined: 'Sep 2023', verified: true,  responseRate: '98%', responseTime: 'Within 1 hour' },
-  { id: '5', name: 'Fatuma Ally',   email: 'fatuma.a@email.com',  avatar: 'FA', location: 'Zanzibar, Tanzania',           listings: 2, bookings: 15, revenue: 2700,  rating: 4.85, reviews: 94,  status: 'active'    as HostStatus, joined: 'Mar 2024', verified: true,  responseRate: '92%', responseTime: 'Within 6 hours' },
-  { id: '6', name: 'Thabo Nkosi',    email: 't.nkosi@email.com',  avatar: 'TN', location: 'Cape Town, South Africa',            listings: 1, bookings: 22, revenue: 5400,  rating: 4.7,  reviews: 78,  status: 'pending'   as HostStatus, joined: 'Feb 2024', verified: false, responseRate: '88%', responseTime: 'Within 12 hours' },
-  { id: '7', name: 'Hans Weber',     email: 'h.weber@email.com',  avatar: 'HW', location: 'Swiss Alps, Switzerland',  listings: 1, bookings: 12, revenue: 8400,  rating: 4.92, reviews: 58,  status: 'active'    as HostStatus, joined: 'Jan 2024', verified: true,  responseRate: '96%', responseTime: 'Within 2 hours' },
-  { id: '8', name: 'Amara Osei',     email: 'a.osei@email.com',   avatar: 'AO', location: 'Cape Town, South Africa',  listings: 1, bookings: 19, revenue: 3705,  rating: 4.88, reviews: 112, status: 'suspended' as HostStatus, joined: 'Oct 2023', verified: true,  responseRate: '75%', responseTime: '>12 hours' },
-];
-
-type HostItem = typeof hosts[0];
+type HostItem = {
+  id: string; name: string; email: string; avatar?: string; location?: string;
+  listings?: number; bookings?: number; revenue?: number; rating?: number; reviews?: number;
+  status?: HostStatus; joined?: string; verified?: boolean; responseRate?: string; responseTime?: string;
+};
 
 export function AdminHosts() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<HostStatus | 'all'>('all');
   const [selectedHost, setSelectedHost] = useState<HostItem | null>(null);
   const [actionModal, setActionModal] = useState<{ host: HostItem; action: 'approve' | 'suspend' | 'reinstate' } | null>(null);
+  const { data: users = [], isLoading } = useUsers();
+
+  // derive hosts from users with role === 'HOST'
+  const hosts: HostItem[] = (users || []).filter((u: any) => u.role === 'HOST').map((u: any) => ({
+    id: u.id,
+    name: u.name ?? u.fullName ?? u.email,
+    email: u.email,
+    avatar: (u.name || u.email || 'H').slice(0,2).toUpperCase(),
+    location: u.location ?? u.profile?.location ?? 'Unknown',
+    listings: u.listingsCount ?? 0,
+    bookings: u.bookingsCount ?? 0,
+    revenue: u.revenue ?? 0,
+    rating: u.rating ?? 0,
+    reviews: u.reviewsCount ?? 0,
+    status: u.status === 'SUSPENDED' ? 'suspended' : u.verified ? 'active' : 'pending',
+    joined: new Date(u.createdAt || Date.now()).toLocaleDateString(),
+    verified: !!u.verified,
+    responseRate: u.responseRate ?? 'N/A',
+    responseTime: u.responseTime ?? 'N/A',
+  }));
 
   const filtered = hosts.filter(h => {
     if (statusFilter !== 'all' && h.status !== statusFilter) return false;
@@ -46,7 +60,7 @@ export function AdminHosts() {
 
   const summaryStats = [
     { label: 'Total Hosts',    value: hosts.length,                                    color: '#FF385C', change: '+12%' },
-    { label: 'Superhosts',     value: hosts.filter(h => h.status === 'superhost').length, color: '#d97706', change: '+5%' },
+    { label: 'Top Hosts',      value: hosts.filter(h => h.status === 'top').length,     color: '#d97706', change: '+5%' },
     { label: 'Pending Review', value: hosts.filter(h => h.status === 'pending').length,   color: '#d97706', change: 'New' },
     { label: 'Suspended',      value: hosts.filter(h => h.status === 'suspended').length, color: '#dc2626', change: '-2%' },
   ];
@@ -84,7 +98,7 @@ export function AdminHosts() {
           <Filter className="w-4 h-4 text-[#717171]" />
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as (HostStatus | 'all'))} className="text-sm text-[#222222] outline-none bg-transparent cursor-pointer">
             <option value="all">All Status</option>
-            <option value="superhost">Superhost</option>
+            <option value="top">Top Host</option>
             <option value="active">Active</option>
             <option value="pending">Pending</option>
             <option value="suspended">Suspended</option>
@@ -245,7 +259,7 @@ export function AdminHosts() {
                   Reinstate Host
                 </button>
               )}
-              {(selectedHost.status === 'active' || selectedHost.status === 'superhost') && (
+              {(selectedHost.status === 'active' || selectedHost.status === 'top') && (
                 <button
                   onClick={() => { setActionModal({ host: selectedHost, action: 'suspend' }); setSelectedHost(null); }}
                   className="flex-1 border border-red-200 text-red-500 hover:bg-red-50 py-2.5 rounded-xl text-sm font-semibold transition-colors"

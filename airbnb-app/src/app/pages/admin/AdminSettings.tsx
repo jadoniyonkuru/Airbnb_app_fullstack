@@ -326,7 +326,7 @@ export function AdminSettings() {
               <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>User Management Policies</h2>
               <div className="space-y-4">
                 {[
-                  { label: 'Auto-approve new host listings', desc: 'Skip manual review for listings from verified superhosts' },
+                  { label: 'Auto-approve new host listings', desc: 'Skip manual review for listings from verified top hosts' },
                   { label: 'ID verification required for hosts', desc: 'Hosts must submit government ID before listing' },
                   { label: 'Minimum age requirement (18+)', desc: 'Block registrations from users under 18' },
                   { label: 'Allow guests to message before booking', desc: 'Guests can contact hosts before making a reservation' },

@@ -1,10 +1,13 @@
 import { useState, useCallback, memo, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { Upload, MapPin, DollarSign, Users, Bed, Bath, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
-import { useUploadListingPhotos } from '../../../features/uploads/hooks';
+import { apiClient } from '../../../api/client';
+import { ENDPOINTS } from '../../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
+import { useCreateListing } from '../../../features/listings/hooks';
 
 const STEPS = ['Basic Info', 'Location', 'Details', 'Amenities', 'Photos', 'Pricing'];
 
@@ -73,14 +76,64 @@ export function AddListing() {
     setStep(step + 1);
   };
 
+  const { user } = useAuth();
+  const createListingMutation = useCreateListing();
+  const qc = useQueryClient();
+
+  const [fileObjects, setFileObjects] = useState<File[]>([]);
+
   const handleSubmit = useCallback(() => {
     if (!form.title.trim() || !form.description.trim() || !form.location.trim() || !form.address.trim() || !form.price.trim() || form.amenities.length === 0) {
       toast.error('Please fill in all required fields');
       return;
     }
-    toast.success('Property published successfully!');
-    navigate('/dashboard/listings');
-  }, [navigate, form]);
+
+    const mapTypeToEnum = (t: string) => {
+      const s = (t || '').toLowerCase();
+      if (s.includes('villa')) return 'VILLA';
+      if (s.includes('cabin')) return 'CABIN';
+      if (s.includes('house') || s.includes('town') || s.includes('bungalow')) return 'HOUSE';
+      return 'APARTMENT';
+    };
+
+    const payload = {
+      title: form.title,
+      description: form.description,
+      location: form.location,
+      pricePerNight: Number(form.price),
+      guests: Number(form.guests),
+      type: mapTypeToEnum(form.type || 'Apartment'),
+      amenities: form.amenities,
+    };
+
+    createListingMutation.mutate(payload as any, {
+      onSuccess: async (res: any) => {
+        try {
+          const listingId = res?.data?.id ?? res?.data?.data?.id ?? res?.id;
+          if (listingId && fileObjects.length > 0) {
+            const idStr = String(listingId);
+            const formData = new FormData();
+            fileObjects.slice(0, 5).forEach(f => formData.append('images', f));
+            await apiClient.post(ENDPOINTS.LISTING(idStr) + '/photos', formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            // invalidate listing-specific and listings list to refresh photos
+            qc.invalidateQueries({ queryKey: ['listings', idStr] });
+            qc.invalidateQueries({ queryKey: ['listings', {}] });
+          }
+        } catch (err) {
+          // photo upload failed, but listing exists — inform user
+          toast.warning('Listing created but photo upload failed. You can add photos from the listing page.');
+        }
+        toast.success('Property published successfully!');
+        navigate('/dashboard/listings');
+      },
+      onError: (err: any) => {
+        const message = err?.message ?? 'Failed to publish listing';
+        toast.error(message);
+      }
+    });
+  }, [form, createListingMutation, navigate]);
 
   const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, title: e.target.value }));
@@ -100,21 +153,17 @@ export function AddListing() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
 
-  const { user } = useAuth();
-  const uploadMutation = useUploadListingPhotos(user?.id ?? '');
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     setPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
-    uploadMutation.mutate(files, {
-      onSuccess: () => toast.success('Photos uploaded.'),
-      onError: () => toast.error('Failed to upload photos.'),
-    });
+    setFileObjects(prev => [...prev, ...files]);
     // clear input
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [uploadMutation]);
+  }, []);
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>

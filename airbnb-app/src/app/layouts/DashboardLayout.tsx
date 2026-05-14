@@ -45,8 +45,16 @@ export function DashboardLayout() {
   const [notifOpen, setNotifOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
-  const isAdmin = user?.role === 'ADMIN';
-  const menus = isAdmin ? adminMenus : hostMenus;
+    const isAdmin = user?.role === 'ADMIN';
+    const isHost = user?.role === 'HOST';
+    const userMenus = [
+      { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+      { label: 'My Trips', path: '/dashboard/bookings', icon: Calendar },
+      { label: 'Wishlist', path: '/dashboard/wishlist', icon: Home },
+      { label: 'Profile', path: '/dashboard/profile', icon: User },
+      { label: 'Settings', path: '/dashboard/settings', icon: Settings },
+    ];
+    const menus = isAdmin ? adminMenus : isHost ? hostMenus : userMenus;
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -102,7 +110,7 @@ export function DashboardLayout() {
                 </p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                  <p className="text-xs" style={{ color: '#717171' }}>{isAdmin ? 'Administrator' : 'Host · Superhost ⭐'}</p>
+                  <p className="text-xs" style={{ color: '#717171' }}>{isAdmin ? 'Administrator' : isHost ? 'Host' : 'Guest'}</p>
                 </div>
               </div>
             </div>
@@ -237,7 +245,7 @@ export function DashboardLayout() {
           <div className="flex items-center gap-2 text-sm" style={{ color: '#717171' }}>
             <Link to="/" className="hover:text-[#222222] transition-colors font-medium">StayEase</Link>
             <ChevronRight className="w-3 h-3" />
-            <span className="text-[#222222] font-medium capitalize">{isAdmin ? 'Admin' : 'Host'}</span>
+            <span className="text-[#222222] font-medium capitalize">{isAdmin ? 'Admin' : isHost ? 'Host' : 'Guest'}</span>
             <ChevronRight className="w-3 h-3" />
             <span style={{ color: '#FF385C', fontWeight: 600 }} className="capitalize">
               {location.pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}

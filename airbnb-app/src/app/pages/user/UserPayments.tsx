@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CreditCard, Plus, Trash2, CheckCircle, Clock } from 'lucide-react';
-import { payments } from '../../../data/mockData';
+import { useAuth } from '../../context/AuthContext';
+import { useUserBookings } from '../../../features/bookings/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 
@@ -16,8 +17,14 @@ const statusConfig: Record<string, { color: string; bg: string; label: string; i
 };
 
 export function UserPayments() {
+  const { user } = useAuth();
+  const { data: bookings = [] } = useUserBookings(user?.id ?? '');
+  const paymentsData = bookings
+    .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
+    .map(b => ({ id: b.id, property: b.listing?.title ?? 'Booking', date: b.createdAt, method: 'Booking', amount: b.total, status: b.status }));
+
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
-    usePagination(payments, { defaultPerPage: 6 });
+    usePagination(paymentsData, { defaultPerPage: 6 });
   const [savedCards, setSavedCards] = useState(paymentMethods);
 
   const removeCard = (id: string) => {

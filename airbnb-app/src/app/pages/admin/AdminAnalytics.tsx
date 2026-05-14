@@ -1,5 +1,5 @@
 import { useState, useId } from 'react';
-import { stats } from '../../../data/mockData';
+import { useListingStats, useUserStatsData } from '../../../features/statistics/hooks';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell,
@@ -54,6 +54,11 @@ export function AdminAnalytics() {
   const { data: bookings = [], isLoading: loadingBookings } = useBookings();
   const { data: users = [], isLoading: loadingUsers } = useUsers();
   const { data: listings = [], isLoading: loadingListings } = useListings();
+  const { data: listingStats } = useListingStats();
+  const { data: userStats } = useUserStatsData();
+  const stats = listingStats ?? userStats ?? {
+    monthlyRevenue: [], userGrowth: [],
+  };
 
   const totalRevenue = bookings
     .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')

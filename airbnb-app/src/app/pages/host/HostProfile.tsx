@@ -76,8 +76,7 @@ export function HostProfile() {
               </div>
               <p className="text-[#222222] font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Host Profile</p>
               <div className="flex items-center gap-1 mt-0.5">
-                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                <span className="text-xs text-[#717171]">Superhost</span>
+                <span className="text-xs text-[#717171]">Host</span>
               </div>
               <div className="mt-3 grid grid-cols-3 gap-2 w-full">
                 {[{ label: '6', sub: 'Listings' }, { label: '24', sub: 'Bookings' }, { label: '4.9', sub: 'Rating' }].map((s, i) => (

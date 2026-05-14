@@ -4,7 +4,8 @@ import {
   Activity, ArrowUpRight, TrendingUp,
   UserCheck, Star, CheckCircle2, ShieldCheck,
 } from 'lucide-react';
-import { stats, activities } from '../../../data/mockData';
+import { useBookings } from '../../../features/bookings/hooks';
+import { useListingStats, useUserStatsData } from '../../../features/statistics/hooks';
 import { useUsers } from '../../../features/users/hooks';
 import {
   BarChart, Bar, LineChart, Line,
@@ -33,9 +34,25 @@ const actIconMap: Record<string, ElementType> = {
 
 export function AdminDashboard() {
   const { data: apiUsers = [], isLoading: loadingUsers } = useUsers();
-  // Map API users to match table structure if needed, or just use as is
-  // The mock users had a different shape, let's normalize or adapt.
+  const { data: bookings = [] } = useBookings();
+  const { data: listingStats } = useListingStats();
+  const { data: userStats } = useUserStatsData();
+  const stats = listingStats ?? userStats ?? {
+    totalUsers: 0, totalHosts: 0, totalBookings: 0, totalRevenue: 0,
+    monthlyRevenue: [], activeListings: 0, totalListings: 1, weeklyBookings: [], userGrowth: [],
+  };
+  // Map API users to match table structure if needed, or just use as is.
   const displayUsers = apiUsers.slice(0, 6);
+
+  // Build recent activity from recent bookings and users
+  const activities = (bookings ?? []).slice().reverse().slice(0, 12).map((b: any) => ({
+    id: b.id,
+    type: 'booking',
+    user: b.guest?.name ?? b.guest?.email ?? 'Guest',
+    action: 'made a booking',
+    detail: b.listing?.title ?? b.listingId,
+    time: new Date(b.createdAt || b.checkIn || Date.now()).toLocaleString(),
+  }));
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
 

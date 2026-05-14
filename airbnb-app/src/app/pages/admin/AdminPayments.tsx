@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, DollarSign, TrendingUp, CreditCard } from 'lucide-react';
 import { useBookings } from '../../../features/bookings/hooks';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { stats } from '../../../data/mockData';
+import { useListingStats } from '../../../features/statistics/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 
@@ -18,6 +18,8 @@ export function AdminPayments() {
   const filtered = bookings.filter(p =>
     p.guest?.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase())
   );
+
+  const { data: listingStats } = useListingStats();
 
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
     usePagination(filtered, { defaultPerPage: 8 });
@@ -49,7 +51,7 @@ export function AdminPayments() {
       <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 mb-6">
         <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Monthly Revenue</h2>
         <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={stats.monthlyRevenue.slice(-6)}>
+          <BarChart data={(listingStats?.monthlyRevenue ?? []).slice(-6)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
             <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#717171' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: '#717171' }} axisLine={false} tickLine={false} tickFormatter={v => `$${v/1000}k`} />

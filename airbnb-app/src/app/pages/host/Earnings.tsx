@@ -1,7 +1,7 @@
 import { DashboardCard } from '../../components/dashboard/StatCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { stats, payments } from '../../../data/mockData';
 import { useBookings } from '../../../features/bookings/hooks';
+import { useListingStats } from '../../../features/statistics/hooks';
 
 export function Earnings() {
   const { data: bookings = [], isLoading } = useBookings();
@@ -36,7 +36,7 @@ export function Earnings() {
       <div className="bg-white border border-[#DDDDDD] rounded-xl p-6 mb-8">
         <h3 className="text-[#222222] mb-6">Revenue Overview</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={stats.monthlyRevenue}>
+          <BarChart data={listingStats?.monthlyRevenue ?? []}>
             <CartesianGrid strokeDasharray="3 3" stroke="#DDDDDD" />
             <XAxis dataKey="month" stroke="#717171" />
             <YAxis stroke="#717171" />
@@ -49,26 +49,21 @@ export function Earnings() {
       <div className="bg-white border border-[#DDDDDD] rounded-xl p-6">
         <h3 className="text-[#222222] mb-4">Recent Transactions</h3>
         <div className="space-y-4">
-          {payments.map((payment) => (
-            <div key={payment.id} className="flex items-center justify-between py-3 border-b border-[#DDDDDD] last:border-b-0">
-              <div>
-                <h4 className="text-[#222222]">{payment.id}</h4>
-                <p className="text-[#717171]">{payment.date} • {payment.method}</p>
+          {bookings
+            .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
+            .slice(0, 6)
+            .map((b) => (
+              <div key={b.id} className="flex items-center justify-between py-3 border-b border-[#DDDDDD] last:border-b-0">
+                <div>
+                  <h4 className="text-[#222222]">{b.id}</h4>
+                  <p className="text-[#717171]">{new Date(b.createdAt).toLocaleDateString()} • Booking</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-[#222222]">${b.total}</div>
+                  <span className={`text-sm ${b.status === 'completed' ? 'text-green-600' : 'text-yellow-600'}`}>{b.status}</span>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-[#222222]">${payment.amount}</div>
-                <span
-                  className={`text-sm ${
-                    payment.status === 'completed'
-                      ? 'text-green-600'
-                      : 'text-yellow-600'
-                  }`}
-                >
-                  {payment.status}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

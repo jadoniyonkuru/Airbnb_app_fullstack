@@ -1,38 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { users } from '../../data/mockData';
+import { apiClient } from '../../api/client';
+import { ENDPOINTS } from '../../api/endpoints';
 import { queryKeys } from '../../api/queryKeys';
 
-// Mock admin API
-const mockAdminApi = {
+const adminApi = {
   getHostRequests: async () => {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    const hostRequests = users.filter(u => u.role === 'host').slice(0, 3).map(u => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      phone: u.phone,
-      status: 'PENDING',
-      createdAt: u.joined,
-    }));
-    return { success: true, data: hostRequests };
+    const res = await apiClient.get(ENDPOINTS.HOST_REQUESTS);
+    return res.data;
   },
 
   approveHost: async (id: string) => {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return { success: true, message: 'Host approved' };
+    const res = await apiClient.post(ENDPOINTS.APPROVE_HOST(id));
+    return res.data;
   },
 
   rejectHost: async (id: string) => {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return { success: true, message: 'Host rejected' };
+    const res = await apiClient.post(ENDPOINTS.REJECT_HOST(id));
+    return res.data;
   },
 };
 
 export function useHostRequests() {
   return useQuery({
     queryKey: queryKeys.hostRequests,
-    queryFn: () => mockAdminApi.getHostRequests(),
+    queryFn: () => adminApi.getHostRequests(),
     select: (data) => data.data ?? [],
     staleTime: 1000 * 60,
   });
@@ -41,7 +33,7 @@ export function useHostRequests() {
 export function useApproveHost() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => mockAdminApi.approveHost(id),
+    mutationFn: (id: string) => adminApi.approveHost(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.hostRequests });
       qc.invalidateQueries({ queryKey: queryKeys.users });
@@ -57,7 +49,7 @@ export function useApproveHost() {
 export function useRejectHost() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => mockAdminApi.rejectHost(id),
+    mutationFn: (id: string) => adminApi.rejectHost(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.hostRequests });
       qc.invalidateQueries({ queryKey: queryKeys.users });
