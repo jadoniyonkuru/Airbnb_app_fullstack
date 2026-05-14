@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 import { Eye, EyeOff, ArrowLeft, Check } from 'lucide-react';
 import { useRegister } from '../../features/auth/hooks';
 import { useAuth } from '../context/AuthContext';
@@ -60,10 +61,10 @@ export function Register() {
       { name: fullName.trim(), username: username.trim(), email: email.trim(), phone, password, role: role.toUpperCase() as 'GUEST' | 'HOST' },
       {
         onSuccess: (res) => {
-          authLogin(res.data.user);
-          toast.success('Account created successfully!');
-          navigate('/');
-        },
+            const { user, token } = res;
+            authLogin(user, token);
+            navigate('/');
+          },
       }
     );
   };

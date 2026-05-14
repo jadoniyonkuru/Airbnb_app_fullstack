@@ -27,9 +27,9 @@ export function MyListings() {
           <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>My Listings</h1>
           <p className="text-[#717171] text-sm">{isLoading ? '...' : hostListings.length} properties</p>
         </div>
-        <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
-          <Plus className="w-4 h-4" />
-          Add Property
+          <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
+            <Plus className="w-4 h-4" />
+            Add Listings
         </Link>
       </div>
 

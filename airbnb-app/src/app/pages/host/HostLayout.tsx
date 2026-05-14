@@ -5,12 +5,12 @@ import {
   Settings, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { label: 'Dashboard',   path: '/dashboard',                icon: LayoutDashboard },
   { label: 'My Listings', path: '/dashboard/listings',       icon: Home },
-  { label: 'Add Property',path: '/dashboard/add-listing',    icon: Plus },
+  { label: 'Add Listings',path: '/dashboard/add-listing',    icon: Plus },
   { label: 'Reservations',path: '/dashboard/bookings',       icon: Calendar,      badge: '3' },
   { label: 'Earnings',    path: '/dashboard/earnings',       icon: DollarSign },
   { label: 'Reviews',     path: '/dashboard/reviews',        icon: Star },

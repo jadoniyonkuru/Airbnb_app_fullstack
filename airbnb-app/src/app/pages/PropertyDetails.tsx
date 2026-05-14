@@ -1,7 +1,8 @@
-import { useParams, Link, useNavigate } from 'react-router';
+import { useParams, Link, useNavigate, useLocation } from 'react-router';
 import { Navbar } from '../components/layout/Navbar';
 import { Star, Users, Bed, Bath, Wifi, Car, Wind, Utensils, MapPin, Share, Heart, ChevronLeft, Check, ArrowRight } from 'lucide-react';
 import { useListing } from '../../features/listings/hooks';
+import { useAuth } from '../context/AuthContext';
 
 export function PropertyDetails() {
   const { id } = useParams();
@@ -53,6 +54,17 @@ export function PropertyDetails() {
   const subtotal = property.price * nights;
   const serviceFee = Math.round(subtotal * 0.12);
   const total = subtotal + serviceFee;
+
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  const handleReserve = () => {
+    if (!isAuthenticated) {
+      navigate('/signin', { state: { from: location.pathname } });
+      return;
+    }
+    navigate(`/checkout/${property.id}`);
+  };
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -238,9 +250,9 @@ export function PropertyDetails() {
                 </div>
               </div>
 
-              <Link to={`/checkout/${property.id}`} className="w-full bg-[#FF385C] hover:bg-[#E31C5F] text-white py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 mb-3">
+              <button onClick={handleReserve} className="w-full bg-[#FF385C] hover:bg-[#E31C5F] text-white py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 mb-3">
                 Reserve Now <ArrowRight className="w-4 h-4" />
-              </Link>
+              </button>
 
               <p className="text-center text-[#717171] text-xs mb-4">You won't be charged yet</p>
 

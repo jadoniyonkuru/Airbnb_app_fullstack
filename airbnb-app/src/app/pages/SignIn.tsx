@@ -31,8 +31,8 @@ export function SignIn() {
       { email: email.trim(), password, role: role.toUpperCase() as 'GUEST' | 'HOST' | 'ADMIN' },
       {
         onSuccess: (res) => {
-          const { user } = res.data;
-          authLogin(user);
+          const { user, token } = res;
+          authLogin(user, token);
           if (from && from !== '/' && from !== '/signin') {
             navigate(from, { replace: true });
           } else if (user.role === 'HOST' || user.role === 'ADMIN') {

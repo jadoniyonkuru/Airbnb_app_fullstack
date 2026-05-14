@@ -1,10 +1,27 @@
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { Upload, MapPin, DollarSign, Users, Bed, Bath, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
+import { useUploadListingPhotos } from '../../../features/uploads/hooks';
+import { useAuth } from '../../context/AuthContext';
 
 const STEPS = ['Basic Info', 'Location', 'Details', 'Amenities', 'Photos', 'Pricing'];
+
+const InputField = memo(function InputField({ label, value, onChange, placeholder, type = 'text' }: any) {
+  return (
+    <div>
+      <label className="block text-[#222222] text-sm font-semibold mb-2">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA]"
+      />
+    </div>
+  );
+});
 
 export function AddListing() {
   const navigate = useNavigate();
@@ -81,23 +98,28 @@ export function AddListing() {
     setForm(prev => ({ ...prev, description: e.target.value }));
   }, []);
 
-  const InputField = memo(({ label, value, onChange, placeholder, type = 'text' }: any) => (
-    <div>
-      <label className="block text-[#222222] text-sm font-semibold mb-2">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors placeholder:text-[#AAAAAA]"
-      />
-    </div>
-  ));
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  const { user } = useAuth();
+  const uploadMutation = useUploadListingPhotos(user?.id ?? '');
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+    uploadMutation.mutate(files, {
+      onSuccess: () => toast.success('Photos uploaded.'),
+      onError: () => toast.error('Failed to upload photos.'),
+    });
+    // clear input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, [uploadMutation]);
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="mb-8">
-        <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>Add New Property</h1>
+        <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>Add Listings</h1>
         <p className="text-[#717171] text-sm">Fill in the details to list your property on StayEase.</p>
       </div>
 
@@ -207,12 +229,27 @@ export function AddListing() {
         {step === 4 && (
           <div>
             <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Property Photos</h2>
-            <div className="border-2 border-dashed border-[#DDDDDD] rounded-2xl p-12 text-center hover:border-[#FF385C] hover:bg-[#FFF8F9] transition-all cursor-pointer group">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => { if (e.key === 'Enter') fileInputRef.current?.click(); }}
+              className="border-2 border-dashed border-[#DDDDDD] rounded-2xl p-6 text-center hover:border-[#FF385C] hover:bg-[#FFF8F9] transition-all cursor-pointer group"
+            >
               <div className="w-16 h-16 bg-[#FFF1F3] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-[#FFE4E8] transition-colors">
                 <Upload className="w-8 h-8 text-[#FF385C]" />
               </div>
               <p className="text-[#222222] font-semibold mb-1">Drop photos here or click to upload</p>
               <p className="text-[#717171] text-sm">JPG, PNG up to 20MB. Add at least 5 photos.</p>
+              <input ref={fileInputRef} onChange={handleFileChange} multiple accept="image/*" type="file" className="hidden" />
+
+              {previews.length > 0 && (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {previews.map((p, i) => (
+                    <img key={i} src={p} alt={`preview-${i}`} className="w-full h-24 object-cover rounded-lg" />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

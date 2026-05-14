@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 const hostMenus = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { label: 'My Listings', path: '/dashboard/listings', icon: Home },
-  { label: 'Add Property', path: '/dashboard/add-listing', icon: Plus },
+  { label: 'Add Listings', path: '/dashboard/add-listing', icon: Plus },
   { label: 'Reservations', path: '/dashboard/bookings', icon: Calendar, badge: '3' },
   { label: 'Earnings', path: '/dashboard/earnings', icon: DollarSign },
   { label: 'Reviews', path: '/dashboard/reviews', icon: Star },
@@ -59,8 +59,17 @@ export function DashboardLayout() {
   return (
     <div className="flex min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <aside
-        className="bg-white border-r border-[#EBEBEB] min-h-screen flex-col shadow-sm hidden md:flex transition-all duration-300"
-        style={{ width: collapsed ? '72px' : '260px', minWidth: collapsed ? '72px' : '260px' }}
+        className="bg-white border-r border-[#EBEBEB] flex-col shadow-sm hidden md:flex transition-all duration-300"
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          height: '100vh',
+          width: collapsed ? '72px' : '260px',
+          minWidth: collapsed ? '72px' : '260px',
+          overflow: 'hidden',
+        }}
       >
         <Link
           to="/"
@@ -74,12 +83,10 @@ export function DashboardLayout() {
           }}
         >
           <div className="w-8 h-8 bg-[#FF385C] rounded-xl flex items-center justify-center shrink-0">
-            <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
+            <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>SE</span>
           </div>
           {!collapsed && (
-            <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              Stay<span style={{ color: '#FF385C' }}>Bnb</span>
-            </span>
+            <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>StayEase</span>
           )}
         </Link>
 
@@ -102,7 +109,7 @@ export function DashboardLayout() {
           </div>
         )}
 
-        <nav className="flex-1 px-2 space-y-0.5 overflow-y-auto py-2">
+        <nav className="flex-1 px-2 space-y-0.5 py-2">
           {isAdmin ? (
             adminMenus.map(section => (
               <div key={section.section}>
@@ -225,7 +232,7 @@ export function DashboardLayout() {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 bg-white">
+      <div className="flex-1 flex flex-col min-w-0 bg-white" style={{ marginLeft: collapsed ? 72 : 260 }}>
         <header className="bg-white border-b border-[#EBEBEB] px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
           <div className="flex items-center gap-2 text-sm" style={{ color: '#717171' }}>
             <Link to="/" className="hover:text-[#222222] transition-colors font-medium">StayEase</Link>
