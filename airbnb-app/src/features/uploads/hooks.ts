@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { queryKeys } from '../../api/queryKeys';
+import { useAuth } from '../../context/AuthContext';
 
 const uploadsApi = {
   uploadAvatar: async (userId: string, file: File) => {
@@ -19,6 +20,7 @@ const uploadsApi = {
 
 export function useUploadAvatar(userId: string) {
   const qc = useQueryClient();
+  const { updateUser } = useAuth();
   return useMutation({
     mutationFn: (file: File) => uploadsApi.uploadAvatar(userId, file),
     onSuccess: (res) => {
@@ -28,6 +30,8 @@ export function useUploadAvatar(userId: string) {
         const user = JSON.parse(stored);
         localStorage.setItem('user', JSON.stringify({ ...user, avatar: res.data?.avatar }));
       }
+      // update global auth state so avatar updates immediately across the app
+      try { updateUser({ avatar: res.data?.avatar }); } catch (e) { /* noop if not available */ }
       toast.success('Avatar updated.');
     },
   });

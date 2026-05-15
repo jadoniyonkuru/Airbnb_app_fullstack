@@ -6,11 +6,12 @@ import {
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
+import { apiClient } from '../../../api/client';
 import { useTheme } from '../../context/ThemeContext';
 import { Navbar } from '../../components/layout/Navbar';
 
 export function UserProfile() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
 
@@ -133,11 +134,11 @@ export function UserProfile() {
 
             {/* Avatar + info */}
             <div className="flex flex-col items-center -mt-12 pb-7 px-6">
-              <div className="relative">
+                <div className="relative">
                 <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-[#3C3C3E] flex items-center justify-center">
                   {avatarUrl
                     ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                    : <span className="text-white font-bold text-2xl">{initials}</span>
+                    : (user?.avatar ? <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" /> : <span className="text-white font-bold text-2xl">{initials}</span>)
                   }
                 </div>
                 <button
@@ -151,7 +152,23 @@ export function UserProfile() {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={e => { const f = e.target.files?.[0]; if (f) setAvatarUrl(URL.createObjectURL(f)); }}
+                  onChange={async e => {
+                    const f = e.target.files?.[0];
+                    if (!f || !user) return;
+                    // show preview immediately
+                    setAvatarUrl(URL.createObjectURL(f));
+                    try {
+                      const fd = new FormData();
+                      fd.append('image', f);
+                      const { data } = await apiClient.post(`/users/${user.id}/avatar`, fd);
+                      // update global user so navbar and other places update
+                      try { updateUser({ avatar: data.avatar }); } catch (err) { /* ignore */ }
+                      setAvatarUrl(data.avatar || null);
+                      toast.success('Avatar updated.');
+                    } catch (err) {
+                      toast.error('Failed to upload avatar.');
+                    }
+                  }}
                 />
               </div>
 

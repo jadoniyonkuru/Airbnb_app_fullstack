@@ -101,8 +101,12 @@ export function DashboardLayout() {
         {!collapsed && (
           <div className="p-4 mx-3 mt-4 rounded-2xl border border-[#FFD4D8]" style={{ backgroundColor: '#FFF1F3' }}>
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-[#FF385C] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
-                {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
+              <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm shrink-0" style={{ background: '#FF385C' }}>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user?.name} className="w-full h-full object-cover" />
+                ) : (
+                  user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[#222222] font-semibold text-sm truncate" style={{ fontFamily: "'Poppins', sans-serif" }}>

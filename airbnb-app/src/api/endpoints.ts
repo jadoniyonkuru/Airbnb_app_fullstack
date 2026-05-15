@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   USER_BOOKINGS:   (id: string) => `/users/${id}/bookings`,
   USER_STATS:      '/users/stats',
   USER_AVATAR:     (id: string) => `/users/${id}/avatar`,
+  USER_PROFILE:    (id: string) => `/users/${id}/profile`,
   USER_PHOTOS:     (id: string) => `/users/${id}/listing-photos`,
 
   // Listings

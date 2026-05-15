@@ -132,18 +132,25 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
             <div className="relative z-50">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className={`flex items-center gap-2.5 border rounded-full pl-3 pr-2 py-2 hover:shadow-md transition-all duration-200 ${isDark ? 'border-[#3A3A3C] bg-[#2C2C2E]' : 'border-[#DDDDDD] bg-white'}`}
+                className={`flex items-center gap-2.5 border rounded-full pl-3 pr-3 py-2 hover:shadow-md transition-all duration-200 ${isDark ? 'border-[#3A3A3C] bg-[#2C2C2E]' : 'border-[#DDDDDD] bg-white'}`}
               >
                 <Menu className={`w-4 h-4 ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`} />
-                <div className="w-8 h-8 bg-[#3C3C3E] rounded-full flex items-center justify-center overflow-hidden">
-                  {isAuthenticated && user?.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                  ) : isAuthenticated && user ? (
-                    <span className="text-white text-xs font-bold">
-                      {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-[#3C3C3E] rounded-full flex items-center justify-center overflow-hidden">
+                    {isAuthenticated && user?.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : isAuthenticated && user ? (
+                      <span className="text-white text-xs font-bold">
+                        {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </span>
+                    ) : (
+                      <User className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  {isAuthenticated && user && (
+                    <span className="hidden sm:inline-block text-sm font-medium text-[#1C1C1E] ml-0.5">
+                      {user.name.split(' ')[0]}
                     </span>
-                  ) : (
-                    <User className="w-4 h-4 text-white" />
                   )}
                 </div>
               </button>
