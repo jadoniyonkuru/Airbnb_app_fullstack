@@ -67,6 +67,16 @@ export function useListing(id: string) {
   });
 }
 
+export function useHostListings(hostId?: string) {
+  return useQuery({
+    queryKey: queryKeys.listings({ hostId } as Record<string, unknown>),
+    queryFn: () => listingsApi.getAll({ hostId }),
+    select: (data) => mapListings(data.data ?? []),
+    enabled: !!hostId,
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
 export function useCreateListing() {
   const qc = useQueryClient();
   return useMutation({

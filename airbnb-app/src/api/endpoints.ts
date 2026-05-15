@@ -1,16 +1,16 @@
 export const ENDPOINTS = {
-  
+  // Auth
   LOGIN:           '/auth/login',
   REGISTER:        '/auth/register',
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD:  (token: string) => `/auth/reset-password/${token}`,
   CHANGE_PASSWORD: '/auth/change-password',
 
-  
+  // Users
   USERS:           '/users',
   USER:            (id: string) => `/users/${id}`,
   USER_BOOKINGS:   (id: string) => `/users/${id}/bookings`,
-  USER_STATS:      '/users/statistics',
+  USER_STATS:      '/users/stats',
   USER_AVATAR:     (id: string) => `/users/${id}/avatar`,
   USER_PHOTOS:     (id: string) => `/users/${id}/listing-photos`,
 
@@ -25,7 +25,7 @@ export const ENDPOINTS = {
   USER_BOOKING:    (id: string) => `/bookings/user/${id}`,
 
   // Reviews
-  LISTING_REVIEWS: (listingId: string) => `/reviews/listings/${listingId}`,
+  LISTING_REVIEWS: (listingId: string) => `/listings/${listingId}/reviews`,
   REVIEW:          (id: string) => `/reviews/${id}`,
 
   // Admin
@@ -34,13 +34,18 @@ export const ENDPOINTS = {
   REJECT_HOST:     (id: string) => `/admin/reject-host/${id}`,
 
   // AI
-  AI_SEARCH:       '/ai/search',
-  AI_CHAT:         '/ai/chat',
-  AI_REVIEW_SUMMARY: (listingId: string) => `/ai/listings/${listingId}/review-summary`,
-  AI_GENERATE_DESC: (listingId: string) => `/ai/listings/${listingId}/generate-description`,
-  AI_RECOMMENDATIONS: '/ai/recommend',
+  AI_SEARCH:           '/ai/search',
+  AI_CHAT:             '/ai/chat',
+  AI_REVIEW_SUMMARY:   (listingId: string) => `/ai/listings/${listingId}/review-summary`,
+  AI_GENERATE_DESC:    (listingId: string) => `/ai/listings/${listingId}/generate-description`,
+  AI_RECOMMENDATIONS:  '/ai/recommend',
 
-  // Statistics
-  STATS_LISTINGS:  '/statistics/listings',
-  STATS_USERS:     '/statistics/users',
+  // Statistics & Analytics
+  STATS_LISTINGS:  '/listings/stats',
+  STATS_USERS:     '/users/stats',
+  ANALYTICS:       '/listings/analytics',
+
+  // Messaging
+  MESSAGES:              '/messages',
+  MESSAGE_CONVERSATION:  (id: string) => `/messages/${id}`,
 };

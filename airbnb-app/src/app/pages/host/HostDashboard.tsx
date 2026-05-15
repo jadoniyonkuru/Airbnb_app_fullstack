@@ -1,22 +1,30 @@
 import { DashboardCard } from '../../components/dashboard';
-import { Home, Calendar, DollarSign, Star, Eye, Edit, Trash2, ToggleLeft, ToggleRight, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
-import { useListings } from '../../../features/listings/hooks';
+import { Home, Calendar, DollarSign, Star } from 'lucide-react';
+import { useHostListings } from '../../../features/listings/hooks';
 import { useBookings } from '../../../features/bookings/hooks';
-// TODO: Replace with API when earnings/stats endpoint is available
-const hostEarnings = [
-  { month: 'Jan', earnings: 1200 }, { month: 'Feb', earnings: 1800 },
-  { month: 'Mar', earnings: 2400 }, { month: 'Apr', earnings: 2100 },
-  { month: 'May', earnings: 3200 }, { month: 'Jun', earnings: 2800 },
-  { month: 'Jul', earnings: 3600 }, { month: 'Aug', earnings: 4100 },
-  { month: 'Sep', earnings: 3400 }, { month: 'Oct', earnings: 2900 },
-  { month: 'Nov', earnings: 3800 }, { month: 'Dec', earnings: 4200 },
-];
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer
-} from 'recharts';
+import { useAuth } from '../../context/AuthContext';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link } from 'react-router';
 import AIRecommendations from '../../components/ai/AIRecommendations';
+
+const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function buildEarningsChart(bookings: any[]) {
+  const now = new Date();
+  return MONTH_LABELS.map((month, idx) => {
+    const total = bookings
+      .filter(b => {
+        const d = new Date(b.checkIn);
+        return (
+          d.getFullYear() === now.getFullYear() &&
+          d.getMonth() === idx &&
+          (b.status === 'confirmed' || b.status === 'completed')
+        );
+      })
+      .reduce((sum, b) => sum + b.total, 0);
+    return { month, earnings: Math.round(total) };
+  });
+}
 import { useState, useId } from 'react';
 
 const propertyImages = [
@@ -49,9 +57,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function HostDashboard() {
   const rawId = useId();
   const gradientId = `hd-grad-${rawId.replace(/:/g, '')}`;
-  const { data: hostListings = [], isLoading: loadingListings } = useListings();
+  const { user } = useAuth();
+  const { data: hostListings = [], isLoading: loadingListings } = useHostListings(user?.id);
   const { data: bookings = [], isLoading: loadingBookings } = useBookings();
   const [showAllBookings, setShowAllBookings] = useState(false);
+
+  const hostEarnings = buildEarningsChart(bookings);
 
   const totalListingsCount = hostListings.length;
   const activeBookingsCount = bookings.filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'pending').length;

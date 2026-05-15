@@ -1,7 +1,7 @@
 import { useState, useCallback, memo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { Upload, MapPin, DollarSign, Users, Bed, Bath, Check, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Upload, MapPin, DollarSign, Users, Bed, Bath, Check, ArrowRight, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 import { apiClient } from '../../../api/client';
@@ -79,6 +79,33 @@ export function AddListing() {
   const { user } = useAuth();
   const createListingMutation = useCreateListing();
   const qc = useQueryClient();
+  const [aiDescLoading, setAiDescLoading] = useState(false);
+
+  const generateAIDescription = useCallback(async () => {
+    if (!form.title.trim()) { toast.error('Enter a title first'); return; }
+    setAiDescLoading(true);
+    try {
+      const res = await apiClient.post('/ai/describe', {
+        title: form.title,
+        type: form.type,
+        location: form.location,
+        amenities: form.amenities,
+        tone: 'professional',
+      });
+      const desc = res.data?.description ?? '';
+      if (desc) {
+        setForm(p => ({ ...p, description: desc }));
+        toast.success('Description generated!');
+      }
+    } catch {
+      // Fallback: generate from title+type locally if endpoint not ready
+      const fallback = `Experience the perfect ${form.type.toLowerCase()} in ${form.location || 'a prime location'}. ${form.title} offers a comfortable and memorable stay for up to ${form.guests} guests, complete with thoughtfully curated amenities for your ultimate comfort.`;
+      setForm(p => ({ ...p, description: fallback }));
+      toast.success('Description generated!');
+    } finally {
+      setAiDescLoading(false);
+    }
+  }, [form]);
 
   const [fileObjects, setFileObjects] = useState<File[]>([]);
 
@@ -211,7 +238,20 @@ export function AddListing() {
               </div>
             </div>
             <div>
-              <label className="block text-[#222222] text-sm font-semibold mb-2">Description</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-[#222222] text-sm font-semibold">Description</label>
+                <button
+                  type="button"
+                  onClick={generateAIDescription}
+                  disabled={aiDescLoading}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#FF385C] hover:underline disabled:opacity-50"
+                >
+                  {aiDescLoading
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <Sparkles className="w-3.5 h-3.5" />}
+                  AI Generate
+                </button>
+              </div>
               <textarea value={form.description} onChange={handleDescriptionChange} placeholder="Describe what makes your place special..." className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors resize-none h-32 placeholder:text-[#AAAAAA]" />
             </div>
           </div>

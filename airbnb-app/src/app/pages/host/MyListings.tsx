@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, Star, Eye, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
-import { useListings, useDeleteListing } from '../../../features/listings/hooks';
+import { useHostListings, useDeleteListing } from '../../../features/listings/hooks';
 import { useAuth } from '../../context/AuthContext';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 
@@ -15,12 +15,8 @@ import img4 from '../../../imports/image-4.png';
 const imgs = [img0, img1, img2, img3, img4];
 
 export function MyListings() {
-  const { data: hostListings = [], isLoading } = useListings();
   const { user } = useAuth();
-  const myListings = (hostListings || []).filter(l => {
-    const hostName = (l.host || '').toString();
-    return user ? (hostName === user.name || hostName === user.email) : false;
-  });
+  const { data: myListings = [], isLoading } = useHostListings(user?.id);
   const deleteListingMutation = useDeleteListing();
   const [statuses, setStatuses] = useState<Record<string, boolean>>({});
   const [deleteModal, setDeleteModal] = useState<{ id: string; title: string } | null>(null);
@@ -31,7 +27,7 @@ export function MyListings() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>My Listings</h1>
-          <p className="text-[#717171] text-sm">{isLoading ? '...' : hostListings.length} properties</p>
+          <p className="text-[#717171] text-sm">{isLoading ? '...' : myListings.length} properties</p>
         </div>
           <Link to="/dashboard/add-listing" className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors">
             <Plus className="w-4 h-4" />

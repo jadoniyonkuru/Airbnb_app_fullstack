@@ -1,5 +1,5 @@
-import { useState, useId } from 'react';
-import { useListingStats, useUserStatsData } from '../../../features/statistics/hooks';
+import { useState, useId, useMemo } from 'react';
+import { useAnalytics } from '../../../features/statistics/hooks';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell,
@@ -10,37 +10,11 @@ import { useBookings } from '../../../features/bookings/hooks';
 import { useUsers } from '../../../features/users/hooks';
 import { useListings } from '../../../features/listings/hooks';
 
-const topProperties = [
-  { name: 'Penthouse Manhattan', revenue: 14700, bookings: 42, occupancy: 94, location: 'New York', rating: 4.95 },
-  { name: 'Luxury Villa Nairobi', revenue: 9750, bookings: 39, occupancy: 88, location: 'Nairobi', rating: 5.0 },
-  { name: 'Alpine Cabin Switzerland', revenue: 8400, bookings: 26, occupancy: 72, location: 'Swiss Alps', rating: 4.92 },
-  { name: 'Paris Studio Eiffel', revenue: 6120, bookings: 51, occupancy: 91, location: 'Paris', rating: 4.8 },
-  { name: 'Kigali Modern Apt', revenue: 4820, bookings: 57, occupancy: 87, location: 'Kigali', rating: 4.9 },
-];
-
-const conversionData = [
-  { month: 'Jan', views: 12400, inquiries: 1860, bookings: 198 },
-  { month: 'Feb', views: 14200, inquiries: 2130, bookings: 184 },
-  { month: 'Mar', views: 15800, inquiries: 2370, bookings: 210 },
-  { month: 'Apr', views: 18200, inquiries: 2730, bookings: 236 },
-  { month: 'May', views: 21500, inquiries: 3225, bookings: 259 },
-  { month: 'Jun', views: 24300, inquiries: 3645, bookings: 271 },
-];
-
 const locationData = [
   { name: 'Africa', value: 48, color: '#FF385C' },
   { name: 'Europe', value: 27, color: '#00A699' },
   { name: 'Americas', value: 16, color: '#FC642D' },
   { name: 'Asia', value: 9, color: '#484848' },
-];
-
-const kpiMetrics = [
-  { label: 'Avg. Booking Value', value: '$386', change: '+8.2%', up: true, icon: DollarSign, color: '#FF385C' },
-  { label: 'Occupancy Rate', value: '84.6%', change: '+3.1%', up: true, icon: Home, color: '#00A699' },
-  { label: 'Guest Satisfaction', value: '4.87', change: '+0.04', up: true, icon: Star, color: '#d97706' },
-  { label: 'Host Churn Rate', value: '2.3%', change: '-0.5%', up: false, icon: Users, color: '#7c3aed' },
-  { label: 'New Host MoM', value: '+34', change: '+12%', up: true, icon: TrendingUp, color: '#0ea5e9' },
-  { label: 'Platform Revenue', value: '$71K', change: '+18%', up: true, icon: Globe, color: '#16a34a' },
 ];
 
 export function AdminAnalytics() {
@@ -54,10 +28,12 @@ export function AdminAnalytics() {
   const { data: bookings = [], isLoading: loadingBookings } = useBookings();
   const { data: users = [], isLoading: loadingUsers } = useUsers();
   const { data: listings = [], isLoading: loadingListings } = useListings();
-  const { data: listingStats } = useListingStats();
-  const { data: userStats } = useUserStatsData();
-  const stats = listingStats ?? userStats ?? {
-    monthlyRevenue: [], userGrowth: [],
+  const { data: analytics } = useAnalytics();
+
+  const stats = {
+    monthlyRevenue: analytics?.monthlyRevenue ?? [],
+    userGrowth:     analytics?.userGrowth ?? [],
+    weeklyBookings: analytics?.weeklyBookings ?? [],
   };
 
   const totalRevenue = bookings
@@ -66,11 +42,28 @@ export function AdminAnalytics() {
   const avgBookingValue = bookings.length > 0 ? Math.round(totalRevenue / bookings.length) : 0;
   const avgRating = listings.length > 0 ? (listings.reduce((sum, l) => sum + (l.rating || 0), 0) / listings.length).toFixed(2) : '0.00';
 
+  // Build top properties from real listings + bookings
+  const topProperties = useMemo(() => {
+    return listings
+      .map(l => {
+        const lb = bookings.filter(b => b.propertyId === l.id);
+        return {
+          name: l.title,
+          revenue: lb.filter(b => b.status === 'confirmed' || b.status === 'completed').reduce((s, b) => s + b.total, 0),
+          bookings: lb.length,
+          location: l.location,
+          rating: l.rating ?? 0,
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+  }, [listings, bookings]);
+
   const liveKpiMetrics = [
     { label: 'Avg. Booking Value', value: loadingBookings ? '...' : `$${avgBookingValue}`, change: '+8.2%', up: true, icon: DollarSign, color: '#FF385C' },
     { label: 'Occupancy Rate', value: '84.6%', change: '+3.1%', up: true, icon: Home, color: '#00A699' },
     { label: 'Guest Satisfaction', value: loadingListings ? '...' : avgRating, change: '+0.04', up: true, icon: Star, color: '#d97706' },
-    { label: 'Total Hosts', value: loadingUsers ? '...' : users.filter(u => u.role === 'HOST').length.toString(), change: '+5', up: true, icon: Users, color: '#7c3aed' },
+    { label: 'Total Hosts', value: loadingUsers ? '...' : users.filter((u: any) => u.role === 'HOST').length.toString(), change: '+5', up: true, icon: Users, color: '#7c3aed' },
     { label: 'Active Listings', value: loadingListings ? '...' : listings.length.toString(), change: '+12%', up: true, icon: TrendingUp, color: '#0ea5e9' },
     { label: 'Platform Revenue', value: loadingBookings ? '...' : `$${(totalRevenue / 1000).toFixed(0)}K`, change: '+18%', up: true, icon: Globe, color: '#16a34a' },
   ];
@@ -144,9 +137,9 @@ export function AdminAnalytics() {
         </div>
 
         <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6">
-          <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Conversion Funnel</h2>
+          <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Bookings Trend</h2>
           <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={conversionData}>
+            <AreaChart data={stats.monthlyRevenue}>
               <defs>
                 <linearGradient id={anaViewsId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.1} />
@@ -166,8 +159,6 @@ export function AdminAnalytics() {
               <YAxis tick={{ fontSize: 11, fill: '#717171' }} axisLine={false} tickLine={false} />
               <Tooltip />
               <Legend wrapperStyle={{ fontSize: '11px' }} />
-              <Area type="monotone" dataKey="views" name="Page Views" stroke="#7c3aed" strokeWidth={2} fill={`url(#${anaViewsId})`} />
-              <Area type="monotone" dataKey="inquiries" name="Inquiries" stroke="#0ea5e9" strokeWidth={2} fill={`url(#${anaInqId})`} />
               <Area type="monotone" dataKey="bookings" name="Bookings" stroke="#FF385C" strokeWidth={2} fill={`url(#${anaBookId})`} />
             </AreaChart>
           </ResponsiveContainer>

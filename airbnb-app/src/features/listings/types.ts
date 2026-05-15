@@ -55,6 +55,7 @@ export interface SearchParams {
   type?: ListingType;
   page?: number;
   limit?: number;
+  hostId?: string;
 }
 
 export interface CreateListingRequest {
