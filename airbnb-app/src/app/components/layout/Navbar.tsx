@@ -135,8 +135,16 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
                 className={`flex items-center gap-2.5 border rounded-full pl-3 pr-2 py-2 hover:shadow-md transition-all duration-200 ${isDark ? 'border-[#3A3A3C] bg-[#2C2C2E]' : 'border-[#DDDDDD] bg-white'}`}
               >
                 <Menu className={`w-4 h-4 ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`} />
-                <div className="w-8 h-8 bg-[#3C3C3E] rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 bg-[#3C3C3E] rounded-full flex items-center justify-center overflow-hidden">
+                  {isAuthenticated && user?.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : isAuthenticated && user ? (
+                    <span className="text-white text-xs font-bold">
+                      {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                    </span>
+                  ) : (
+                    <User className="w-4 h-4 text-white" />
+                  )}
                 </div>
               </button>
 
@@ -149,10 +157,14 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
                     <>
                       {/* Avatar + name + email */}
                       <div className="flex flex-col items-center pt-5 pb-4 px-4">
-                        <div className="w-20 h-20 rounded-full bg-[#3C3C3E] flex items-center justify-center mb-3 ring-4 ring-[#FF5A5F]/20">
-                          <span className="text-white font-bold text-2xl">
-                            {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
-                          </span>
+                        <div className="w-20 h-20 rounded-full bg-[#3C3C3E] flex items-center justify-center mb-3 ring-4 ring-[#FF5A5F]/20 overflow-hidden">
+                          {user.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-white font-bold text-2xl">
+                              {user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                            </span>
+                          )}
                         </div>
                         <p className={`text-base font-bold ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>{user.name}</p>
                         <p className="text-sm text-[#8E8E93] mt-0.5">{user.email}</p>

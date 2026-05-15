@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, Star, Eye, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { useHostListings, useDeleteListing } from '../../../features/listings/hooks';
@@ -16,6 +16,7 @@ const imgs = [img0, img1, img2, img3, img4];
 
 export function MyListings() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: myListings = [], isLoading } = useHostListings(user?.id);
   const deleteListingMutation = useDeleteListing();
   const [statuses, setStatuses] = useState<Record<string, boolean>>({});
@@ -99,10 +100,16 @@ export function MyListings() {
               </div>
 
               <div className="border-t border-[#EBEBEB] pt-4 flex items-center gap-2">
-                <button className="flex-1 flex items-center justify-center gap-1.5 bg-[#F7F7F7] hover:bg-[#EBEBEB] text-[#222222] py-2.5 rounded-xl text-xs font-semibold transition-colors">
+                <button
+                  onClick={() => navigate(`/dashboard/edit-listing/${listing.id}`)}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-[#F7F7F7] hover:bg-[#EBEBEB] text-[#222222] py-2.5 rounded-xl text-xs font-semibold transition-colors"
+                >
                   <Edit className="w-3.5 h-3.5" /> Edit
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-1.5 bg-[#F7F7F7] hover:bg-[#EBEBEB] text-[#222222] py-2.5 rounded-xl text-xs font-semibold transition-colors">
+                <button
+                  onClick={() => navigate(`/property/${listing.id}`)}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-[#F7F7F7] hover:bg-[#EBEBEB] text-[#222222] py-2.5 rounded-xl text-xs font-semibold transition-colors"
+                >
                   <Eye className="w-3.5 h-3.5" /> Preview
                 </button>
                 <button className="flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-500 py-2.5 px-3 rounded-xl text-xs font-semibold transition-colors"
@@ -119,7 +126,7 @@ export function MyListings() {
           <div className="w-14 h-14 bg-[#FFF1F3] rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#FFE4E8] transition-colors">
             <Plus className="w-7 h-7 text-[#FF385C]" />
           </div>
-          <p className="text-[#222222] font-semibold text-sm mb-1" style={{ fontFamily: "'Poppins', sans-serif" }}>Add New Property</p>
+          <p className="text-[#222222] font-semibold text-sm mb-1" style={{ fontFamily: "'Poppins', sans-serif" }}>Add Listing</p>
           <p className="text-[#717171] text-xs text-center">List a new property and start earning from bookings.</p>
         </Link>
       </div>
@@ -131,10 +138,10 @@ export function MyListings() {
           if (deleteModal) deleteListingMutation.mutate(deleteModal.id);
           setDeleteModal(null);
         }}
-        title="Are you sure you want to delete this listing? ‼️"
-        message=""
-        confirmText="Delete"
-        cancelText="Keep property"
+        title="Remove this listing?"
+        message={`"${deleteModal?.title}" will be permanently removed and can't be recovered.`}
+        confirmText="Yes, remove it"
+        cancelText="Keep it"
         type="danger"
       />
     </div>

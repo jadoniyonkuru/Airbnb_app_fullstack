@@ -5,7 +5,8 @@
       "Bash(dir /s /b \"c:\\\\Users\\\\jeann\\\\OneDrive\\\\Documents\\\\max_project\\\\Airbnb_app_fullstack\\\\airbnb-app\\\\src\\\\app\\\\pages\\\\host\")",
       "Bash(npx tsc *)",
       "Bash(npx vite *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(node_modules/.bin/tsc --noEmit)"
     ]
   }
 }

@@ -15,6 +15,7 @@ import { ProtectedHostLayout, ProtectedRoute } from './components/auth/Protected
 import { Dashboard } from './pages/Dashboard';
 import { MyListings } from './pages/host/MyListings';
 import { AddListing } from './pages/host/AddListing';
+import { EditListing } from './pages/host/EditListing';
 import { HostBookings } from './pages/host/HostBookings';
 import { Earnings } from './pages/host/Earnings';
 import { HostReviews } from './pages/host/HostReviews';
@@ -82,6 +83,7 @@ export const router = createBrowserRouter([
           { index: true, Component: Dashboard },
           { path: 'listings', Component: MyListings },
           { path: 'add-listing', Component: AddListing },
+          { path: 'edit-listing/:id', Component: EditListing },
           { path: 'bookings', Component: HostBookings },
           { path: 'earnings', Component: Earnings },
           { path: 'reviews', Component: HostReviews },

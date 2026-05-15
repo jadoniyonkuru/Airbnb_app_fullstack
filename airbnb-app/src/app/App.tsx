@@ -25,10 +25,10 @@ export default function App() {
         <WishlistProvider>
           <RouterProvider router={router} />
           <Toaster
-            position="top-right"
+            position="top-center"
             richColors
             closeButton
-            toastOptions={{ duration: 3500 }}
+            toastOptions={{ duration: 3000 }}
           />
         </WishlistProvider>
       </AuthProvider>

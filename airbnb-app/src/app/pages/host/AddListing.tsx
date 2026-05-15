@@ -141,18 +141,21 @@ export function AddListing() {
             const idStr = String(listingId);
             const formData = new FormData();
             fileObjects.slice(0, 5).forEach(f => formData.append('images', f));
-            await apiClient.post(ENDPOINTS.LISTING(idStr) + '/photos', formData, {
-              headers: { 'Content-Type': 'multipart/form-data' },
-            });
-            // invalidate listing-specific and listings list to refresh photos
-            qc.invalidateQueries({ queryKey: ['listings', idStr] });
-            qc.invalidateQueries({ queryKey: ['listings', {}] });
+            // No Content-Type override — Axios sets multipart/form-data + boundary automatically from FormData
+            const resp = await apiClient.post(ENDPOINTS.LISTING(idStr) + '/photos', formData, { timeout: 60000 });
+            // bust all listing queries so photos are visible immediately
+            await qc.invalidateQueries({ queryKey: ['listings'] });
+            // If some files failed, inform the user with details
+            const failures = resp?.data?.failures ?? [];
+            if (failures.length > 0) {
+              const names = failures.map((f: any) => f.filename).join(', ');
+              toast.warning(`Some photos failed to upload: ${names}. You can try again.`);
+            }
           }
         } catch (err) {
-          // photo upload failed, but listing exists — inform user
-          toast.warning('Listing created but photo upload failed. You can add photos from the listing page.');
+          toast.warning('Listing created but photo upload failed. You can add photos later.');
         }
-        toast.success('Property published successfully!');
+        toast.success('Listing launched successfully!', { duration: 1000 });
         navigate('/dashboard/listings');
       },
       onError: (err: any) => {
@@ -381,7 +384,7 @@ export function AddListing() {
             className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-8 py-3 rounded-xl text-sm font-semibold transition-colors"
           >
             <Check className="w-4 h-4" />
-            Publish Listing
+            Launch Listing
           </button>
         )}
       </div>
@@ -390,10 +393,10 @@ export function AddListing() {
         isOpen={showPublishModal}
         onClose={() => setShowPublishModal(false)}
         onConfirm={handleSubmit}
-        title="Are you sure you want to publish this listing?"
-        message=""
-        confirmText="Publish now"
-        cancelText="Review details"
+        title="Ready to go live?"
+        message="Your listing will be visible to guests straight away. You can edit the details anytime."
+        confirmText="Launch now"
+        cancelText="Not yet"
         type="info"
       />
     </div>

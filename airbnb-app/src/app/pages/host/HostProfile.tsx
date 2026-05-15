@@ -1,21 +1,39 @@
 import { useState, useRef } from 'react';
-import { Camera, Eye, EyeOff, Save, Shield, Star, Home, Calendar, Bell, Globe, Lock } from 'lucide-react';
+import { Camera, Eye, EyeOff, Save, Shield, Bell, Globe, Lock, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
+import { apiClient } from '../../../api/client';
 
 export function HostProfile() {
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'notifications'>('profile');
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
   const [pwStrength, setPwStrength] = useState(0);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const initials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : '--';
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAvatarUrl(url);
+    if (!file || !user) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const { data } = await apiClient.post(`/users/${user.id}/avatar`, formData);
+      updateUser({ avatar: data.avatar });
+      toast.success('Profile photo updated!', { duration: 1500 });
+    } catch {
+      toast.error('Photo upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -55,16 +73,22 @@ export function HostProfile() {
           <div className="bg-white rounded-2xl border border-[#EBEBEB] p-4 mb-4">
             <div className="flex flex-col items-center text-center p-4">
               <div className="relative mb-3">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover" />
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-full object-cover" />
                 ) : (
-                  <div className="w-20 h-20 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xl font-bold">SJ</div>
+                  <div className="w-20 h-20 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xl font-bold">
+                    {initials}
+                  </div>
                 )}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#222222] rounded-full flex items-center justify-center border-2 border-white"
+                  disabled={uploading}
+                  className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#222222] rounded-full flex items-center justify-center border-2 border-white disabled:opacity-60"
                 >
-                  <Camera className="w-3 h-3 text-white" />
+                  {uploading
+                    ? <Loader2 className="w-3 h-3 text-white animate-spin" />
+                    : <Camera className="w-3 h-3 text-white" />
+                  }
                 </button>
                 <input
                   ref={fileInputRef}
@@ -74,12 +98,14 @@ export function HostProfile() {
                   onChange={handlePhotoChange}
                 />
               </div>
-              <p className="text-[#222222] font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>Host Profile</p>
+              <p className="text-[#222222] font-semibold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                {user?.name ?? 'Host Profile'}
+              </p>
               <div className="flex items-center gap-1 mt-0.5">
-                <span className="text-xs text-[#717171]">Host</span>
+                <span className="text-xs text-[#717171]">{user?.role ?? 'Host'}</span>
               </div>
               <div className="mt-3 grid grid-cols-3 gap-2 w-full">
-                {[{ label: '6', sub: 'Listings' }, { label: '24', sub: 'Bookings' }, { label: '4.9', sub: 'Rating' }].map((s, i) => (
+                {[{ label: '—', sub: 'Listings' }, { label: '—', sub: 'Bookings' }, { label: '—', sub: 'Rating' }].map((s, i) => (
                   <div key={i} className="rounded-lg p-2 text-center" style={{ background: '#F7F7F7' }}>
                     <p className="text-[#222222] font-bold text-sm">{s.label}</p>
                     <p className="text-[#717171] text-xs">{s.sub}</p>
@@ -117,37 +143,62 @@ export function HostProfile() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-[#222222] text-sm font-semibold mb-2">First Name</label>
-                    <input defaultValue="" placeholder="First Name" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                    <input
+                      key={user?.id}
+                      defaultValue={user?.name?.split(' ')[0] ?? ''}
+                      placeholder="First Name"
+                      className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors"
+                    />
                   </div>
                   <div>
                     <label className="block text-[#222222] text-sm font-semibold mb-2">Last Name</label>
-                    <input defaultValue="" placeholder="Last Name" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                    <input
+                      key={user?.id}
+                      defaultValue={user?.name?.split(' ').slice(1).join(' ') ?? ''}
+                      placeholder="Last Name"
+                      className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors"
+                    />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[#222222] text-sm font-semibold mb-2">Email Address</label>
-                  <input type="email" defaultValue="" placeholder="Email address" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                  <input
+                    key={user?.id}
+                    type="email"
+                    defaultValue={user?.email ?? ''}
+                    placeholder="Email address"
+                    className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors"
+                  />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-[#222222] text-sm font-semibold mb-2">Phone Number</label>
-                    <input type="tel" defaultValue="+1 234 567 8900" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                    <input
+                      key={user?.id}
+                      type="tel"
+                      defaultValue={user?.phone ?? ''}
+                      placeholder="+1 234 567 8900"
+                      className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors"
+                    />
                   </div>
                   <div>
-                    <label className="block text-[#222222] text-sm font-semibold mb-2">Location</label>
-                    <input defaultValue="Kigali, Rwanda" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+                    <label className="block text-[#222222] text-sm font-semibold mb-2">Username</label>
+                    <input
+                      key={user?.id}
+                      defaultValue={user?.username ?? ''}
+                      placeholder="username"
+                      className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors"
+                    />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[#222222] text-sm font-semibold mb-2">Bio / About</label>
                   <textarea
-                    defaultValue="Experienced host passionate about providing exceptional stays for guests. I love meeting people from around the world and sharing the beauty of Kigali!"
+                    key={user?.id}
+                    defaultValue={user?.bio ?? ''}
+                    placeholder="Tell guests a bit about yourself..."
                     className="w-full px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors resize-none h-28"
                   />
-                </div>
-                <div>
-                  <label className="block text-[#222222] text-sm font-semibold mb-2">Languages Spoken</label>
-                  <input defaultValue="English, French, Kinyarwanda" className="w-full px-4 py-3.5 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C] transition-colors" />
                 </div>
                 <div className="flex gap-3 pt-2">
                   <button onClick={handleSave} className="flex items-center gap-2 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-7 py-3.5 rounded-xl font-semibold text-sm transition-all">
@@ -247,7 +298,6 @@ export function HostProfile() {
                 </div>
               </div>
 
-              {/* Security tips */}
               <div className="mt-8 p-5 rounded-2xl border border-[#EBEBEB]" style={{ background: '#F7F7F7' }}>
                 <p className="text-[#222222] font-semibold text-sm mb-3">Security Tips</p>
                 <ul className="space-y-2 text-xs text-[#717171]">

@@ -77,6 +77,7 @@ export interface MappedListing {
   rating: number;
   reviews: number;
   image: string;
+  photos: ListingPhoto[];
   host: string;
   guests: number;
   bedrooms: number;

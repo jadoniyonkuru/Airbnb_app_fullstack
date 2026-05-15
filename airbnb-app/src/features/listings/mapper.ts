@@ -20,6 +20,7 @@ export function mapListing(l: Listing): MappedListing {
     rating: l.rating ?? 4.5,
     reviews: 0,           // backend doesn't return review count on list — fallback
     image: primaryPhoto?.url ?? FALLBACK_IMAGE,
+    photos: l.photos ?? [],
     host: l.host?.name ?? 'Host',
     guests: l.guests ?? 1,
     bedrooms: 1,          // not in schema — safe fallback

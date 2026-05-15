@@ -5,7 +5,7 @@ interface ConfirmModalProps {
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  message: string;
+  message?: string;
   confirmText?: string;
   cancelText?: string;
   type?: 'danger' | 'warning' | 'info';
@@ -19,72 +19,72 @@ export function ConfirmModal({
   message,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  type = 'warning'
+  type = 'warning',
 }: ConfirmModalProps) {
   if (!isOpen) return null;
 
   const colors = {
-    danger: { bg: '#FEF2F2', icon: '#DC2626', btn: '#DC2626', btnHover: '#B91C1C' },
-    warning: { bg: '#FFF7ED', icon: '#EA580C', btn: '#EA580C', btnHover: '#C2410C' },
-    info: { bg: '#EFF6FF', icon: '#2563EB', btn: '#2563EB', btnHover: '#1D4ED8' }
+    danger:  { dot: '#DC2626', btn: '#DC2626', btnHover: '#B91C1C' },
+    warning: { dot: '#EA580C', btn: '#EA580C', btnHover: '#C2410C' },
+    info:    { dot: '#FF385C', btn: '#FF385C', btnHover: '#E31C5F' },
   };
-
-  const color = colors[type];
+  const c = colors[type];
 
   return (
     <>
+      <div className="fixed inset-0 z-50 bg-black/35" onClick={onClose} />
       <div
-        className="fixed inset-0 z-50 bg-black/40"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={onClose}
-      />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      >
         <div
-          className="bg-white rounded-2xl w-full max-w-md shadow-2xl"
-          style={{ fontFamily: "'Inter', sans-serif" }}
+          className="bg-white rounded-2xl w-full shadow-xl"
+          style={{ maxWidth: 360, fontFamily: "'Inter', sans-serif" }}
           onClick={e => e.stopPropagation()}
         >
-          <div className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ background: color.bg }}
-              >
+          <div className="p-5">
+            {/* Title row */}
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                <span
+                  className="w-2 h-2 rounded-full shrink-0 mt-0.5"
+                  style={{ background: c.dot }}
+                />
+                <h2
+                  className="font-semibold leading-snug"
+                  style={{ fontFamily: "'Poppins', sans-serif", color: '#1C1C1E', fontSize: '0.95rem' }}
+                >
+                  {title}
+                </h2>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full hover:bg-[#F7F7F7] flex items-center justify-center transition-colors shrink-0"
               >
-                <X className="w-4 h-4 text-[#717171]" />
+                <X className="w-3.5 h-3.5 text-[#AAAAAA]" />
               </button>
             </div>
 
-            <h2
-              className="font-semibold mb-2"
-              style={{ fontFamily: "'Poppins', sans-serif", color: '#1C1C1E', fontSize: '1.1rem' }}
-            >
-              {title}
-            </h2>
-            <p className="text-sm mb-6" style={{ color: '#717171' }}>
-              {message}
-            </p>
+            {message && (
+              <p className="text-xs leading-relaxed mb-4 pl-4" style={{ color: '#8E8E93' }}>
+                {message}
+              </p>
+            )}
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={onClose}
-                className="flex-1 border border-[#EBEBEB] hover:bg-[#F7F7F7] py-2.5 rounded-xl text-sm font-medium transition-colors"
+                className="flex-1 border border-[#EBEBEB] hover:bg-[#F7F7F7] py-2 rounded-xl text-xs font-medium transition-colors"
                 style={{ color: '#717171' }}
               >
                 {cancelText}
               </button>
               <button
-                onClick={() => {
-                  onConfirm();
-                  onClose();
-                }}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors"
-                style={{ background: color.btn }}
-                onMouseEnter={e => (e.currentTarget.style.background = color.btnHover)}
-                onMouseLeave={e => (e.currentTarget.style.background = color.btn)}
+                onClick={() => { onConfirm(); onClose(); }}
+                className="flex-1 py-2 rounded-xl text-xs font-semibold text-white transition-colors"
+                style={{ background: c.btn }}
+                onMouseEnter={e => (e.currentTarget.style.background = c.btnHover)}
+                onMouseLeave={e => (e.currentTarget.style.background = c.btn)}
               >
                 {confirmText}
               </button>
