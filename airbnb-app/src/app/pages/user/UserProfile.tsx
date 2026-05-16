@@ -3,7 +3,7 @@ import {
   Camera, MapPin, Building2, CalendarDays, BadgeCheck,
   Eye, EyeOff, ImageIcon, Pencil, Settings, LogOut, ArrowUp
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../../api/client';
@@ -14,6 +14,7 @@ export function UserProfile() {
   const { user, logout, updateUser } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation() as any;
 
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState('');
@@ -46,6 +47,12 @@ export function UserProfile() {
 
   const handleSaveDetails = () => {
     toast.success('Profile updated successfully!');
+    const redirect = location?.state?.from;
+    if (redirect) {
+      navigate(redirect);
+    } else {
+      navigate('/user/dashboard');
+    }
   };
 
   const handleChangePassword = () => {

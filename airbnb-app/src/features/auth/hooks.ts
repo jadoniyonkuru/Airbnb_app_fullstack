@@ -18,10 +18,15 @@ export function useLogin() {
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`);
     },
     onError: (err) => {
-      const message = err instanceof Error ? err.message : 'Login failed';
       const anyErr = err as any;
       const serverMsg = anyErr?.response?.data?.message;
-      toast.error(serverMsg ?? message);
+      if (!anyErr?.response) {
+        // likely a network error or backend is down
+        toast.error(`Network error: Unable to reach API at ${process.env.VITE_API_URL ?? 'http://localhost:3000/api/v1'}. Is the backend running?`);
+      } else {
+        const message = err instanceof Error ? err.message : 'Login failed';
+        toast.error(serverMsg ?? message);
+      }
     },
   });
 }

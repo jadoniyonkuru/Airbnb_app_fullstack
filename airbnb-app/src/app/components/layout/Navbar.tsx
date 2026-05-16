@@ -19,6 +19,7 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
+  const dashboardBase = isAuthenticated && user ? (user.role === 'HOST' || user.role === 'ADMIN' ? '/dashboard' : '/user/dashboard') : '/dashboard';
   const { wishlist } = useWishlist();
 
   const handleContactClick = (e: MouseEvent) => {
@@ -180,25 +181,25 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
                       <div className={`border-t mb-1 ${isDark ? 'border-[#3A3A3C]' : 'border-[#EBEBEB]'}`} />
 
                       {/* Menu items */}
-                      <Link to="/dashboard" onClick={() => setMenuOpen(false)}
+                      <Link to={dashboardBase} onClick={() => setMenuOpen(false)}
                         className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
                         <User className="w-4 h-4 shrink-0" />
                         My Profile
                       </Link>
                       <div className={`mx-5 border-t ${isDark ? 'border-[#3A3A3C]' : 'border-[#F0F0F0]'}`} />
-                      <Link to="/dashboard" onClick={() => setMenuOpen(false)}
+                      <Link to={dashboardBase} onClick={() => setMenuOpen(false)}
                         className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
                         <Pencil className="w-4 h-4 shrink-0" />
                         Edit Profile
                       </Link>
                       <div className={`mx-5 border-t ${isDark ? 'border-[#3A3A3C]' : 'border-[#F0F0F0]'}`} />
-                      <Link to="/dashboard" onClick={() => setMenuOpen(false)}
+                      <Link to={dashboardBase} onClick={() => setMenuOpen(false)}
                         className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
                         <Shuffle className="w-4 h-4 shrink-0" />
                         Activity Logs
                       </Link>
                       <div className={`mx-5 border-t ${isDark ? 'border-[#3A3A3C]' : 'border-[#F0F0F0]'}`} />
-                      <Link to="/dashboard" onClick={() => setMenuOpen(false)}
+                      <Link to={dashboardBase} onClick={() => setMenuOpen(false)}
                         className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
                         <Settings className="w-4 h-4 shrink-0" />
                         Account Settings

@@ -60,7 +60,7 @@ export function PropertyDetails() {
   const serviceFee = Math.round(subtotal * 0.12);
   const total = subtotal + serviceFee;
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
   const handleReserve = async () => {
@@ -70,7 +70,8 @@ export function PropertyDetails() {
     }
 
     try {
-      const res = await apiClient.get(ENDPOINTS.USER_PROFILE((property.hostId || '') as string));
+      const userId = user?.id || '';
+      const res = await apiClient.get(ENDPOINTS.USER_PROFILE(userId));
       if (res.status === 200 && res.data) {
         navigate(`/checkout/${property.id}`);
         return;
@@ -79,7 +80,7 @@ export function PropertyDetails() {
       // If profile not found (backend returns 404), prompt user to complete profile
       if (err?.response?.status === 404) {
         toast.error('Please complete your profile before making a booking.');
-        navigate('/user/profile');
+        navigate('/user/profile', { state: { from: `/checkout/${property.id}` } });
         return;
       }
       toast.error('Unable to verify profile. Please try again later.');
