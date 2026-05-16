@@ -1,4 +1,4 @@
-import { useBookings } from '../../../features/bookings/hooks';
+import { useBookings, useUpdateBooking } from '../../../features/bookings/hooks';
 import { MapPin, Calendar } from 'lucide-react';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
@@ -12,6 +12,7 @@ const statusConfig: Record<string, { color: string; bg: string }> = {
 
 export function HostBookings() {
   const { data: bookings = [], isLoading } = useBookings();
+  const updateBooking = useUpdateBooking();
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
     usePagination(bookings, { defaultPerPage: 4 });
 
@@ -69,8 +70,20 @@ export function HostBookings() {
                     <div className="flex items-center gap-2">
                       {booking.status === 'pending' && (
                         <>
-                          <button className="text-xs text-white bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-lg font-semibold transition-colors">Accept</button>
-                          <button className="text-xs text-white bg-red-400 hover:bg-red-500 px-3 py-1.5 rounded-lg font-semibold transition-colors">Decline</button>
+                          <button
+                            onClick={() => updateBooking.mutate({ id: booking.id, data: { status: 'CONFIRMED' } })}
+                            disabled={updateBooking.isLoading}
+                            className="text-xs text-white bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-lg font-semibold transition-colors disabled:opacity-60"
+                          >
+                            {updateBooking.isLoading ? 'Saving...' : 'Accept'}
+                          </button>
+                          <button
+                            onClick={() => updateBooking.mutate({ id: booking.id, data: { status: 'CANCELLED' } })}
+                            disabled={updateBooking.isLoading}
+                            className="text-xs text-white bg-red-400 hover:bg-red-500 px-3 py-1.5 rounded-lg font-semibold transition-colors disabled:opacity-60"
+                          >
+                            {updateBooking.isLoading ? 'Saving...' : 'Decline'}
+                          </button>
                         </>
                       )}
                       {booking.status === 'confirmed' && (

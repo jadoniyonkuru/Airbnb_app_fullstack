@@ -4,6 +4,8 @@ import { MapPin, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { useUserBookings, useCancelBooking } from '../../../features/bookings/hooks';
+import { useCreateConversation } from '../../../features/messages/hooks';
+import { useNavigate } from 'react-router';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { UserPageLayout } from '../../components/layout/UserPageLayout';
@@ -20,6 +22,8 @@ export function UserBookings() {
   const { user } = useAuth();
   const { data: bookings = [], isLoading } = useUserBookings(user?.id || '');
   const cancelBookingMutation = useCancelBooking();
+  const createConversationMutation = useCreateConversation();
+  const navigate = useNavigate();
   const [cancelModal, setCancelModal] = useState<{ id: string; title: string } | null>(null);
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
     usePagination(bookings, { defaultPerPage: 4 });
@@ -46,7 +50,7 @@ export function UserBookings() {
   }
 
   return (
-    <UserPageLayout title="My Bookings" breadcrumb="My Bookings">
+    <UserPageLayout title="My Bookings" breadcrumb="My Bookings" showBrand={false}>
       <p className="text-[#717171] text-sm -mt-4 mb-8">Manage all your reservations in one place.</p>
 
       {bookings.length === 0 ? (
@@ -90,6 +94,20 @@ export function UserBookings() {
                       </div>
                       <div className="flex items-center gap-3">
                         <Link to={`/property/${booking.propertyId}`} className="text-[#FF385C] text-sm font-medium hover:underline">View Property</Link>
+                        <button
+                          onClick={async () => {
+                            try {
+                              // create or open conversation with host for this listing
+                              const res = await createConversationMutation.mutateAsync({ recipientId: booking.hostId || '', listingId: booking.propertyId });
+                              navigate(`/user/messages?convoId=${res.id}`);
+                            } catch (err) {
+                              toast.error('Failed to open conversation');
+                            }
+                          }}
+                          className="text-sm text-[#717171] hover:text-[#222222] transition-colors"
+                        >
+                          Message
+                        </button>
                         {booking.status === 'completed' && (
                           <button className="text-[#717171] text-sm hover:text-[#222222] transition-colors">Write Review</button>
                         )}

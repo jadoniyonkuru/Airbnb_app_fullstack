@@ -53,4 +53,6 @@ export interface MappedBooking {
   total: number;
   nights: number;
   location: string;
+  hostId?: string;
+  hostName?: string;
 }

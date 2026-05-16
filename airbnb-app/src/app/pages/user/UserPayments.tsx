@@ -40,75 +40,100 @@ export function UserPayments() {
         <p className="text-[#717171] text-sm">Manage your payment methods and view transaction history.</p>
       </div>
 
-      {/* Payment Methods */}
-      <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 mb-8">
-        <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Saved Payment Methods</h2>
-        <div className="space-y-3 mb-4">
-          {savedCards.map(card => (
-            <div key={card.id} className="flex items-center gap-4 p-4 rounded-xl border border-[#EBEBEB]">
-              <span className="text-2xl">{card.icon}</span>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-[#222222] text-sm font-semibold">{card.type} {card.detail}</p>
-                  {card.primary && <span className="text-xs bg-green-50 text-green-700 font-semibold px-2 py-0.5 rounded-full">Default</span>}
-                </div>
-                {card.expires && <p className="text-[#717171] text-xs mt-0.5">{card.expires}</p>}
+      <div className="flex gap-8">
+        <aside className="w-56 hidden lg:block">
+          <div className="bg-white rounded-2xl border border-[#EBEBEB] p-4 sticky top-24">
+            <p className="text-sm font-semibold mb-3">Payments</p>
+            <nav className="space-y-2">
+              <button onClick={() => { document.getElementById('payment-history')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full text-left px-3 py-2 rounded-lg text-[#484848]`}>Payment History</button>
+              <button onClick={() => { document.getElementById('saved-cards')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full text-left px-3 py-2 rounded-lg text-[#484848]`}>Saved Cards</button>
+              <button onClick={() => { document.getElementById('refunds')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full text-left px-3 py-2 rounded-lg text-[#484848]`}>Refunds</button>
+              <button onClick={() => { document.getElementById('invoices')?.scrollIntoView({ behavior: 'smooth' }); }} className={`w-full text-left px-3 py-2 rounded-lg text-[#484848]`}>Invoices</button>
+            </nav>
+          </div>
+        </aside>
+
+        <div className="flex-1">
+          <div className="max-w-3xl mx-auto w-full">
+            <div id="saved-cards" className="bg-white rounded-2xl border border-[#EBEBEB] p-6 mb-8">
+              <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Saved Payment Methods</h2>
+              <div className="space-y-3 mb-4">
+                {savedCards.map(card => (
+                  <div key={card.id} className="flex items-center gap-4 p-4 rounded-xl border border-[#EBEBEB]">
+                    <span className="text-2xl">{card.icon}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-[#222222] text-sm font-semibold">{card.type} {card.detail}</p>
+                        {card.primary && <span className="text-xs bg-green-50 text-green-700 font-semibold px-2 py-0.5 rounded-full">Default</span>}
+                      </div>
+                      {card.expires && <p className="text-[#717171] text-xs mt-0.5">{card.expires}</p>}
+                    </div>
+                    <button onClick={() => removeCard(card.id)} className="text-xs text-[#AAAAAA] hover:text-red-500 transition-colors">
+                      Remove
+                    </button>
+                  </div>
+                ))}
               </div>
-              <button onClick={() => removeCard(card.id)} className="text-xs text-[#AAAAAA] hover:text-red-500 transition-colors">
-                Remove
+              <button className="flex items-center gap-2 text-sm font-semibold text-[#FF385C] border border-[#FF385C] px-4 py-2.5 rounded-xl hover:bg-[#FFF1F3] transition-colors">
+                <Plus className="w-4 h-4" /> Add Payment Method
               </button>
             </div>
-          ))}
-        </div>
-        <button className="flex items-center gap-2 text-sm font-semibold text-[#FF385C] border border-[#FF385C] px-4 py-2.5 rounded-xl hover:bg-[#FFF1F3] transition-colors">
-          <Plus className="w-4 h-4" /> Add Payment Method
-        </button>
-      </div>
 
-      {/* Billing Address */}
-      <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 mb-8">
-        <h2 className="text-[#222222] font-semibold mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>Billing Address</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input defaultValue="" placeholder="First Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
-          <input defaultValue="" placeholder="Last Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
-          <input defaultValue="123 Main Street" placeholder="Address" className="sm:col-span-2 px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
-          <input defaultValue="Kigali" placeholder="City" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
-          <input defaultValue="Rwanda" placeholder="Country" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
-        </div>
-        <button className="mt-4 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors">
-          Save Billing Info
-        </button>
-      </div>
-
-      {/* Payment History */}
-      <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
-        <div className="p-6 border-b border-[#EBEBEB]">
-          <h2 className="text-[#222222] font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>Payment History</h2>
-        </div>
-        <div className="divide-y divide-[#EBEBEB]">
-          {paginatedItems.map(payment => {
-            const status = statusConfig[payment.status as keyof typeof statusConfig] || statusConfig.pending;
-            const StatusIcon = status.icon;
-            return (
-              <div key={payment.id} className="flex items-center justify-between p-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${status.color}18` }}>
-                    <CreditCard className="w-5 h-5" style={{ color: status.color }} />
-                  </div>
-                  <div>
-                    <p className="text-[#222222] font-semibold text-sm">{payment.property}</p>
-                    <p className="text-[#717171] text-xs">{payment.date} • {payment.method}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[#222222] font-bold text-sm">${payment.amount}</p>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ color: status.color, background: status.bg }}>
-                    {status.label}
-                  </span>
-                </div>
+            <div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 mb-8" id="billing-address">
+              <h2 className="text-[#222222] font-semibold mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>Billing Address</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input defaultValue="" placeholder="First Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
+                <input defaultValue="" placeholder="Last Name" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
+                <input defaultValue="123 Main Street" placeholder="Address" className="sm:col-span-2 px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
+                <input defaultValue="Kigali" placeholder="City" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
+                <input defaultValue="Rwanda" placeholder="Country" className="px-4 py-3 rounded-xl border border-[#DDDDDD] text-[#222222] text-sm outline-none focus:border-[#FF385C]" />
               </div>
-            );
-          })}
+              <button className="mt-4 bg-[#FF385C] hover:bg-[#E31C5F] text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors">
+                Save Billing Info
+              </button>
+            </div>
+
+            <div id="payment-history" className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden mb-8">
+              <div className="p-6 border-b border-[#EBEBEB]">
+                <h2 className="text-[#222222] font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>Payment History</h2>
+              </div>
+              <div className="divide-y divide-[#EBEBEB]">
+                {paginatedItems.map(payment => {
+                  const status = statusConfig[payment.status as keyof typeof statusConfig] || statusConfig.pending;
+                  const StatusIcon = status.icon;
+                  return (
+                    <div key={payment.id} className="flex items-center justify-between p-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${status.color}18` }}>
+                          <CreditCard className="w-5 h-5" style={{ color: status.color }} />
+                        </div>
+                        <div>
+                          <p className="text-[#222222] font-semibold text-sm">{payment.property}</p>
+                          <p className="text-[#717171] text-xs">{payment.date} • {payment.method}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[#222222] font-bold text-sm">${payment.amount}</p>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ color: status.color, background: status.bg }}>
+                          {status.label}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div id="refunds" className="bg-white rounded-2xl border border-[#EBEBEB] p-6 mb-8">
+              <h2 className="text-[#222222] font-semibold mb-3">Refunds</h2>
+              <p className="text-sm text-[#717171]">No recent refunds. If you requested a refund it will appear here.</p>
+            </div>
+
+            <div id="invoices" className="bg-white rounded-2xl border border-[#EBEBEB] p-6 mb-8">
+              <h2 className="text-[#222222] font-semibold mb-3">Invoices</h2>
+              <p className="text-sm text-[#717171]">Download past invoices for your records.</p>
+            </div>
+          </div>
         </div>
       </div>
 

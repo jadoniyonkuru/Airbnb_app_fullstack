@@ -26,6 +26,8 @@ export function mapBooking(b: Booking): MappedBooking {
     total: b.totalPrice,
     nights: nightsBetween(b.checkIn, b.checkOut),
     location: b.listing?.location ?? '',
+    hostId: (b.listing as any)?.host?.id,
+    hostName: (b.listing as any)?.host?.name,
   };
 }
 

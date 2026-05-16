@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router';
 import { Search, Send, MapPin, ChevronLeft, MessageSquare, Loader2 } from 'lucide-react';
 import { useConversations, useConversation, useSendMessage } from '../../../features/messages/hooks';
 import { useAuth } from '../../context/AuthContext';
@@ -167,6 +168,7 @@ export function UserMessages() {
   const { user } = useAuth();
   const userId = user?.id ?? '';
   const { data: conversations = [], isLoading } = useConversations();
+  const [searchParams] = useSearchParams();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showMobileChat, setShowMobileChat] = useState(false);
@@ -174,8 +176,13 @@ export function UserMessages() {
   const activeConvo = conversations.find(c => c.id === activeId) ?? conversations[0] ?? null;
 
   useEffect(() => {
+    const param = searchParams.get('convoId');
+    if (param) {
+      setActiveId(param);
+      return;
+    }
     if (!activeId && conversations.length > 0) setActiveId(conversations[0].id);
-  }, [conversations, activeId]);
+  }, [conversations, activeId, searchParams]);
 
   const filtered = conversations.filter(c => {
     const other = c.guestId === userId ? c.host : c.guest;

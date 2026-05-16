@@ -6,9 +6,10 @@ interface UserPageLayoutProps {
   children: ReactNode;
   title: string;
   breadcrumb: string;
+  showBrand?: boolean;
 }
 
-export function UserPageLayout({ children, title, breadcrumb }: UserPageLayoutProps) {
+export function UserPageLayout({ children, title, breadcrumb, showBrand = true }: UserPageLayoutProps) {
   const navigate = useNavigate();
 
   return (
@@ -30,17 +31,20 @@ export function UserPageLayout({ children, title, breadcrumb }: UserPageLayoutPr
             <span style={{ color: '#FF385C', fontWeight: 600 }}>{breadcrumb}</span>
           </div>
 
-          <Link
-            to="/"
-            className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-          >
-            <div className="w-7 h-7 bg-[#FF385C] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xs" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
-            </div>
-            <span className="font-bold text-sm text-[#222222] hidden sm:inline" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              Stay<span style={{ color: '#FF385C' }}>Bnb</span>
-            </span>
-          </Link>
+          {/** Optional brand on the right — hidden for pages like My Bookings */}
+          {showBrand ? (
+            <Link
+              to="/"
+              className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-7 h-7 bg-[#FF385C] rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xs" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
+              </div>
+              <span className="font-bold text-sm text-[#222222] hidden sm:inline" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                Stay<span style={{ color: '#FF385C' }}>Bnb</span>
+              </span>
+            </Link>
+          ) : <div />}
         </div>
       </div>
 
