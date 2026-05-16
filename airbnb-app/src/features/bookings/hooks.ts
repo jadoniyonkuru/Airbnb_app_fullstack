@@ -72,10 +72,12 @@ export function useCreateBooking() {
     mutationFn: (data: CreateBookingRequest) => bookingsApi.create(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.bookings });
-      toast.success('Booking confirmed!');
     },
-    onError: (err) => {
-      const message = err instanceof Error ? err.message : 'Failed to create booking';
+    onError: (err: any) => {
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        'Failed to create booking';
       toast.error(message);
     },
   });

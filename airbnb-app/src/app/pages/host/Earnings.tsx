@@ -5,6 +5,7 @@ import { useListingStats } from '../../../features/statistics/hooks';
 
 export function Earnings() {
   const { data: bookings = [], isLoading } = useBookings();
+  const { data: listingStats } = useListingStats();
   const totalEarnings = bookings
     .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
     .reduce((sum, b) => sum + b.total, 0);

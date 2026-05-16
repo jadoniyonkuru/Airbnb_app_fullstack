@@ -1,7 +1,4 @@
 import { useParams, Link, useNavigate, useLocation } from 'react-router';
-import { apiClient } from '../../api/client';
-import { ENDPOINTS } from '../../api/endpoints';
-import { toast } from 'sonner';
 import { Navbar } from '../components/layout/Navbar';
 import { Star, Users, Bed, Bath, Wifi, Car, Wind, Utensils, MapPin, Share, Heart, ChevronLeft, Check, ArrowRight } from 'lucide-react';
 import { useListing } from '../../features/listings/hooks';
@@ -63,29 +60,12 @@ export function PropertyDetails() {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
-  const handleReserve = async () => {
+  const handleReserve = () => {
     if (!isAuthenticated) {
       navigate('/signin', { state: { from: location.pathname } });
       return;
     }
-
-    try {
-      const userId = user?.id || '';
-      const res = await apiClient.get(ENDPOINTS.USER_PROFILE(userId));
-      if (res.status === 200 && res.data) {
-        navigate(`/checkout/${property.id}`);
-        return;
-      }
-    } catch (err: any) {
-      // If profile not found (backend returns 404), prompt user to complete profile
-      if (err?.response?.status === 404) {
-        toast.error('Please complete your profile before making a booking.');
-        navigate('/user/profile', { state: { from: `/checkout/${property.id}` } });
-        return;
-      }
-      toast.error('Unable to verify profile. Please try again later.');
-      return;
-    }
+    navigate(`/checkout/${property.id}`);
   };
 
   return (
