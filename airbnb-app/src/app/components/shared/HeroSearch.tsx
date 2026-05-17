@@ -137,12 +137,13 @@ export function HeroSearch({ wide = false }: { wide?: boolean }) {
   const navigate = useNavigate();
   const today = startOf(new Date());
   const [location, setLocation] = useState('');
+  const [wideQuery, setWideQuery] = useState('');
   const [checkin, setCheckin] = useState<Date | null>(null);
   const [checkout, setCheckout] = useState<Date | null>(null);
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
-  const [panel, setPanel] = useState<'where' | 'when' | 'who' | null>(null);
+  const [panel, setPanel] = useState<'where' | 'when' | 'who' | 'loc' | null>(null);
   const [calTab, setCalTab] = useState<'dates' | 'flexible'>('dates');
   const [flexOpt, setFlexOpt] = useState('exact');
   const [calBase, setCalBase] = useState({ year: today.getFullYear(), month: today.getMonth() });
@@ -176,120 +177,186 @@ export function HeroSearch({ wide = false }: { wide?: boolean }) {
 
   const handleSearch = () => {
     const p = new URLSearchParams();
-    if (location) p.set('location', location);
-    if (checkin) p.set('checkin', toISO(checkin));
-    if (checkout) p.set('checkout', toISO(checkout));
-    if (totalGuests > 0) p.set('guests', String(totalGuests));
+    if (wide) {
+      if (wideQuery) p.set('q', wideQuery);
+      if (location) p.set('location', location);
+    } else {
+      if (location) p.set('location', location);
+      if (checkin) p.set('checkin', toISO(checkin));
+      if (checkout) p.set('checkout', toISO(checkout));
+      if (totalGuests > 0) p.set('guests', String(totalGuests));
+    }
     navigate(`/listings?${p.toString()}`);
     setPanel(null);
   };
 
   return (
     <div ref={wrapRef} className="relative" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Desktop: Horizontal Pill */}
+
+      {/* ── WIDE HERO PILL (matches design image) ─────────────────────────── */}
+      {wide && (
+        <div
+          className="hidden md:flex bg-white items-center overflow-hidden"
+          style={{ borderRadius: 50, boxShadow: '0 8px 40px rgba(0,0,0,0.22)' }}
+        >
+          {/* What are you looking for */}
+          <div className="flex items-center gap-3 flex-1 px-8 py-5 min-w-0">
+            <Search size={22} className="shrink-0" style={{ color: '#8E8E93' }} />
+            <div className="flex-1 min-w-0 border-b border-[#E0E0E0] pb-0.5">
+              <input
+                value={wideQuery}
+                onChange={e => setWideQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                placeholder="What are you looking for?"
+                className="border-0 outline-none bg-transparent w-full text-base"
+                style={{ color: wideQuery ? '#1C1C1E' : '#9E9E9E', fontFamily: "'Inter', sans-serif" }}
+              />
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 44, background: '#E0E0E0', flexShrink: 0 }} />
+
+          {/* Location dropdown */}
+          <div
+            className="flex items-center gap-3 px-8 py-5 cursor-pointer"
+            style={{ minWidth: 230 }}
+            onClick={() => setPanel(panel === 'loc' ? null : 'loc')}
+          >
+            <MapPin size={20} className="shrink-0" style={{ color: '#8E8E93' }} />
+            <div className="flex-1 border-b border-[#E0E0E0] pb-0.5">
+              <p style={{ color: location ? '#1C1C1E' : '#9E9E9E', fontSize: '1rem', whiteSpace: 'nowrap' }}>
+                {location || 'Location'}
+              </p>
+            </div>
+            <ChevronLeft size={16} style={{ color: '#9E9E9E', transform: 'rotate(270deg)', flexShrink: 0 }} />
+          </div>
+
+          {/* Search places button */}
+          <div className="flex items-center py-2 pr-2 pl-1">
+            <button
+              onClick={handleSearch}
+              className="flex items-center gap-2 text-white font-semibold whitespace-nowrap transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #FF5A5F 0%, #E31C5F 100%)',
+                borderRadius: 50,
+                padding: '16px 36px',
+                fontSize: '1rem',
+                fontFamily: "'Poppins', sans-serif",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #E31C5F 0%, #C0134F 100%)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #FF5A5F 0%, #E31C5F 100%)'; }}
+            >
+              Search places
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Location suggestions panel (wide mode) */}
+      {wide && panel === 'loc' && (
+        <div className="hidden md:block absolute top-full mt-2 bg-white rounded-2xl shadow-2xl border border-[#EBEBEB] z-50 overflow-hidden" style={{ left: '40%', minWidth: 280 }}>
+          <p className="px-4 py-2 text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">
+            Popular destinations
+          </p>
+          <div className="max-h-64 overflow-y-auto">
+            {SUGGESTIONS.map(s => (
+              <button
+                key={s.label}
+                onClick={() => { setLocation(s.label); setPanel(null); }}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-[#F8F7F4] transition-colors"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[#F2F2F2] flex items-center justify-center shrink-0">
+                  <MapPin size={16} className="text-[#FF5A5F]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#1C1C1E]">{s.label}</p>
+                  <p className="text-xs text-[#8E8E93]">{s.sub}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── COMPACT PILL (non-wide desktop) ───────────────────────────────── */}
+      {!wide && (
       <div
         className="hidden md:grid bg-white shadow-xl overflow-hidden"
         style={{
           borderRadius: 50,
-          gridTemplateColumns: wide ? '1fr 1px 1.1fr 1px 0.9fr 1px auto' : '1fr 1.3fr 1fr auto',
-          border: wide ? 'none' : '2px solid #DDDDDD',
+          gridTemplateColumns: '1fr 1.3fr 1fr auto',
+          border: '2px solid #DDDDDD',
         }}
       >
         {/* WHERE */}
         <div
           className="flex items-center gap-3 cursor-pointer transition-colors"
-          style={{
-            padding: wide ? '18px 28px' : '14px 20px',
-            background: panel === 'where' ? '#FFF5F5' : 'transparent',
-            borderRadius: wide ? '50px 0 0 50px' : undefined,
-          }}
+          style={{ padding: '14px 20px', background: panel === 'where' ? '#FFF5F5' : 'transparent' }}
           onClick={() => setPanel('where')}
         >
-          <Search size={wide ? 20 : 16} className="shrink-0" style={{ color: '#FF5A5F' }} />
+          <Search size={16} className="shrink-0" style={{ color: '#FF5A5F' }} />
           <div className="flex-1 min-w-0">
-            {!wide && <p className="text-[10px] font-bold tracking-wider uppercase text-[#1C1C1E] mb-0.5">Where</p>}
+            <p className="text-[10px] font-bold tracking-wider uppercase text-[#1C1C1E] mb-0.5">Where</p>
             <input
               value={location}
               onChange={e => { setLocation(e.target.value); setPanel('where'); }}
               onFocus={() => setPanel('where')}
-              placeholder={wide ? 'What are you looking for?' : 'Search destinations'}
+              placeholder="Search destinations"
               className="border-0 outline-none bg-transparent w-full"
-              style={{ color: location ? '#1C1C1E' : '#9E9E9E', fontSize: wide ? '0.95rem' : '0.875rem' }}
+              style={{ color: location ? '#1C1C1E' : '#9E9E9E', fontSize: '0.875rem' }}
             />
           </div>
         </div>
 
-        {/* Divider */}
-        {wide && <div style={{ background: '#E5E5E5', width: 1, margin: '14px 0' }} />}
-        {!wide && null}
-
         {/* WHEN */}
         <div
           className="flex items-center gap-3 cursor-pointer transition-colors"
-          style={{
-            padding: wide ? '18px 28px' : '14px 20px',
-            background: panel === 'when' ? '#FFF5F5' : 'transparent',
-            borderLeft: wide ? 'none' : '2px solid #DDDDDD',
-            borderRight: wide ? 'none' : '2px solid #DDDDDD',
-          }}
+          style={{ padding: '14px 20px', background: panel === 'when' ? '#FFF5F5' : 'transparent', borderLeft: '2px solid #DDDDDD', borderRight: '2px solid #DDDDDD' }}
           onClick={() => setPanel(panel === 'when' ? null : 'when')}
         >
-          <CalendarDays size={wide ? 20 : 16} className="shrink-0" style={{ color: '#FF5A5F' }} />
+          <CalendarDays size={16} className="shrink-0" style={{ color: '#FF5A5F' }} />
           <div className="flex-1">
-            {!wide && <p className="text-[10px] font-bold tracking-wider uppercase text-[#1C1C1E] mb-0.5">When</p>}
-            <p style={{ color: checkin ? '#1C1C1E' : '#9E9E9E', fontSize: wide ? '0.95rem' : '0.875rem' }}>
+            <p className="text-[10px] font-bold tracking-wider uppercase text-[#1C1C1E] mb-0.5">When</p>
+            <p style={{ color: checkin ? '#1C1C1E' : '#9E9E9E', fontSize: '0.875rem' }}>
               {checkin ? whenDisplay : 'Add dates'}
             </p>
           </div>
-          {wide && <ChevronLeft size={16} style={{ color: '#9E9E9E', transform: 'rotate(270deg)' }} />}
         </div>
-
-        {/* Divider */}
-        {wide && <div style={{ background: '#E5E5E5', width: 1, margin: '14px 0' }} />}
 
         {/* WHO */}
         <div
           className="flex items-center gap-3 cursor-pointer transition-colors"
-          style={{
-            padding: wide ? '18px 28px' : '14px 20px',
-            background: panel === 'who' ? '#FFF5F5' : 'transparent',
-          }}
+          style={{ padding: '14px 20px', background: panel === 'who' ? '#FFF5F5' : 'transparent' }}
           onClick={() => setPanel(panel === 'who' ? null : 'who')}
         >
-          {wide && <Users size={20} className="shrink-0" style={{ color: '#FF5A5F' }} />}
           <div className="flex-1 min-w-0">
-            {!wide && <p className="text-[10px] font-bold tracking-wider uppercase text-[#1C1C1E] mb-0.5">Who</p>}
-            <p style={{ color: totalGuests > 0 ? '#1C1C1E' : '#9E9E9E', fontSize: wide ? '0.95rem' : '0.875rem' }}>
-              {whoDisplay}
-            </p>
+            <p className="text-[10px] font-bold tracking-wider uppercase text-[#1C1C1E] mb-0.5">Who</p>
+            <p style={{ color: totalGuests > 0 ? '#1C1C1E' : '#9E9E9E', fontSize: '0.875rem' }}>{whoDisplay}</p>
           </div>
-          {wide && <ChevronLeft size={16} style={{ color: '#9E9E9E', transform: 'rotate(270deg)' }} />}
         </div>
 
-        {/* Divider before search */}
-        {wide && <div style={{ background: '#E5E5E5', width: 1, margin: '14px 0' }} />}
-
         {/* SEARCH BUTTON */}
-        <div className="flex items-center" style={{ padding: wide ? '10px 12px 10px 8px' : '8px' }}>
+        <div className="flex items-center" style={{ padding: '8px' }}>
           <button
             onClick={handleSearch}
             className="flex items-center gap-2.5 text-white font-bold transition-all shadow-lg whitespace-nowrap"
             style={{
               background: 'linear-gradient(135deg, #FF5A5F 0%, #E31C5F 100%)',
               borderRadius: 50,
-              padding: wide ? '16px 36px' : '12px 24px',
-              fontSize: wide ? '1rem' : '0.875rem',
+              padding: '12px 24px',
+              fontSize: '0.875rem',
               fontFamily: "'Poppins', sans-serif",
-              letterSpacing: '0.01em',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, #E31C5F 0%, #C0134F 100%)'; e.currentTarget.style.transform = 'scale(1.03)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, #FF5A5F 0%, #E31C5F 100%)'; e.currentTarget.style.transform = 'scale(1)'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #E31C5F 0%, #C0134F 100%)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, #FF5A5F 0%, #E31C5F 100%)'; }}
           >
-            <Search size={wide ? 18 : 16} strokeWidth={2.5} />
-            {wide ? 'Search' : 'Search'}
+            <Search size={16} strokeWidth={2.5} />
+            Search
           </button>
         </div>
       </div>
+      )}
 
       {/* Mobile: Vertical Stack */}
       <div className="md:hidden bg-white rounded-2xl border-2 border-[#DDDDDD] shadow-lg overflow-hidden">

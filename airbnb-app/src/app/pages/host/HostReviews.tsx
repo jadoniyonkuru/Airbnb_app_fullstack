@@ -75,11 +75,11 @@ const reviews = [
 ];
 
 const ratingBreakdown = [
-  { stars: 5, count: 89, percent: 72 },
-  { stars: 4, count: 24, percent: 19 },
-  { stars: 3, count: 8, percent: 6 },
-  { stars: 2, count: 2, percent: 2 },
-  { stars: 1, count: 1, percent: 1 },
+  { stars: 5, count: 89, percent: 88, score: '4.5', barColor: '#E8472C' },
+  { stars: 4, count: 24, percent: 72, score: '3.5', barColor: '#1B6B3A' },
+  { stars: 3, count: 8,  percent: 52, score: '1.5', barColor: '#F5A623' },
+  { stars: 2, count: 2,  percent: 36, score: '5.2', barColor: '#00C2D1' },
+  { stars: 1, count: 1,  percent: 22, score: '6.9', barColor: '#8B1A2A' },
 ];
 
 const categories = [

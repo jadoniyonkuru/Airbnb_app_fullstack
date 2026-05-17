@@ -558,8 +558,8 @@ export function Home() {
                 <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.45)' }}>Join our Whatsapp:</p>
                 <div className="flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-green-400 shrink-0" />
-                  <a href="tel:+250788456789" className="text-white font-semibold text-sm underline">
-                    (250) 788 456-789
+                  <a href="https://wa.me/250788959375" target="_blank" rel="noreferrer" className="text-white font-semibold text-sm underline">
+                    +250 788 959 375
                   </a>
                 </div>
               </div>
@@ -581,8 +581,8 @@ export function Home() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 shrink-0" style={{ color: 'rgba(255,255,255,0.5)' }} />
-                  <a href="tel:+250788456789" className="text-sm transition-colors hover:text-white" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                    (250) 788 456-789
+                  <a href="tel:+250788959375" className="text-sm transition-colors hover:text-white" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                    +250 788 959 375
                   </a>
                 </div>
                 <div className="flex items-center gap-3">

@@ -5,6 +5,7 @@ import { useListing } from '../../features/listings/hooks';
 import { useAuth } from '../context/AuthContext';
 import ReviewSummary from '../components/ai/ReviewSummary';
 import AIChat from '../components/ai/AIChat';
+import { VisitorReviews } from '../components/shared/VisitorReviews';
 
 export function PropertyDetails() {
   const { id } = useParams();
@@ -192,34 +193,9 @@ export function PropertyDetails() {
               </div>
             </div>
 
-            {/* Reviews Summary */}
+            {/* Reviews */}
+            <VisitorReviews listingId={property.id} rating={property.rating} reviewCount={property.reviews} />
             <div>
-              <div className="flex items-center gap-3 mb-5">
-                <Star className="w-5 h-5 fill-[#FF385C] text-[#FF385C]" />
-                <h3 className="text-[#222222] font-semibold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  {property.rating} · {property.reviews} reviews
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { label: 'Cleanliness', score: 4.9 },
-                  { label: 'Communication', score: 5.0 },
-                  { label: 'Check-in', score: 4.8 },
-                  { label: 'Accuracy', score: 4.9 },
-                  { label: 'Location', score: 4.7 },
-                  { label: 'Value', score: 4.6 },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="text-[#717171] text-sm w-28 shrink-0">{item.label}</span>
-                    <div className="flex-1 h-1.5 rounded-full bg-[#EBEBEB]">
-                      <div className="h-1.5 rounded-full bg-[#222222]" style={{ width: `${(item.score / 5) * 100}%` }} />
-                    </div>
-                    <span className="text-[#222222] font-semibold text-sm w-8 text-right shrink-0">{item.score}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-6">
               <ReviewSummary listingId={property.id} />
             </div>
           </div>
