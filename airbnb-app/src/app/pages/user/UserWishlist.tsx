@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Star, MapPin, Heart } from 'lucide-react';
 import { useListings } from '../../../features/listings/hooks';
 import { Pagination } from '../../components/shared/Pagination';

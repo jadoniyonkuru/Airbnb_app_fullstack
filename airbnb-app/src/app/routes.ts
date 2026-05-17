@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter } from 'react-router-dom';
 import { Root } from './pages/Root';
 import { Home } from './pages/Home';
 import { Listings } from './pages/Listings';
@@ -29,6 +29,13 @@ import { AdminHosts } from './pages/admin/AdminHosts';
 import { AdminPayments } from './pages/admin/AdminPayments';
 import { AdminReports } from './pages/admin/AdminReports';
 import { AdminAnalytics } from './pages/admin/AdminAnalytics';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminListings } from './pages/admin/AdminListings';
+import { AdminBookings } from './pages/admin/AdminBookings';
+import { AdminReviews } from './pages/admin/AdminReviews';
+import { AdminSettings } from './pages/admin/AdminSettings';
+import { AdminProfile } from './pages/admin/AdminProfile';
 
 // User Pages (for navbar dropdown - guests don't have dashboard)
 import { UserBookings } from './pages/user/UserBookings';
@@ -108,11 +115,25 @@ export const router = createBrowserRouter([
           { path: 'messages', Component: HostMessages },
           { path: 'profile', Component: HostProfile },
           { path: 'settings', Component: HostSettings },
+        ],
+      },
+
+      // Admin area (separate layout)
+      {
+        path: '/admin-dashboard',
+        Component: AdminLayout,
+        children: [
+          { index: true, Component: AdminDashboard },
           { path: 'users', Component: AdminUsers },
           { path: 'hosts', Component: AdminHosts },
+          { path: 'listings', Component: AdminListings },
+          { path: 'bookings', Component: AdminBookings },
           { path: 'payments', Component: AdminPayments },
+          { path: 'reviews', Component: AdminReviews },
           { path: 'reports', Component: AdminReports },
           { path: 'analytics', Component: AdminAnalytics },
+          { path: 'settings', Component: AdminSettings },
+          { path: 'profile', Component: AdminProfile },
         ],
       },
 

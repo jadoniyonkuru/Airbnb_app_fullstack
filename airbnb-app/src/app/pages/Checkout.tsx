@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Shield, Check, MapPin, Star, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useListing } from '../../features/listings/hooks';

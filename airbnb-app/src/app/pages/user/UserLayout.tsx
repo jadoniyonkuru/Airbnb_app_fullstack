@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Heart, User, Settings,
   LogOut, Bell, ChevronRight, MessageCircle, X, CreditCard

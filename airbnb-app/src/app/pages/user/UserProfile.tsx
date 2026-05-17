@@ -3,7 +3,7 @@ import {
   Camera, MapPin, Building2, CalendarDays, BadgeCheck,
   Eye, EyeOff, ImageIcon, Pencil, Settings, LogOut, ArrowUp
 } from 'lucide-react';
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../../api/client';

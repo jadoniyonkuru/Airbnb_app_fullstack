@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Send, MapPin, ChevronLeft, MessageSquare, Loader2 } from 'lucide-react';
 import { useConversations, useConversation, useSendMessage } from '../../../features/messages/hooks';
 import { useAuth } from '../../context/AuthContext';

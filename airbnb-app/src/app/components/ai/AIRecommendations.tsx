@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Sparkles, MapPin, DollarSign, RefreshCw, Loader2 } from 'lucide-react';
 import { useRecommend } from '../../../features/ai/hooks';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const FALLBACK = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=200&h=150&fit=crop';
 

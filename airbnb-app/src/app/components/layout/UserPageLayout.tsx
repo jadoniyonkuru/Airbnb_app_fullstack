@@ -1,5 +1,5 @@
 ﻿import { ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 
 interface UserPageLayoutProps {

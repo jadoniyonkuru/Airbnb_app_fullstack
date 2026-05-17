@@ -1,4 +1,4 @@
-﻿import { Outlet, Link, useLocation, useNavigate } from 'react-router';
+﻿import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Home, Plus, Calendar, DollarSign,
   User, LogOut, Bell, ChevronRight, Star, MessageCircle,

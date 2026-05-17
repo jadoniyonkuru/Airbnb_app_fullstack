@@ -4,7 +4,7 @@ import { useHostListings } from '../../../features/listings/hooks';
 import { useBookings } from '../../../features/bookings/hooks';
 import { useAuth } from '../../context/AuthContext';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import AIRecommendations from '../../components/ai/AIRecommendations';
 
 const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

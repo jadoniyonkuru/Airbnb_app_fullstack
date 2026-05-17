@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Eye, EyeOff, ArrowLeft, Check } from 'lucide-react';
 import { useRegister } from '../../features/auth/hooks';

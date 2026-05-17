@@ -1,5 +1,5 @@
 import { Menu, User, Sun, Moon, Heart, Pencil, Shuffle, Settings, LogOut } from 'lucide-react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, type MouseEvent } from 'react';
 import { toast } from 'sonner';
 import { useTheme } from '../../context/ThemeContext';

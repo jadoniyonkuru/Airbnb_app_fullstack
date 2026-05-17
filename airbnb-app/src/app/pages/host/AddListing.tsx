@@ -1,6 +1,6 @@
 import { useState, useCallback, memo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Upload, MapPin, DollarSign, Users, Bed, Bath, Check, ArrowRight, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';

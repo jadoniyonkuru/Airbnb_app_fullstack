@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight, X } from 'lucide-react';
 import { useAISearch } from '../../../features/ai/hooks';
 

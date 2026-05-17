@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useResetPassword } from '../../features/auth/hooks';
 

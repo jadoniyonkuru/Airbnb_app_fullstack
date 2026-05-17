@@ -1,11 +1,11 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Home, Calendar, DollarSign,
   Star, FileText, LogOut, Bell, ChevronRight, BarChart2,
   Settings, Shield, User, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const navSections = [
   {

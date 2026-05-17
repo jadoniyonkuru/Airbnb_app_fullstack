@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, Star, Eye, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { useHostListings, useDeleteListing } from '../../../features/listings/hooks';

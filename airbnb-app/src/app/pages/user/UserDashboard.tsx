@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calendar, Heart, MessageCircle, CreditCard,
   Star, Bell, Settings, LogOut, Trash2, Camera, Eye, EyeOff,

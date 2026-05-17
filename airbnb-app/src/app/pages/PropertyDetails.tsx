@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate, useLocation } from 'react-router';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
 import { Star, Users, Bed, Bath, Wifi, Car, Wind, Utensils, MapPin, Share, Heart, ChevronLeft, Check, ArrowRight } from 'lucide-react';
 import { useListing } from '../../features/listings/hooks';

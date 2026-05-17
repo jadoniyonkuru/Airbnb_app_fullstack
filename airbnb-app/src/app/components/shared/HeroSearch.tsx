@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, ChevronLeft, ChevronRight, Minus, Plus, X, CalendarDays, Users } from 'lucide-react';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];

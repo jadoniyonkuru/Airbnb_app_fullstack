@@ -1,4 +1,4 @@
-import { Outlet, useNavigation } from 'react-router';
+import { Outlet, useNavigation } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { NavigationLoader } from '../components/shared/LoadingScreen';
 import { ThemeProvider } from '../context/ThemeContext';

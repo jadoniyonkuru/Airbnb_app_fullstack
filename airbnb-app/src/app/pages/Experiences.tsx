@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Search, Filter, MapPin, Clock, Users, Star, ArrowRight } from 'lucide-react';
 import { Navbar } from '../components/layout/Navbar';
 
