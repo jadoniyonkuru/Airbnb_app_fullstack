@@ -6,6 +6,8 @@ import { PropertyDetails } from './pages/PropertyDetails';
 import { NotFound } from './pages/NotFound';
 import { SignIn } from './pages/SignIn';
 import { Register } from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import { Checkout } from './pages/Checkout';
 import { Experiences } from './pages/Experiences';
 
@@ -56,6 +58,22 @@ export const router = createBrowserRouter([
       {
         path: '/signin',
         Component: SignIn,
+      },
+      {
+        path: '/forgot-password',
+        Component: ForgotPassword,
+      },
+      {
+        path: '/auth/forgot-password',
+        Component: ForgotPassword,
+      },
+      {
+        path: '/auth/reset-password/:token',
+        Component: ResetPassword,
+      },
+      {
+        path: '/reset-password/:token',
+        Component: ResetPassword,
       },
       {
         path: '/register',

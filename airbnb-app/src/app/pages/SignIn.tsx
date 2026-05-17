@@ -126,7 +126,7 @@ export function SignIn() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[#222222] text-sm font-semibold">Password</label>
-                <a href="#" className="text-[#FF5A5F] text-xs font-medium hover:underline">Forgot password?</a>
+                <Link to="/forgot-password" className="text-[#FF5A5F] text-xs font-medium hover:underline">Forgot password?</Link>
               </div>
               <div className="relative">
                 <input

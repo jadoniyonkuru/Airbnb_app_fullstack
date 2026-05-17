@@ -76,3 +76,17 @@ export function useChangePassword() {
     },
   });
 }
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: ({ token, newPassword }: { token: string; newPassword: string }) =>
+      authApi.resetPassword(token, { newPassword }),
+    onSuccess: () => toast.success('Password reset successfully.'),
+    onError: (err) => {
+      const message = err instanceof Error ? err.message : 'Failed to reset password';
+      const anyErr = err as any;
+      const serverMsg = anyErr?.response?.data?.message;
+      toast.error(serverMsg ?? message);
+    },
+  });
+}
