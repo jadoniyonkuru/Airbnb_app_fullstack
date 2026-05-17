@@ -44,14 +44,21 @@ export function AdminDashboard() {
   // Map API users to match table structure if needed, or just use as is.
   const displayUsers = apiUsers.slice(0, 6);
 
+  // Safe date formatter
+  const formatDateSafe = (v?: any) => {
+    const d = v ? new Date(v) : new Date();
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString();
+  };
+
   // Build recent activity from recent bookings and users
-  const activities = (bookings ?? []).slice().reverse().slice(0, 12).map((b: any) => ({
-    id: b.id,
+  const activities = (bookings ?? []).filter(Boolean).slice().reverse().slice(0, 12).map((b: any) => ({
+    id: b?.id ?? Math.random().toString(36).slice(2, 9),
     type: 'booking',
-    user: b.guest?.name ?? b.guest?.email ?? 'Guest',
+    user: b?.guest?.name ?? b?.guest?.email ?? 'Guest',
     action: 'made a booking',
-    detail: b.listing?.title ?? b.listingId,
-    time: new Date(b.createdAt || b.checkIn || Date.now()).toLocaleString(),
+    detail: b?.listing?.title ?? b?.listingId,
+    time: formatDateSafe(b?.createdAt ?? b?.checkIn),
   }));
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -77,10 +84,10 @@ export function AdminDashboard() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         {[
-          { label: 'Total Users',    value: stats.totalUsers.toLocaleString(),                     trend: '+156 this month', icon: Users      },
-          { label: 'Active Hosts',   value: stats.totalHosts.toString(),                           trend: '+23 this month',  icon: Home       },
-          { label: 'Total Bookings', value: stats.totalBookings.toLocaleString(),                  trend: '+89 this week',   icon: Calendar   },
-          { label: 'Total Revenue',  value: `$${(stats.totalRevenue / 1000).toFixed(0)}k`,         trend: '+18% MoM',        icon: DollarSign },
+          { label: 'Total Users',    value: (stats.totalUsers ?? 0).toLocaleString(),                     trend: '+156 this month', icon: Users      },
+          { label: 'Active Hosts',   value: String(stats.totalHosts ?? 0),                                trend: '+23 this month',  icon: Home       },
+          { label: 'Total Bookings', value: (stats.totalBookings ?? 0).toLocaleString(),                  trend: '+89 this week',   icon: Calendar   },
+          { label: 'Total Revenue',  value: `$${((stats.totalRevenue ?? 0) / 1000).toFixed(0)}k`,         trend: '+18% MoM',        icon: DollarSign },
         ].map(({ label, value, trend, icon: Icon }) => (
           <div key={label} className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
