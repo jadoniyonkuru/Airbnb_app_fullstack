@@ -1,4 +1,5 @@
 import { ElementType } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Users, Home, Calendar, DollarSign,
   Activity, ArrowUpRight, TrendingUp,
@@ -69,7 +70,7 @@ export function AdminDashboard() {
           <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700, color: '#1C1C1E' }}>
             Admin Dashboard
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#717171' }}>Thursday, May 8, 2026</p>
+          <p className="text-sm mt-1" style={{ color: '#717171' }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="border border-[#DDDDDD] bg-white text-[#484848] px-4 py-2.5 rounded-xl text-sm font-medium hover:border-[#BBBBBB] transition-colors">
@@ -211,7 +212,7 @@ export function AdminDashboard() {
         <div className="lg:col-span-2 bg-white border border-[#EBEBEB] rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEBEB]">
             <h2 className="font-semibold" style={{ fontFamily: "'Poppins', sans-serif", color: '#1C1C1E' }}>Recent Users</h2>
-            <a href="/admin-dashboard/users" className="text-sm font-medium hover:underline" style={{ color: '#FF385C' }}>View all →</a>
+            <Link to="/admin-dashboard/users" className="text-sm font-medium hover:underline" style={{ color: '#FF385C' }}>View all →</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">

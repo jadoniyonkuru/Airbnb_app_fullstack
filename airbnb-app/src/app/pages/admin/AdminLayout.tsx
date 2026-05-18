@@ -6,53 +6,55 @@ import {
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-
-const navSections = [
-  {
-    label: 'Overview',
-    items: [
-      { label: 'Dashboard', path: '/admin-dashboard', icon: LayoutDashboard },
-    ],
-  },
-  {
-    label: 'Management',
-    items: [
-      { label: 'Users',    path: '/admin-dashboard/users',    icon: Users,     badge: '1.2k' },
-      { label: 'Hosts',    path: '/admin-dashboard/hosts',    icon: Shield },
-      { label: 'Listings', path: '/admin-dashboard/listings', icon: Home },
-      { label: 'Bookings', path: '/admin-dashboard/bookings', icon: Calendar },
-    ],
-  },
-  {
-    label: 'Finance',
-    items: [
-      { label: 'Payments', path: '/admin-dashboard/payments', icon: DollarSign },
-      { label: 'Reports',  path: '/admin-dashboard/reports',  icon: BarChart2 },
-    ],
-  },
-  {
-    label: 'Content',
-    items: [
-      { label: 'Reviews',   path: '/admin-dashboard/reviews',   icon: Star,     badge: '5' },
-      { label: 'Analytics', path: '/admin-dashboard/analytics', icon: FileText },
-    ],
-  },
-  {
-    label: 'System',
-    items: [
-      { label: 'Settings',      path: '/admin-dashboard/settings', icon: Settings },
-      { label: 'Admin Profile', path: '/admin-dashboard/profile',  icon: User },
-    ],
-  },
-];
-const SIDEBAR_BG = '#FF5A5F';
+import { useAdminStats } from '../../../features/admin/hooks';
 
 export function AdminLayout() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location  = useLocation();
   const navigate  = useNavigate();
+  const { data: stats } = useAdminStats();
   const [collapsed,      setCollapsed]      = useState(false);
   const [notifOpen,      setNotifOpen]      = useState(false);
+
+  const navSections = [
+    {
+      label: 'Overview',
+      items: [
+        { label: 'Dashboard', path: '/admin-dashboard', icon: LayoutDashboard },
+      ],
+    },
+    {
+      label: 'Management',
+      items: [
+        { label: 'Users',    path: '/admin-dashboard/users',    icon: Users,     badge: stats?.totalUsers    ? String(stats.totalUsers)    : undefined },
+        { label: 'Hosts',    path: '/admin-dashboard/hosts',    icon: Shield,    badge: stats?.totalHosts    ? String(stats.totalHosts)    : undefined },
+        { label: 'Listings', path: '/admin-dashboard/listings', icon: Home,      badge: stats?.totalListings ? String(stats.totalListings) : undefined },
+        { label: 'Bookings', path: '/admin-dashboard/bookings', icon: Calendar,  badge: stats?.totalBookings ? String(stats.totalBookings) : undefined },
+      ],
+    },
+    {
+      label: 'Finance',
+      items: [
+        { label: 'Payments', path: '/admin-dashboard/payments', icon: DollarSign },
+        { label: 'Reports',  path: '/admin-dashboard/reports',  icon: BarChart2 },
+      ],
+    },
+    {
+      label: 'Content',
+      items: [
+        { label: 'Reviews',   path: '/admin-dashboard/reviews',   icon: Star,     badge: stats?.totalReviews ? String(stats.totalReviews) : undefined },
+        { label: 'Analytics', path: '/admin-dashboard/analytics', icon: FileText },
+      ],
+    },
+    {
+      label: 'System',
+      items: [
+        { label: 'Settings',      path: '/admin-dashboard/settings', icon: Settings },
+        { label: 'Admin Profile', path: '/admin-dashboard/profile',  icon: User },
+      ],
+    },
+  ];
+
   const [notifications,  setNotifications]  = useState([
     { id: 1, type: 'user',    title: 'New Host Registration',   body: 'Amina Diallo submitted a host registration request.',                        time: '5 min ago',   read: false },
     { id: 2, type: 'alert',   title: 'Listing Flagged',         body: 'Listing #L-0049 was flagged by 2 users for inaccurate photos.',               time: '30 min ago',  read: false },
@@ -87,25 +89,23 @@ export function AdminLayout() {
 
       {/* ── Sidebar ── */}
       <aside
-        className="min-h-screen flex-col shadow-xl hidden md:flex transition-all duration-300"
+        className="bg-white border-r border-[#EBEBEB] min-h-screen flex-col shadow-sm hidden md:flex transition-all duration-300 fixed"
         style={{
-          width:           collapsed ? '72px' : '260px',
-          minWidth:        collapsed ? '72px' : '260px',
-          backgroundColor: SIDEBAR_BG,
-          color:           'white',
-          flexShrink:      0,
+          width:    collapsed ? '72px' : '260px',
+          minWidth: collapsed ? '72px' : '260px',
+          height:   '100vh',
+          zIndex:   40,
         }}
       >
         {/* Logo */}
         <Link
           to="/"
-          className="flex items-center hover:opacity-90 transition-opacity"
+          className="flex items-center border-b border-[#EBEBEB] hover:opacity-80 transition-opacity"
           style={{
-            borderBottom:  '1px solid rgba(255,255,255,0.08)',
-            padding:       collapsed ? '18px 0' : '20px',
+            padding:        collapsed ? '20px 0' : '24px',
             justifyContent: collapsed ? 'center' : 'flex-start',
             gap:            collapsed ? 0 : 12,
-            minHeight:     72,
+            minHeight:      72,
             textDecoration: 'none',
           }}
         >
@@ -114,29 +114,28 @@ export function AdminLayout() {
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <span className="text-white font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 Stay<span style={{ color: '#FF385C' }}>Ease</span>
               </span>
-              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.65rem', lineHeight: 1, marginTop: 2 }}>Admin Panel</p>
+              <p className="text-xs" style={{ color: '#AAAAAA', lineHeight: 1, marginTop: 2 }}>Admin Panel</p>
             </div>
           )}
         </Link>
 
         {/* Admin card */}
         {!collapsed && (
-          <div
-            className="mx-3 mt-4 p-3 rounded-xl"
-            style={{ background: 'rgba(255,56,92,0.12)', border: '1px solid rgba(255,56,92,0.22)' }}
-          >
+          <div className="p-4 mx-3 mt-4 rounded-2xl border border-[#FFD4D8]" style={{ backgroundColor: '#FFF1F3' }}>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
                 {user?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-semibold text-sm truncate">{user?.name}</p>
-                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem' }}>Super Administrator</p>
+                <p className="text-[#222222] font-semibold text-sm truncate" style={{ fontFamily: "'Poppins', sans-serif" }}>{user?.name}</p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                  <p className="text-xs" style={{ color: '#717171' }}>Administrator</p>
+                </div>
               </div>
-              <span className="w-2 h-2 bg-green-400 rounded-full shrink-0" />
             </div>
           </div>
         )}
@@ -146,14 +145,11 @@ export function AdminLayout() {
           {navSections.map(section => (
             <div key={section.label}>
               {!collapsed ? (
-                <p
-                  className="text-xs font-semibold uppercase tracking-widest px-3 pt-4 pb-1.5"
-                  style={{ color: 'rgba(255,255,255,0.28)' }}
-                >
+                <p className="text-xs font-semibold uppercase tracking-widest px-3 pt-4 pb-1.5" style={{ color: '#AAAAAA' }}>
                   {section.label}
                 </p>
               ) : (
-                <div className="my-2 mx-3 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+                <div className="my-2 mx-3 h-px bg-[#EBEBEB]" />
               )}
 
               {section.items.map(item => {
@@ -165,38 +161,35 @@ export function AdminLayout() {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 relative mb-0.5"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 relative mb-0.5 hover:bg-[#F7F7F7]"
                     style={{
-                      backgroundColor: isActive ? 'rgba(255,56,92,0.18)' : 'transparent',
-                      color:            isActive ? '#FF385C' : 'rgba(255,255,255,0.62)',
-                      borderLeft:       isActive ? '3px solid #FF385C' : '3px solid transparent',
-                      justifyContent:   collapsed ? 'center' : 'flex-start',
-                      textDecoration:   'none',
+                      backgroundColor: isActive ? '#FFF1F3' : 'transparent',
+                      color:           isActive ? '#FF385C' : '#484848',
+                      borderLeft:      isActive ? '3px solid #FF385C' : '3px solid transparent',
+                      justifyContent:  collapsed ? 'center' : 'flex-start',
+                      textDecoration:  'none',
                     }}
-                    onMouseEnter={e => { if (!isActive) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'; }}
-                    onMouseLeave={e => { if (!isActive) e.currentTarget.style.backgroundColor = 'transparent'; }}
                     title={collapsed ? item.label : undefined}
                   >
                     <Icon className="w-[18px] h-[18px] shrink-0" />
                     {!collapsed && (
                       <>
                         <span className="text-sm font-medium flex-1">{item.label}</span>
-                        {(item as any).badge && (
-                          <span
-                            className="text-xs font-bold px-1.5 py-0.5 rounded-full"
+                        {item.badge && (
+                          <span className="text-xs font-bold px-1.5 py-0.5 rounded-full"
                             style={{
-                              backgroundColor: isActive ? '#FF385C' : 'rgba(255,255,255,0.1)',
-                              color: 'white',
-                            }}
-                          >
-                            {(item as any).badge}
+                              backgroundColor: isActive ? '#FF385C' : '#F0F0F0',
+                              color: isActive ? 'white' : '#717171',
+                            }}>
+                            {item.badge}
                           </span>
                         )}
+                        {isActive && !item.badge && <ChevronRight className="w-4 h-4 opacity-50" />}
                       </>
                     )}
-                    {collapsed && (item as any).badge && (
+                    {collapsed && item.badge && (
                       <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-[9px] font-bold">
-                        {(item as any).badge}
+                        {item.badge}
                       </span>
                     )}
                   </Link>
@@ -206,52 +199,33 @@ export function AdminLayout() {
           ))}
         </nav>
 
-        {/* Collapse toggle */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }} className="px-2 py-2">
+        {/* Bottom actions */}
+        <div className="px-2 pb-4 border-t border-[#EBEBEB] space-y-0.5 pt-2">
           <button
             onClick={() => setCollapsed(c => !c)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full transition-all duration-150"
-            style={{
-              color:           'rgba(255,255,255,0.4)',
-              justifyContent:  collapsed ? 'center' : 'flex-start',
-              backgroundColor: 'transparent',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.07)')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full transition-all duration-150 hover:bg-[#F7F7F7]"
+            style={{ color: '#AAAAAA', justifyContent: collapsed ? 'center' : 'flex-start' }}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed
-              ? <PanelLeftOpen  className="w-[18px] h-[18px] shrink-0" style={{ color: '#FF385C' }} />
-              : <>
-                  <PanelLeftClose className="w-[18px] h-[18px] shrink-0" style={{ color: 'rgba(255,255,255,0.4)' }} />
-                  <span className="text-sm font-medium">Collapse</span>
-                </>
+              ? <PanelLeftOpen  className="w-[18px] h-[18px] shrink-0 text-[#FF385C]" />
+              : <><PanelLeftClose className="w-[18px] h-[18px] shrink-0" /><span className="text-sm font-medium">Collapse</span></>
             }
           </button>
-        </div>
-
-        {/* Logout */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }} className="px-2 pb-4">
           <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-left transition-all duration-150 mt-2"
-            style={{
-              color:           'rgba(255,255,255,0.4)',
-              justifyContent:  collapsed ? 'center' : 'flex-start',
-              backgroundColor: 'transparent',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#f87171'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}
+            onClick={() => { logout(); navigate('/'); }}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FFF1F3] w-full text-left transition-colors group"
+            style={{ color: '#717171', justifyContent: collapsed ? 'center' : 'flex-start' }}
             title={collapsed ? 'Logout' : undefined}
           >
-            <LogOut className="w-[18px] h-[18px] shrink-0" />
-            {!collapsed && <span className="text-sm font-medium">Logout</span>}
+            <LogOut className="w-[18px] h-[18px] shrink-0 group-hover:text-[#FF385C] transition-colors" />
+            {!collapsed && <span className="text-sm font-medium group-hover:text-[#FF385C] transition-colors">Logout</span>}
           </button>
         </div>
       </aside>
 
       {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col min-w-0 bg-white">
+      <div className="flex-1 flex flex-col min-w-0 bg-white" style={{ marginLeft: collapsed ? '72px' : '260px' }}>
 
         {/* Top bar */}
         <header className="bg-white border-b border-[#EBEBEB] px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
