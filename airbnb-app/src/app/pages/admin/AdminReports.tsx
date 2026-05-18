@@ -16,7 +16,12 @@ export function AdminReports() {
   const { data: users = [], isLoading: loadingUsers } = useUsers();
   const { data: listings = [], isLoading: loadingListings } = useListings();
   const { data: listingStats } = useListingStats();
-  const stats = listingStats ?? { monthlyRevenue: [], userGrowth: [], categoryRevenue: [] };
+  const stats = listingStats ?? {
+    monthlyRevenue: [],
+    userGrowth: [],
+    categoryRevenue: [],
+  };
+  const categoryRevenue = stats?.categoryRevenue ?? [];
 
   const totalRevenue = bookings
     .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
@@ -102,14 +107,14 @@ export function AdminReports() {
           <h2 className="text-[#222222] font-semibold mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>Revenue by Category</h2>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={stats.categoryRevenue} cx="50%" cy="50%" outerRadius={80} paddingAngle={3} dataKey="value">
-                {stats.categoryRevenue.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              <Pie data={categoryRevenue} cx="50%" cy="50%" outerRadius={80} paddingAngle={3} dataKey="value">
+                {categoryRevenue.map((entry: any, i: number) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip formatter={(v) => [`${v}%`, 'Share']} />
             </PieChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-3 mt-2 justify-center">
-            {stats.categoryRevenue.map((item, i) => (
+            {categoryRevenue.map((item: any, i: number) => (
               <div key={i} className="flex items-center gap-1.5 text-xs text-[#717171]">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
                 {item.name} {item.value}%

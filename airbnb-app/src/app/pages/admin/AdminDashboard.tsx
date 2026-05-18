@@ -33,7 +33,7 @@ const actIconMap: Record<string, ElementType> = {
 };
 
 export function AdminDashboard() {
-  const { data: adminStats, isLoading: loadingStats } = useAdminStats();
+  const { data: adminStats, isLoading: loadingStats, error: statsError } = useAdminStats();
   const { data: chartStats } = useListingStats();
 
   const totalUsers    = adminStats?.totalUsers    ?? 0;
@@ -42,6 +42,10 @@ export function AdminDashboard() {
   const totalRevenue  = adminStats?.totalRevenue  ?? 0;
   const recentUsers: any[]   = adminStats?.recentUsers   ?? [];
   const recentBookings: any[] = adminStats?.recentBookings ?? [];
+
+  if (statsError) {
+    console.error('Admin stats error:', statsError);
+  }
 
   const chartData = chartStats ?? {
     monthlyRevenue: [], activeListings: 0, totalListings: 1, weeklyBookings: [], userGrowth: [],
@@ -85,10 +89,10 @@ export function AdminDashboard() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         {[
-          { label: 'Total Users',    value: loadingStats ? '...' : totalUsers.toLocaleString(),                   trend: '+156 this month', icon: Users      },
-          { label: 'Active Hosts',   value: loadingStats ? '...' : String(totalHosts),                            trend: '+23 this month',  icon: Home       },
-          { label: 'Total Bookings', value: loadingStats ? '...' : totalBookings.toLocaleString(),                trend: '+89 this week',   icon: Calendar   },
-          { label: 'Total Revenue',  value: loadingStats ? '...' : `$${(totalRevenue / 1000).toFixed(0)}k`,       trend: '+18% MoM',        icon: DollarSign },
+          { label: 'Total Users',    value: loadingStats ? '...' : (totalUsers > 0 ? totalUsers.toLocaleString() : '0'),                   trend: '+156 this month', icon: Users      },
+          { label: 'Active Hosts',   value: loadingStats ? '...' : (totalHosts > 0 ? totalHosts.toLocaleString() : '0'),                  trend: '+23 this month',  icon: Home       },
+          { label: 'Total Bookings', value: loadingStats ? '...' : (totalBookings > 0 ? totalBookings.toLocaleString() : '0'),            trend: '+89 this week',   icon: Calendar   },
+          { label: 'Total Revenue',  value: loadingStats ? '...' : `$${totalRevenue > 0 ? (totalRevenue / 1000).toFixed(0) : '0'}k`,       trend: '+18% MoM',        icon: DollarSign },
         ].map(({ label, value, trend, icon: Icon }) => (
           <div key={label} className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">

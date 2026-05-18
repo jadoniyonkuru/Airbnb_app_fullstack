@@ -21,8 +21,17 @@ export function useAdminStats() {
   return useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: async () => {
-      const res = await apiClient.get(ENDPOINTS.ADMIN_STATS);
-      return res.data?.data ?? res.data;
+      try {
+        const res = await apiClient.get(ENDPOINTS.ADMIN_STATS);
+        console.log('Admin stats response:', res.data);
+        return res.data?.data ?? res.data ?? {
+          totalUsers: 0, totalHosts: 0, totalListings: 0, totalBookings: 0, totalReviews: 0,
+          totalRevenue: 0, recentBookings: [], recentUsers: []
+        };
+      } catch (error) {
+        console.error('Admin stats fetch error:', error);
+        throw error;
+      }
     },
     staleTime: 1000 * 60,
   });
