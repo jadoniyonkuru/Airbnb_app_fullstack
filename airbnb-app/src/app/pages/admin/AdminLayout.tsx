@@ -109,9 +109,6 @@ export function AdminLayout() {
             textDecoration: 'none',
           }}
         >
-          <div className="w-8 h-8 bg-[#FF385C] rounded-xl flex items-center justify-center shrink-0">
-            <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>S</span>
-          </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>

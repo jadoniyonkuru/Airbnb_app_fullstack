@@ -87,9 +87,6 @@ export function DashboardLayout() {
             textDecoration: 'none',
           }}
         >
-          <div className="w-8 h-8 bg-[#FF385C] rounded-xl flex items-center justify-center shrink-0">
-            <span className="text-white font-bold text-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>SE</span>
-          </div>
           {!collapsed && (
             <span className="text-[#222222] font-bold text-lg" style={{ fontFamily: "'Poppins', sans-serif" }}>StayEase</span>
           )}
