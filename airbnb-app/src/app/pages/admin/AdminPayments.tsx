@@ -1,25 +1,29 @@
 import { useState } from 'react';
 import { Search, DollarSign, TrendingUp, CreditCard } from 'lucide-react';
-import { useBookings } from '../../../features/bookings/hooks';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAdminPayments } from '../../../features/admin/hooks';
 import { useListingStats } from '../../../features/statistics/hooks';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 
 export function AdminPayments() {
-  const { data: bookings = [], isLoading } = useBookings();
+  const { data: payments = [], isLoading } = useAdminPayments();
+  const { data: listingStats } = useListingStats();
   const [search, setSearch] = useState('');
 
-  const totalRevenue = bookings
-    .filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'completed')
-    .reduce((sum, b) => sum + b.total, 0);
-  const avgTransaction = bookings.length > 0 ? Math.round(totalRevenue / bookings.length) : 0;
+  const totalRevenue = (payments as any[])
+    .filter((b: any) => b.status === 'CONFIRMED')
+    .reduce((sum: number, b: any) => sum + b.totalPrice, 0);
+  const avgTransaction = (payments as any[]).length > 0 ? Math.round(totalRevenue / (payments as any[]).length) : 0;
+  const pendingTotal = (payments as any[])
+    .filter((b: any) => b.status === 'PENDING')
+    .reduce((sum: number, b: any) => sum + b.totalPrice, 0);
 
-  const filtered = bookings.filter(p =>
-    p.guest?.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase())
+  const filtered = (payments as any[]).filter((p: any) =>
+    p.guest?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    p.listing?.title?.toLowerCase().includes(search.toLowerCase()) ||
+    p.id.toLowerCase().includes(search.toLowerCase())
   );
-
-  const { data: listingStats } = useListingStats();
 
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
     usePagination(filtered, { defaultPerPage: 8 });
@@ -33,10 +37,10 @@ export function AdminPayments() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Revenue', value: isLoading ? '...' : `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#16a34a', bg: '#dcfce7' },
-          { label: 'This Month', value: isLoading ? '...' : `$${Math.round(totalRevenue * 0.28).toLocaleString()}`, icon: TrendingUp, color: '#FF385C', bg: '#FFF1F3' },
-          { label: 'Avg. Transaction', value: isLoading ? '...' : `$${avgTransaction}`, icon: CreditCard, color: '#2563eb', bg: '#dbeafe' },
-          { label: 'Pending', value: isLoading ? '...' : `$${Math.round(totalRevenue * 0.05).toLocaleString()}`, icon: DollarSign, color: '#d97706', bg: '#fef3c7' },
+          { label: 'Total Revenue',    value: isLoading ? '...' : `$${totalRevenue.toLocaleString()}`,                       icon: DollarSign, color: '#16a34a', bg: '#dcfce7' },
+          { label: 'This Month',       value: isLoading ? '...' : `$${Math.round(totalRevenue * 0.28).toLocaleString()}`,    icon: TrendingUp, color: '#FF385C', bg: '#FFF1F3' },
+          { label: 'Avg. Transaction', value: isLoading ? '...' : `$${avgTransaction}`,                                      icon: CreditCard, color: '#2563eb', bg: '#dbeafe' },
+          { label: 'Pending',          value: isLoading ? '...' : `$${pendingTotal.toLocaleString()}`,                       icon: DollarSign, color: '#d97706', bg: '#fef3c7' },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: stat.bg }}>
@@ -80,29 +84,25 @@ export function AdminPayments() {
               {isLoading ? (
                 [1,2,3,4,5].map(i => (
                   <tr key={i} className="animate-pulse">
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-32" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-40" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-12" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-20" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-24" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                    {[64, 128, 160, 48, 80, 96, 64].map((w, j) => (
+                      <td key={j} className="px-5 py-4"><div className={`h-4 bg-[#F0F0F0] rounded`} style={{ width: w }} /></td>
+                    ))}
                   </tr>
                 ))
-              ) : paginatedItems.map(payment => (
+              ) : paginatedItems.map((payment: any) => (
                 <tr key={payment.id} className="hover:bg-[#FAFAFA] transition-colors">
-                  <td className="px-5 py-4 text-[#FF385C] font-semibold text-sm">{payment.id}</td>
-                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">{payment.guest}</td>
-                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.propertyTitle}</td>
-                  <td className="px-5 py-4 text-[#222222] font-bold text-sm">${payment.total.toLocaleString()}</td>
-                  <td className="px-5 py-4 text-[#717171] text-sm">Credit Card</td>
-                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.checkIn}</td>
+                  <td className="px-5 py-4 text-[#FF385C] font-semibold text-xs">{payment.id.slice(0, 8)}…</td>
+                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">{payment.guest?.name ?? '—'}</td>
+                  <td className="px-5 py-4 text-[#717171] text-sm">{payment.listing?.title ?? '—'}</td>
+                  <td className="px-5 py-4 text-[#222222] font-bold text-sm">${payment.totalPrice?.toLocaleString()}</td>
+                  <td className="px-5 py-4 text-[#717171] text-sm">Card</td>
+                  <td className="px-5 py-4 text-[#717171] text-sm">{new Date(payment.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-4">
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{
-                      background: payment.status.toLowerCase() === 'confirmed' || payment.status.toLowerCase() === 'completed' ? '#dcfce7' : '#fef3c7',
-                      color: payment.status.toLowerCase() === 'confirmed' || payment.status.toLowerCase() === 'completed' ? '#16a34a' : '#d97706'
+                      background: payment.status === 'CONFIRMED' ? '#dcfce7' : payment.status === 'CANCELLED' ? '#fee2e2' : '#fef3c7',
+                      color:      payment.status === 'CONFIRMED' ? '#16a34a' : payment.status === 'CANCELLED' ? '#dc2626' : '#d97706'
                     }}>
-                      {payment.status.toLowerCase()}
+                      {payment.status?.toLowerCase()}
                     </span>
                   </td>
                 </tr>
@@ -110,8 +110,6 @@ export function AdminPayments() {
             </tbody>
           </table>
         </div>
-
-        {/* ── Pagination inside table card ── */}
         <div className="px-5 py-5 border-t border-[#EBEBEB]">
           <Pagination
             currentPage={currentPage}

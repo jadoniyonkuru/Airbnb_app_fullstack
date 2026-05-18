@@ -1,24 +1,32 @@
 import { useState } from 'react';
-import { Search, UserPlus, CheckCircle, XCircle, Edit } from 'lucide-react';
-import { toast } from 'sonner';
-import { useUsers } from '../../../features/users/hooks';
+import { Search, UserPlus, CheckCircle, XCircle } from 'lucide-react';
+import { useAdminUsers, useUpdateUserStatus, useDeleteAdminUser } from '../../../features/admin/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 
 export function AdminUsers() {
-  const { data: users = [], isLoading } = useUsers();
+  const { data: users = [], isLoading } = useAdminUsers();
+  const updateStatus = useUpdateUserStatus();
+  const deleteUser = useDeleteAdminUser();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [actionModal, setActionModal] = useState<{ user: any; action: 'suspend' | 'activate' } | null>(null);
 
-  const filtered = users.filter(u =>
-    (filter === 'all' || u.role?.toLowerCase() === filter || (filter === 'active' && true)) &&
+  const filtered = (users as any[]).filter(u =>
+    (filter === 'all' ||
+     u.role?.toLowerCase() === filter ||
+     (filter === 'active' && u.status === 'ACTIVE') ||
+     (filter === 'suspended' && u.status === 'SUSPENDED')) &&
     (u.name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase()))
   );
 
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
     usePagination(filtered, { defaultPerPage: 8 });
+
+  const totalHosts = (users as any[]).filter((u: any) => u.role === 'HOST').length;
+  const totalGuests = (users as any[]).filter((u: any) => u.role === 'GUEST').length;
+  const totalSuspended = (users as any[]).filter((u: any) => u.status === 'SUSPENDED').length;
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -33,7 +41,6 @@ export function AdminUsers() {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="bg-white rounded-2xl border border-[#EBEBEB] p-5 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
@@ -51,10 +58,7 @@ export function AdminUsers() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className="px-4 py-2.5 rounded-xl text-sm font-medium capitalize transition-all"
-                style={{
-                  background: filter === f ? '#FF385C' : '#F7F7F7',
-                  color: filter === f ? 'white' : '#717171'
-                }}
+                style={{ background: filter === f ? '#FF385C' : '#F7F7F7', color: filter === f ? 'white' : '#717171' }}
               >
                 {f === 'all' ? 'All Users' : f}
               </button>
@@ -63,13 +67,12 @@ export function AdminUsers() {
         </div>
       </div>
 
-      {/* Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Users', value: '1,247', color: '#FF385C', bg: '#FFF1F3' },
-          { label: 'Active Hosts', value: '389', color: '#00A699', bg: '#E6F7F6' },
-          { label: 'Active Guests', value: '858', color: '#FC642D', bg: '#FFF0EB' },
-          { label: 'Suspended', value: '12', color: '#dc2626', bg: '#fee2e2' },
+          { label: 'Total Users',    value: (users as any[]).length, color: '#FF385C', bg: '#FFF1F3' },
+          { label: 'Active Hosts',   value: totalHosts,              color: '#00A699', bg: '#E6F7F6' },
+          { label: 'Active Guests',  value: totalGuests,             color: '#FC642D', bg: '#FFF0EB' },
+          { label: 'Suspended',      value: totalSuspended,          color: '#dc2626', bg: '#fee2e2' },
         ].map((stat, i) => (
           <div key={i} className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
             <p className="text-2xl font-bold mb-1" style={{ color: stat.color, fontFamily: "'Poppins', sans-serif" }}>{stat.value}</p>
@@ -78,13 +81,12 @@ export function AdminUsers() {
         ))}
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr style={{ background: '#F7F7F7' }}>
-                {['User', 'Email', 'Role', 'Bookings', 'Revenue', 'Status', 'Joined', 'Actions'].map(h => (
+                {['User', 'Email', 'Role', 'Bookings', 'Listings', 'Status', 'Joined', 'Actions'].map(h => (
                   <th key={h} className="px-5 py-4 text-left text-xs font-semibold text-[#717171] uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -93,72 +95,64 @@ export function AdminUsers() {
               {isLoading ? (
                 [1,2,3,4,5,6,7,8].map(i => (
                   <tr key={i} className="animate-pulse">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-[#F0F0F0] rounded-full shrink-0" />
-                        <div className="h-4 bg-[#F0F0F0] rounded w-24" />
-                      </div>
-                    </td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-32" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-8" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-20" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-24" /></td>
-                    <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
+                    {[120, 160, 80, 40, 40, 100, 120, 80].map((w, j) => (
+                      <td key={j} className="px-5 py-4"><div className={`h-4 bg-[#F0F0F0] rounded w-${w}`} /></td>
+                    ))}
                   </tr>
                 ))
-              ) : paginatedItems.map(user => (
-                <tr key={user.id} className="hover:bg-[#FAFAFA] transition-colors group">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
-                        {user.name?.charAt(0) || 'U'}
+              ) : paginatedItems.map((user: any) => {
+                const isSuspended = user.status === 'SUSPENDED';
+                return (
+                  <tr key={user.id} className="hover:bg-[#FAFAFA] transition-colors group">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        {user.avatar
+                          ? <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full object-cover shrink-0" />
+                          : <div className="w-9 h-9 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">{user.name?.charAt(0) || 'U'}</div>
+                        }
+                        <p className="text-[#222222] font-semibold text-sm">{user.name}</p>
                       </div>
-                      <p className="text-[#222222] font-semibold text-sm">{user.name}</p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-[#717171] text-sm">{user.email}</td>
-                  <td className="px-5 py-4">
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{
-                      background: user.role === 'HOST' ? '#E6F7F6' : '#F0F0F0',
-                      color: user.role === 'HOST' ? '#00A699' : '#717171'
-                    }}>
-                      {user.role?.toLowerCase()}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">0</td>
-                  <td className="px-5 py-4 text-[#222222] font-semibold text-sm">—</td>
-                  <td className="px-5 py-4">
-                    <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full w-fit" style={{
-                      background: '#dcfce7',
-                      color: '#16a34a'
-                    }}>
-                      <CheckCircle className="w-3 h-3" />
-                      active
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-[#717171] text-sm whitespace-nowrap">May 2026</td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="flex items-center gap-1 text-[#FF385C] text-xs font-medium hover:underline">
-                        <Edit className="w-3 h-3" /> Edit
-                      </button>
-                      <button
-                        onClick={() => setActionModal({ user, action: 'suspend' })}
-                        className="text-[#717171] text-xs hover:text-red-500 transition-colors"
-                      >
-                        Suspend
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-5 py-4 text-[#717171] text-sm">{user.email}</td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{
+                        background: user.role === 'HOST' ? '#E6F7F6' : user.role === 'ADMIN' ? '#EEF2FF' : '#F0F0F0',
+                        color: user.role === 'HOST' ? '#00A699' : user.role === 'ADMIN' ? '#4F46E5' : '#717171'
+                      }}>
+                        {user.role?.toLowerCase()}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 text-[#222222] font-semibold text-sm">{user._count?.bookings ?? 0}</td>
+                    <td className="px-5 py-4 text-[#222222] font-semibold text-sm">{user._count?.listings ?? 0}</td>
+                    <td className="px-5 py-4">
+                      <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full w-fit" style={{
+                        background: isSuspended ? '#fee2e2' : '#dcfce7',
+                        color:      isSuspended ? '#dc2626' : '#16a34a'
+                      }}>
+                        {isSuspended ? <XCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                        {isSuspended ? 'suspended' : 'active'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 text-[#717171] text-sm whitespace-nowrap">
+                      {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => setActionModal({ user, action: isSuspended ? 'activate' : 'suspend' })}
+                          className="text-xs font-medium transition-colors"
+                          style={{ color: isSuspended ? '#16a34a' : '#dc2626' }}
+                        >
+                          {isSuspended ? 'Activate' : 'Suspend'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-
-        {/* ── Pagination inside table card ── */}
         <div className="px-5 py-5 border-t border-[#EBEBEB]">
           <Pagination
             currentPage={currentPage}
@@ -178,15 +172,18 @@ export function AdminUsers() {
         isOpen={!!actionModal}
         onClose={() => setActionModal(null)}
         onConfirm={() => {
-          const action = actionModal?.action === 'suspend' ? 'suspended' : 'activated';
-          toast.success(`${actionModal?.user.name} has been ${action}`);
+          if (!actionModal) return;
+          updateStatus.mutate({
+            id: actionModal.user.id,
+            status: actionModal.action === 'suspend' ? 'SUSPENDED' : 'ACTIVE',
+          });
           setActionModal(null);
         }}
         title={actionModal?.action === 'suspend' ? 'Suspend User' : 'Activate User'}
         message={
           actionModal?.action === 'suspend'
-            ? `Are you sure you want to suspend ${actionModal?.user.name}? They will lose access to their account immediately.`
-            : `Are you sure you want to activate ${actionModal?.user.name}? They will regain full access to their account.`
+            ? `Are you sure you want to suspend ${actionModal?.user.name}? They will lose access to their account.`
+            : `Are you sure you want to activate ${actionModal?.user.name}? They will regain full access.`
         }
         confirmText={actionModal?.action === 'suspend' ? 'Suspend' : 'Activate'}
         cancelText="Cancel"

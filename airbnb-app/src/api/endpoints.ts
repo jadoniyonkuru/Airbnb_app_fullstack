@@ -30,9 +30,18 @@ export const ENDPOINTS = {
   REVIEW:          (id: string) => `/reviews/${id}`,
 
   // Admin
-  HOST_REQUESTS:   '/admin/host-requests',
-  APPROVE_HOST:    (id: string) => `/admin/approve-host/${id}`,
-  REJECT_HOST:     (id: string) => `/admin/reject-host/${id}`,
+  ADMIN_STATS:            '/admin/stats',
+  ADMIN_USERS:            '/admin/users',
+  ADMIN_USER_STATUS:      (id: string) => `/admin/users/${id}/status`,
+  ADMIN_USER_DELETE:      (id: string) => `/admin/users/${id}`,
+  ADMIN_LISTINGS:         '/admin/listings',
+  ADMIN_LISTING_STATUS:   (id: string) => `/admin/listings/${id}/status`,
+  ADMIN_BOOKINGS:         '/admin/bookings',
+  ADMIN_BOOKING_STATUS:   (id: string) => `/admin/bookings/${id}/status`,
+  ADMIN_REVIEWS:          '/admin/reviews',
+  ADMIN_REVIEW_STATUS:    (id: string) => `/admin/reviews/${id}/status`,
+  ADMIN_REVIEW_DELETE:    (id: string) => `/admin/reviews/${id}`,
+  ADMIN_PAYMENTS:         '/admin/payments',
 
   // AI
   AI_SEARCH:           '/ai/search',

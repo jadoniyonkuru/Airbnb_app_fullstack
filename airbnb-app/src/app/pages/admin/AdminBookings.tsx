@@ -4,7 +4,7 @@ import {
   MapPin, Clock, CreditCard, Eye,
   AlertTriangle,
 } from 'lucide-react';
-import { useBookings, useUpdateBooking } from '../../../features/bookings/hooks';
+import { useAdminBookings, useUpdateAdminBookingStatus } from '../../../features/admin/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 
@@ -306,8 +306,22 @@ function Toast({ message, type }: { message: string; type: 'success' | 'error' }
 
 /* ─── Main page ──────────────────────────────────────────────────────── */
 export function AdminBookings() {
-  const { data: bookings = [], isLoading: loadingBookings } = useBookings();
-  const updateBookingMutation = useUpdateBooking();
+  const { data: rawBookings = [], isLoading: loadingBookings } = useAdminBookings();
+  const updateBookingMutation = useUpdateAdminBookingStatus();
+
+  // normalise raw admin bookings to match existing Booking shape
+  const bookings: Booking[] = (rawBookings as any[]).map((b: any) => ({
+    id:            b.id,
+    guest:         b.guest?.name ?? b.guestId,
+    guestAvatar:   b.guest?.avatar ? b.guest.avatar : (b.guest?.name?.charAt(0) ?? 'G'),
+    propertyTitle: b.listing?.title ?? '—',
+    propertyImage: b.listing?.photos?.[0]?.url ?? '',
+    checkIn:       b.checkIn,
+    checkOut:      b.checkOut,
+    nights:        Math.max(1, Math.round((new Date(b.checkOut).getTime() - new Date(b.checkIn).getTime()) / 86400000)),
+    total:         b.totalPrice,
+    status:        b.status?.toLowerCase() as BookingStatus,
+  }));
 
   const [search,        setSearch]        = useState('');
   const [filterStatus,  setFilterStatus]  = useState<BookingStatus | 'all'>('all');
@@ -321,7 +335,7 @@ export function AdminBookings() {
   };
 
   const handleConfirm = (booking: Booking) => {
-    updateBookingMutation.mutate({ id: booking.id, data: { status: 'CONFIRMED' } });
+    updateBookingMutation.mutate({ id: booking.id, status: 'CONFIRMED' });
     setViewBooking(null);
     showToast(`Booking ${booking.id} confirmed successfully.`);
   };
@@ -331,9 +345,9 @@ export function AdminBookings() {
     setCancelBooking(booking);
   };
 
-  const handleConfirmCancel = (reason: string) => {
+  const handleConfirmCancel = (_reason: string) => {
     if (!cancelBooking) return;
-    updateBookingMutation.mutate({ id: cancelBooking.id, data: { status: 'CANCELLED' } });
+    updateBookingMutation.mutate({ id: cancelBooking.id, status: 'CANCELLED' });
     setCancelBooking(null);
     showToast(`Booking ${cancelBooking.id} has been cancelled.`);
   };

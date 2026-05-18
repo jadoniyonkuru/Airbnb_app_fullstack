@@ -16,7 +16,6 @@ const navItems = [
   { label: 'Reviews',     path: '/dashboard/reviews',        icon: Star },
   { label: 'Messages',    path: '/dashboard/messages',       icon: MessageCircle },
   { label: 'Profile',     path: '/dashboard/profile',        icon: User },
-  { label: 'Settings',    path: '/dashboard/settings',       icon: Settings },
 ];
 
 const mockNotifications = [
@@ -152,35 +151,35 @@ export function HostLayout() {
         </nav>
 
   
-        <div className="px-2 py-2 border-t border-[#EBEBEB]">
+        <div className="px-2 pb-4 border-t border-[#EBEBEB] space-y-0.5 pt-2">
+          <Link
+            to="/dashboard/settings"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 relative"
+            style={{
+              backgroundColor: location.pathname === '/dashboard/settings' ? '#FF5A5F' : 'transparent',
+              color:           location.pathname === '/dashboard/settings' ? 'white'   : '#484848',
+              justifyContent:  collapsed ? 'center' : 'flex-start',
+            }}
+            title={collapsed ? 'Settings' : undefined}
+          >
+            <Settings className="w-[18px] h-[18px] shrink-0" />
+            {!collapsed && <span className="text-sm font-medium flex-1">Settings</span>}
+          </Link>
           <button
             onClick={() => setCollapsed(c => !c)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full transition-all duration-150 hover:bg-[#F7F7F7] group"
-            style={{
-              color:          '#AAAAAA',
-              justifyContent: collapsed ? 'center' : 'flex-start',
-            }}
+            style={{ color: '#AAAAAA', justifyContent: collapsed ? 'center' : 'flex-start' }}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed
               ? <PanelLeftOpen  className="w-[18px] h-[18px] shrink-0 text-[#FF5A5F]" />
-              : <>
-                  <PanelLeftClose className="w-[18px] h-[18px] shrink-0" />
-                  <span className="text-sm font-medium">Collapse</span>
-                </>
+              : <><PanelLeftClose className="w-[18px] h-[18px] shrink-0" /><span className="text-sm font-medium">Collapse</span></>
             }
           </button>
-        </div>
-
-        {/* Logout */}
-        <div className="px-2 pb-4 border-t border-[#EBEBEB]">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FFF1F3] w-full text-left transition-colors mt-2 group"
-            style={{
-              color:          '#717171',
-              justifyContent: collapsed ? 'center' : 'flex-start',
-            }}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FFF1F3] w-full text-left transition-colors group"
+            style={{ color: '#717171', justifyContent: collapsed ? 'center' : 'flex-start' }}
             title={collapsed ? 'Logout' : undefined}
           >
             <LogOut className="w-[18px] h-[18px] shrink-0 group-hover:text-[#FF5A5F] transition-colors" />

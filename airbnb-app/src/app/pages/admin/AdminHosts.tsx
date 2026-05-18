@@ -1,10 +1,9 @@
 ﻿import { useState } from 'react';
 import { Search, Filter, ChevronDown, Star, Home, Shield, MoreVertical, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
-import { toast } from 'sonner';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
-import { useUsers } from '../../../features/users/hooks';
+import { useAdminUsers, useUpdateUserStatus } from '../../../features/admin/hooks';
 
 type HostStatus = 'top' | 'active' | 'pending' | 'suspended';
 
@@ -26,25 +25,25 @@ export function AdminHosts() {
   const [statusFilter, setStatusFilter] = useState<HostStatus | 'all'>('all');
   const [selectedHost, setSelectedHost] = useState<HostItem | null>(null);
   const [actionModal, setActionModal] = useState<{ host: HostItem; action: 'approve' | 'suspend' | 'reinstate' } | null>(null);
-  const { data: users = [], isLoading } = useUsers();
+  const { data: users = [], isLoading } = useAdminUsers();
+  const updateStatus = useUpdateUserStatus();
 
-  // derive hosts from users with role === 'HOST'
-  const hosts: HostItem[] = (users || []).filter((u: any) => u.role === 'HOST').map((u: any) => ({
+  const hosts: HostItem[] = (users as any[]).filter((u: any) => u.role === 'HOST').map((u: any) => ({
     id: u.id,
-    name: u.name ?? u.fullName ?? u.email,
+    name: u.name ?? u.email,
     email: u.email,
-    avatar: (u.name || u.email || 'H').slice(0,2).toUpperCase(),
-    location: u.location ?? u.profile?.location ?? 'Unknown',
-    listings: u.listingsCount ?? 0,
-    bookings: u.bookingsCount ?? 0,
-    revenue: u.revenue ?? 0,
-    rating: u.rating ?? 0,
-    reviews: u.reviewsCount ?? 0,
-    status: u.status === 'SUSPENDED' ? 'suspended' : u.verified ? 'active' : 'pending',
+    avatar: (u.name || u.email || 'H').slice(0, 2).toUpperCase(),
+    location: u.profile?.country ?? 'Unknown',
+    listings: u._count?.listings ?? 0,
+    bookings: u._count?.bookings ?? 0,
+    revenue: 0,
+    rating: 0,
+    reviews: 0,
+    status: u.status === 'SUSPENDED' ? 'suspended' : 'active',
     joined: new Date(u.createdAt || Date.now()).toLocaleDateString(),
-    verified: !!u.verified,
-    responseRate: u.responseRate ?? 'N/A',
-    responseTime: u.responseTime ?? 'N/A',
+    verified: u.status === 'ACTIVE',
+    responseRate: 'N/A',
+    responseTime: 'N/A',
   }));
 
   const filtered = hosts.filter(h => {
@@ -279,8 +278,9 @@ export function AdminHosts() {
         isOpen={!!actionModal}
         onClose={() => setActionModal(null)}
         onConfirm={() => {
-          const action = actionModal?.action === 'approve' ? 'approved' : actionModal?.action === 'suspend' ? 'suspended' : 'reinstated';
-          toast.success(`${actionModal?.host.name} has been ${action}`);
+          if (!actionModal) return;
+          const newStatus = actionModal.action === 'suspend' ? 'SUSPENDED' : 'ACTIVE';
+          updateStatus.mutate({ id: actionModal.host.id, status: newStatus });
           setActionModal(null);
         }}
         title={

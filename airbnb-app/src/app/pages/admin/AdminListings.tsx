@@ -1,29 +1,22 @@
 import { useState } from 'react';
 import { Search, CheckCircle, XCircle, Eye, MapPin, Star } from 'lucide-react';
-import { toast } from 'sonner';
-import { useListings } from '../../../features/listings/hooks';
+import { useAdminListings, useUpdateListingStatus } from '../../../features/admin/hooks';
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
 
 export function AdminListings() {
-  const { data: properties = [], isLoading } = useListings();
+  const { data: properties = [], isLoading } = useAdminListings();
+  const updateStatus = useUpdateListingStatus();
   const [search, setSearch] = useState('');
-  const [listingStatuses, setListingStatuses] = useState<Record<string, 'approved' | 'pending' | 'rejected'>>({});
   const [actionModal, setActionModal] = useState<{ id: string; title: string; action: 'approve' | 'reject' } | null>(null);
 
-  const approve = (id: string) => {
-    setListingStatuses(prev => ({ ...prev, [id]: 'approved' }));
-    toast.success('Listing approved successfully');
-  };
-  const reject  = (id: string) => {
-    setListingStatuses(prev => ({ ...prev, [id]: 'rejected' }));
-    toast.success('Listing rejected');
-  };
-
-  const filtered = properties.filter(p =>
-    p.title.toLowerCase().includes(search.toLowerCase()) || p.location.toLowerCase().includes(search.toLowerCase())
+  const filtered = (properties as any[]).filter((p: any) =>
+    p.title?.toLowerCase().includes(search.toLowerCase()) ||
+    p.location?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const pendingCount = (properties as any[]).filter((p: any) => p.status === 'PENDING').length;
 
   const { currentPage, totalPages, perPage, paginatedItems, totalItems, onPageChange, onPerPageChange } =
     usePagination(filtered, { defaultPerPage: 6 });
@@ -35,14 +28,21 @@ export function AdminListings() {
           <h1 className="text-[#222222] mb-1" style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700 }}>Listings Moderation</h1>
           <p className="text-[#717171] text-sm">Review and approve property listings on the platform.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-yellow-50 text-yellow-600">3 Pending Review</span>
-        </div>
+        {pendingCount > 0 && (
+          <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-yellow-50 text-yellow-600">
+            {pendingCount} Pending Review
+          </span>
+        )}
       </div>
 
       <div className="relative mb-6 max-w-md">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AAAAAA]" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search listings..." className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#DDDDDD] text-sm outline-none focus:border-[#FF385C] transition-colors" />
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search listings..."
+          className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#DDDDDD] text-sm outline-none focus:border-[#FF385C] transition-colors"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-8">
@@ -53,16 +53,19 @@ export function AdminListings() {
               <div className="p-5 space-y-3">
                 <div className="h-4 bg-[#F0F0F0] rounded w-3/4" />
                 <div className="h-3 bg-[#F0F0F0] rounded w-1/2" />
-                <div className="h-4 bg-[#F0F0F0] rounded w-1/4" />
               </div>
             </div>
           ))
-        ) : paginatedItems.map(property => {
-          const status = listingStatuses[property.id] || 'pending';
+        ) : paginatedItems.map((property: any) => {
+          const status = (property.status ?? 'APPROVED').toLowerCase();
+          const photo = property.photos?.[0]?.url;
           return (
             <div key={property.id} className="bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-md transition-shadow">
               <div className="relative">
-                <img src={property.image} alt={property.title} className="w-full h-44 object-cover" />
+                {photo
+                  ? <img src={photo} alt={property.title} className="w-full h-44 object-cover" />
+                  : <div className="w-full h-44 bg-[#F0F0F0] flex items-center justify-center text-[#AAAAAA] text-sm">No photo</div>
+                }
                 <span className={`absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-full ${
                   status === 'approved' ? 'bg-green-500 text-white' :
                   status === 'pending'  ? 'bg-yellow-500 text-white' :
@@ -77,15 +80,15 @@ export function AdminListings() {
                   <MapPin className="w-3.5 h-3.5 text-[#717171]" />
                   <span className="text-[#717171] text-xs">{property.location}</span>
                 </div>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-semibold text-[#222222]">{property.rating}</span>
-                    <span className="text-xs text-[#717171]">({property.reviews})</span>
+                    <span className="text-sm font-semibold text-[#222222]">{property.rating?.toFixed(1) ?? '—'}</span>
+                    <span className="text-xs text-[#717171]">({property._count?.reviews ?? 0})</span>
                   </div>
-                  <span className="text-[#222222] font-bold text-sm">${property.price}/night</span>
+                  <span className="text-[#222222] font-bold text-sm">${property.pricePerNight}/night</span>
                 </div>
-                <p className="text-[#717171] text-xs mb-4 line-clamp-2">{property.description}</p>
+                <p className="text-[#717171] text-xs mb-4">Host: {property.host?.name ?? '—'}</p>
                 <div className="flex items-center gap-2">
                   {status !== 'approved' && (
                     <button
@@ -115,7 +118,6 @@ export function AdminListings() {
         })}
       </div>
 
-      {/* ── Pagination ── */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -132,18 +134,18 @@ export function AdminListings() {
         isOpen={!!actionModal}
         onClose={() => setActionModal(null)}
         onConfirm={() => {
-          if (actionModal?.action === 'approve') {
-            approve(actionModal.id);
-          } else {
-            reject(actionModal!.id);
-          }
+          if (!actionModal) return;
+          updateStatus.mutate({
+            id: actionModal.id,
+            status: actionModal.action === 'approve' ? 'APPROVED' : 'REJECTED',
+          });
           setActionModal(null);
         }}
         title={actionModal?.action === 'approve' ? 'Approve Listing' : 'Reject Listing'}
         message={
           actionModal?.action === 'approve'
-            ? `Approve "${actionModal?.title}"? It will be visible to all guests and available for booking.`
-            : `Reject "${actionModal?.title}"? The host will be notified and the listing will not be published.`
+            ? `Approve "${actionModal?.title}"? It will be visible to all guests.`
+            : `Reject "${actionModal?.title}"? The host will be notified.`
         }
         confirmText={actionModal?.action === 'approve' ? 'Approve' : 'Reject'}
         cancelText="Cancel"

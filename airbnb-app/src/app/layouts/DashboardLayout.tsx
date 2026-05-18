@@ -15,7 +15,6 @@ const hostMenus = [
   { label: 'Reviews', path: '/dashboard/reviews', icon: Star },
   { label: 'Messages', path: '/dashboard/messages', icon: MessageCircle },
   { label: 'Profile', path: '/dashboard/profile', icon: User },
-  { label: 'Settings', path: '/dashboard/settings', icon: Settings },
 ];
 
 const adminMenus = [
@@ -52,7 +51,6 @@ export function DashboardLayout() {
       { label: 'My Trips', path: '/dashboard/bookings', icon: Calendar },
       { label: 'Wishlist', path: '/dashboard/wishlist', icon: Home },
       { label: 'Profile', path: '/dashboard/profile', icon: User },
-      { label: 'Settings', path: '/dashboard/settings', icon: Settings },
     ];
     const menus = isAdmin ? adminMenus : isHost ? hostMenus : userMenus;
 
@@ -76,7 +74,6 @@ export function DashboardLayout() {
           height: '100vh',
           width: collapsed ? '72px' : '260px',
           minWidth: collapsed ? '72px' : '260px',
-          overflow: 'hidden',
         }}
       >
         <Link
@@ -121,7 +118,7 @@ export function DashboardLayout() {
           </div>
         )}
 
-        <nav className="flex-1 px-2 space-y-0.5 py-2">
+        <nav className="flex-1 px-2 space-y-0.5 py-2 overflow-y-auto">
           {isAdmin ? (
             adminMenus.map(section => (
               <div key={section.section}>
@@ -213,7 +210,20 @@ export function DashboardLayout() {
           )}
         </nav>
 
-        <div className="px-2 py-2 border-t border-[#EBEBEB]">
+        <div className="px-2 pb-4 border-t border-[#EBEBEB] space-y-0.5 pt-2">
+          <Link
+            to="/dashboard/settings"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 relative"
+            style={{
+              backgroundColor: location.pathname === '/dashboard/settings' ? '#FF385C' : 'transparent',
+              color:           location.pathname === '/dashboard/settings' ? 'white'   : '#484848',
+              justifyContent:  collapsed ? 'center' : 'flex-start',
+            }}
+            title={collapsed ? 'Settings' : undefined}
+          >
+            <Settings className="w-[18px] h-[18px] shrink-0" />
+            {!collapsed && <span className="text-sm font-medium flex-1">Settings</span>}
+          </Link>
           <button
             onClick={() => setCollapsed(c => !c)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full transition-all duration-150 hover:bg-[#F7F7F7] group"
@@ -223,18 +233,12 @@ export function DashboardLayout() {
             {collapsed ? (
               <PanelLeftOpen className="w-[18px] h-[18px] shrink-0 text-[#FF385C]" />
             ) : (
-              <>
-                <PanelLeftClose className="w-[18px] h-[18px] shrink-0" />
-                <span className="text-sm font-medium">Collapse</span>
-              </>
+              <><PanelLeftClose className="w-[18px] h-[18px] shrink-0" /><span className="text-sm font-medium">Collapse</span></>
             )}
           </button>
-        </div>
-
-        <div className="px-2 pb-4 border-t border-[#EBEBEB]">
           <button
             onClick={() => { logout(); navigate('/'); }}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FFF1F3] w-full text-left transition-colors mt-2 group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FFF1F3] w-full text-left transition-colors group"
             style={{ color: '#717171', justifyContent: collapsed ? 'center' : 'flex-start' }}
             title={collapsed ? 'Logout' : undefined}
           >
