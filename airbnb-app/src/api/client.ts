@@ -6,7 +6,7 @@ export const BASE_URL = envBase ?? 'http://localhost:3000/api/v1';
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 60000,
 });
 
 apiClient.interceptors.request.use((config) => {
