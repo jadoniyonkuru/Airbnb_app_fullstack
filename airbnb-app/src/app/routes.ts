@@ -11,7 +11,7 @@ import ResetPassword from './pages/ResetPassword';
 import { Checkout } from './pages/Checkout';
 import { Experiences } from './pages/Experiences';
 
-import { ProtectedHostLayout, ProtectedRoute } from './components/auth/ProtectedLayouts';
+import { ProtectedHostLayout } from './components/auth/ProtectedLayouts';
 
 // Host Dashboard Pages
 import { Dashboard } from './pages/Dashboard';
