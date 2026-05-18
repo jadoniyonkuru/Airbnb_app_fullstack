@@ -42,8 +42,16 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: ['admin', 'users'],
     queryFn: async () => {
-      const res = await apiClient.get(ENDPOINTS.ADMIN_USERS);
-      return res.data?.data ?? [];
+      try {
+        const res = await apiClient.get(ENDPOINTS.ADMIN_USERS);
+        console.log('Admin users response:', res.data);
+        const users = res.data?.data ?? [];
+        console.log('Extracted users:', users);
+        return users;
+      } catch (error) {
+        console.error('Admin users fetch error:', error);
+        throw error;
+      }
     },
     staleTime: 1000 * 30,
   });
