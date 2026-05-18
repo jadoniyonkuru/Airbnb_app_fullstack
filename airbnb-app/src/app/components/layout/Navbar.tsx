@@ -6,6 +6,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { ConfirmModal } from '../shared/ConfirmModal';
+import { useAuthModal } from '../../context/AuthModalContext';
 
 interface NavbarProps {
   isDashboard?: boolean;
@@ -14,8 +15,9 @@ interface NavbarProps {
 
 
 export function Navbar({ isDashboard = false, transparent = false }: NavbarProps) {
-  const [menuOpen, setMenuOpen]           = useState(false);
+  const [menuOpen, setMenuOpen]               = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { openLoginModal, openSignupModal }   = useAuthModal();
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
@@ -91,7 +93,7 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
                     if (isAuthenticated) {
                       navigate('/user/wishlist');
                     } else {
-                      navigate('/signin');
+                      openLoginModal();
                     }
                   }}
                   aria-label="Wishlist"
@@ -112,6 +114,7 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
                 </button>
               </>
             )}
+
 
             {/* ── Dark / Light toggle ──────────────────────────── */}
             <button
@@ -214,14 +217,18 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
                     </>
                   ) : (
                     <>
-                      <Link to="/signin" onClick={() => setMenuOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
+                      <button
+                        onClick={() => { setMenuOpen(false); openLoginModal(); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}
+                      >
                         Sign In
-                      </Link>
-                      <Link to="/register" onClick={() => setMenuOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}>
+                      </button>
+                      <button
+                        onClick={() => { setMenuOpen(false); openSignupModal(); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors ${isDark ? 'text-white/80 hover:bg-white/10' : 'text-[#1C1C1E] hover:bg-[#F7F7F7]'}`}
+                      >
                         Register
-                      </Link>
+                      </button>
                       <div className={`border-t my-1 ${isDark ? 'border-[#3A3A3C]' : 'border-[#EBEBEB]'}`} />
                       <Link to="/experiences" onClick={() => setMenuOpen(false)}
                         className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? 'text-white/50 hover:bg-white/10' : 'text-[#6C6C70] hover:bg-[#F7F7F7]'}`}>
@@ -257,6 +264,7 @@ export function Navbar({ isDashboard = false, transparent = false }: NavbarProps
         cancelText="Stay signed in"
         type="warning"
       />
+
     </nav>
   );
 }

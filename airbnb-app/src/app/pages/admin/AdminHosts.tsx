@@ -3,7 +3,7 @@ import { Search, Filter, ChevronDown, Star, Home, Shield, MoreVertical, CheckCir
 import { Pagination } from '../../components/shared/Pagination';
 import { usePagination } from '../../components/shared/usePagination';
 import { ConfirmModal } from '../../components/shared/ConfirmModal';
-import { useAdminUsers, useUpdateUserStatus } from '../../../features/admin/hooks';
+import { useAdminUsers, useUpdateUserStatus, useAdminBookings, useAdminListings } from '../../../features/admin/hooks';
 
 type HostStatus = 'top' | 'active' | 'pending' | 'suspended';
 

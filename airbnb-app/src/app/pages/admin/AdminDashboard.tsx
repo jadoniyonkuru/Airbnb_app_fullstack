@@ -6,7 +6,7 @@ import {
   UserCheck, Star, CheckCircle2, ShieldCheck,
 } from 'lucide-react';
 import { useAdminStats } from '../../../features/admin/hooks';
-import { useListingStats } from '../../../features/statistics/hooks';
+import { useAnalytics } from '../../../features/statistics/hooks';
 import {
   BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -20,7 +20,7 @@ const ChartTip = ({ active, payload, label }: any) => {
       <p className="font-semibold text-[#222222] mb-1">{label}</p>
       {payload.map((e: any, i: number) => (
         <p key={i} style={{ color: e.color }}>
-          {e.name}: {e.name === 'revenue' ? `$${(e.value / 1000).toFixed(0)}k` : e.value}
+          {e.name === 'revenue' ? `$${(e.value).toLocaleString()}` : `${e.name}: ${e.value}`}
         </p>
       ))}
     </div>
@@ -32,39 +32,41 @@ const actIconMap: Record<string, ElementType> = {
   payment: DollarSign, user: UserCheck, alert: ShieldCheck,
 };
 
+const fmtRevenue = (v: number) =>
+  v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M`
+  : v >= 1_000   ? `$${(v / 1_000).toFixed(0)}k`
+  : `$${v}`;
+
 export function AdminDashboard() {
-  const { data: adminStats, isLoading: loadingStats, error: statsError } = useAdminStats();
-  const { data: chartStats } = useListingStats();
+  const { data: adminStats, isLoading: loadingStats } = useAdminStats();
+  const { data: analytics }                           = useAnalytics();
 
   const totalUsers    = adminStats?.totalUsers    ?? 0;
   const totalHosts    = adminStats?.totalHosts    ?? 0;
   const totalBookings = adminStats?.totalBookings ?? 0;
   const totalRevenue  = adminStats?.totalRevenue  ?? 0;
-  const recentUsers: any[]   = adminStats?.recentUsers   ?? [];
+  const totalListings = adminStats?.totalListings ?? 0;
+  const recentUsers:    any[] = adminStats?.recentUsers    ?? [];
   const recentBookings: any[] = adminStats?.recentBookings ?? [];
 
-  if (statsError) {
-    console.error('Admin stats error:', statsError);
-  }
-
-  const chartData = chartStats ?? {
-    monthlyRevenue: [], activeListings: 0, totalListings: 1, weeklyBookings: [], userGrowth: [],
-  };
+  const monthlyRevenue  = analytics?.monthlyRevenue  ?? [];
+  const weeklyBookings  = analytics?.weeklyBookings  ?? [];
+  const userGrowth      = analytics?.userGrowth      ?? [];
 
   const formatDateSafe = (v?: any) => {
     const d = v ? new Date(v) : new Date();
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleString();
+    return Number.isNaN(d.getTime()) ? '' : d.toLocaleString();
   };
 
   const activities = recentBookings.map((b: any) => ({
-    id: b?.id ?? Math.random().toString(36).slice(2, 9),
-    type: 'booking',
-    user: b?.guest?.name ?? b?.guest?.email ?? 'Guest',
+    id:     b?.id ?? Math.random().toString(36).slice(2, 9),
+    type:   'booking',
+    user:   b?.guest?.name ?? b?.guest?.email ?? 'Guest',
     action: 'made a booking',
-    detail: b?.listing?.title ?? b?.listingId,
-    time: formatDateSafe(b?.createdAt ?? b?.checkIn),
+    detail: b?.listing?.title ?? b?.listingId ?? '',
+    time:   formatDateSafe(b?.createdAt ?? b?.checkIn),
   }));
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
 
@@ -74,42 +76,50 @@ export function AdminDashboard() {
           <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700, color: '#1C1C1E' }}>
             Admin Dashboard
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#717171' }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p className="text-sm mt-1" style={{ color: '#717171' }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="border border-[#DDDDDD] bg-white text-[#484848] px-4 py-2.5 rounded-xl text-sm font-medium hover:border-[#BBBBBB] transition-colors">
-            Export Report
-          </button>
-          <button className="bg-[#FF385C] hover:bg-[#E31C5F] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">
-            + Add Listing
-          </button>
+          <Link
+            to="/admin-dashboard/bookings"
+            className="border border-[#DDDDDD] bg-white text-[#484848] px-4 py-2.5 rounded-xl text-sm font-medium hover:border-[#BBBBBB] transition-colors"
+          >
+            View Bookings
+          </Link>
+          <Link
+            to="/admin-dashboard/listings"
+            className="bg-[#FF385C] hover:bg-[#E31C5F] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+          >
+            Manage Listings
+          </Link>
         </div>
       </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         {[
-          { label: 'Total Users',    value: loadingStats ? '...' : (totalUsers > 0 ? totalUsers.toLocaleString() : '0'),                   trend: '+156 this month', icon: Users      },
-          { label: 'Active Hosts',   value: loadingStats ? '...' : (totalHosts > 0 ? totalHosts.toLocaleString() : '0'),                  trend: '+23 this month',  icon: Home       },
-          { label: 'Total Bookings', value: loadingStats ? '...' : (totalBookings > 0 ? totalBookings.toLocaleString() : '0'),            trend: '+89 this week',   icon: Calendar   },
-          { label: 'Total Revenue',  value: loadingStats ? '...' : `$${totalRevenue > 0 ? (totalRevenue / 1000).toFixed(0) : '0'}k`,       trend: '+18% MoM',        icon: DollarSign },
-        ].map(({ label, value, trend, icon: Icon }) => (
-          <div key={label} className="bg-white border border-[#EBEBEB] rounded-2xl p-5">
+          { label: 'Total Users',    value: loadingStats ? '...' : totalUsers.toLocaleString(),    icon: Users,      link: '/admin-dashboard/users'    },
+          { label: 'Active Hosts',   value: loadingStats ? '...' : totalHosts.toLocaleString(),    icon: Home,       link: '/admin-dashboard/hosts'    },
+          { label: 'Total Bookings', value: loadingStats ? '...' : totalBookings.toLocaleString(), icon: Calendar,   link: '/admin-dashboard/bookings' },
+          { label: 'Total Revenue',  value: loadingStats ? '...' : fmtRevenue(totalRevenue),       icon: DollarSign, link: '/admin-dashboard/payments' },
+        ].map(({ label, value, icon: Icon, link }) => (
+          <Link key={label} to={link} className="bg-white border border-[#EBEBEB] rounded-2xl p-5 hover:border-[#FF385C] hover:shadow-sm transition-all block">
             <div className="flex items-center justify-between mb-4">
               <div className="w-9 h-9 rounded-xl bg-[#FFF1F3] flex items-center justify-center">
                 <Icon className="w-4.5 h-4.5 text-[#FF385C]" style={{ width: 18, height: 18 }} />
               </div>
-              <span className="text-xs font-medium" style={{ color: '#717171' }}>{trend}</span>
+              <ArrowUpRight className="w-4 h-4" style={{ color: '#AAAAAA' }} />
             </div>
             <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.75rem', fontWeight: 700, color: '#1C1C1E', lineHeight: 1 }}>
               {value}
             </p>
             <p className="text-sm font-medium mt-2" style={{ color: '#717171' }}>{label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
-      {/* Charts */}
+      {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
 
         {/* Revenue line chart */}
@@ -117,25 +127,32 @@ export function AdminDashboard() {
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="font-semibold" style={{ fontFamily: "'Poppins', sans-serif", color: '#1C1C1E' }}>Revenue Growth</h2>
-              <p className="text-xs mt-0.5" style={{ color: '#AAAAAA' }}>12-month revenue & bookings</p>
+              <p className="text-xs mt-0.5" style={{ color: '#AAAAAA' }}>12-month revenue &amp; bookings</p>
             </div>
             <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: '#15803d' }}>
               <TrendingUp className="w-3.5 h-3.5" />
-              +32% YoY
+              Live data
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={230}>
-            <LineChart data={chartData.monthlyRevenue} margin={{ left: 0, right: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} tickFormatter={v => `$${v / 1000}k`} />
-              <Tooltip content={<ChartTip />} />
-              <Line type="monotone" dataKey="revenue" name="revenue" stroke="#FF385C" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#FF385C' }} />
-            </LineChart>
-          </ResponsiveContainer>
+          {monthlyRevenue.length === 0 ? (
+            <div className="flex items-center justify-center h-[230px] text-sm" style={{ color: '#AAAAAA' }}>
+              No revenue data yet
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={230}>
+              <LineChart data={monthlyRevenue} margin={{ left: 0, right: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} tickFormatter={v => `$${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`} />
+                <Tooltip content={<ChartTip />} />
+                <Line type="monotone" dataKey="revenue" name="revenue" stroke="#FF385C" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#FF385C' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
           <div className="flex items-center gap-5 justify-center mt-2">
             <div className="flex items-center gap-1.5 text-xs" style={{ color: '#717171' }}>
-              <span className="w-4 h-0.5 rounded-full inline-block" style={{ background: '#FF385C' }} />Monthly Revenue
+              <span className="w-4 h-0.5 rounded-full inline-block" style={{ background: '#FF385C' }} />
+              Monthly Revenue
             </div>
           </div>
         </div>
@@ -146,11 +163,11 @@ export function AdminDashboard() {
           <p className="text-xs mb-5" style={{ color: '#AAAAAA' }}>Key quality metrics</p>
           <div className="space-y-4">
             {[
-              { label: 'Active Listings',   value: `${chartData.activeListings}/${chartData.totalListings}`, pct: Math.round((chartData.activeListings / (chartData.totalListings || 1)) * 100), icon: Home         },
-              { label: 'Verified Hosts',    value: '87%', pct: 87, icon: ShieldCheck   },
-              { label: 'Avg. Rating',       value: '4.8', pct: 96, icon: Star          },
-              { label: 'Booking Completion',value: '94%', pct: 94, icon: CheckCircle2  },
-              { label: 'Support Resolution',value: '91%', pct: 91, icon: UserCheck     },
+              { label: 'Total Listings',     value: `${totalListings}`,              pct: 100,                                                          icon: Home         },
+              { label: 'Registered Hosts',   value: `${totalHosts}`,                 pct: totalUsers > 0 ? Math.round((totalHosts / totalUsers) * 100) : 0, icon: ShieldCheck },
+              { label: 'Total Bookings',     value: `${totalBookings}`,              pct: 100,                                                          icon: Calendar     },
+              { label: 'Booking Completion', value: '94%',                           pct: 94,                                                           icon: CheckCircle2 },
+              { label: 'Support Resolution', value: '91%',                           pct: 91,                                                           icon: UserCheck    },
             ].map((m, i) => {
               const Icon = m.icon;
               return (
@@ -163,7 +180,7 @@ export function AdminDashboard() {
                     <span className="text-xs font-semibold" style={{ color: '#1C1C1E' }}>{m.value}</span>
                   </div>
                   <div className="w-full h-1.5 rounded-full" style={{ background: '#F0F0F0' }}>
-                    <div className="h-1.5 rounded-full" style={{ width: `${m.pct}%`, background: '#FF385C' }} />
+                    <div className="h-1.5 rounded-full" style={{ width: `${Math.min(m.pct, 100)}%`, background: '#FF385C' }} />
                   </div>
                 </div>
               );
@@ -172,41 +189,46 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      {/* Bookings bar + User growth */}
+      {/* Charts row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div className="bg-white border border-[#EBEBEB] rounded-2xl p-6">
           <h2 className="font-semibold mb-0.5" style={{ fontFamily: "'Poppins', sans-serif", color: '#1C1C1E' }}>Weekly Bookings</h2>
           <p className="text-xs mb-5" style={{ color: '#AAAAAA' }}>Bookings by day of week</p>
-          <ResponsiveContainer width="100%" height={185}>
-            <BarChart data={chartData.weeklyBookings} barSize={26}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTip />} />
-              <Bar dataKey="bookings" name="bookings" fill="#FF385C" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {weeklyBookings.length === 0 ? (
+            <div className="flex items-center justify-center h-[185px] text-sm" style={{ color: '#AAAAAA' }}>No data yet</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={185}>
+              <BarChart data={weeklyBookings} barSize={26}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTip />} />
+                <Bar dataKey="bookings" name="bookings" fill="#FF385C" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="bg-white border border-[#EBEBEB] rounded-2xl p-6">
           <div className="flex items-start justify-between mb-5">
             <div>
               <h2 className="font-semibold mb-0.5" style={{ fontFamily: "'Poppins', sans-serif", color: '#1C1C1E' }}>User Growth</h2>
-              <p className="text-xs" style={{ color: '#AAAAAA' }}>Cumulative registered users</p>
-            </div>
-            <div className="flex items-center gap-1 text-xs font-medium" style={{ color: '#15803d' }}>
-              <ArrowUpRight className="w-3.5 h-3.5" />+27%
+              <p className="text-xs" style={{ color: '#AAAAAA' }}>New users registered per month</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={185}>
-            <LineChart data={chartData.userGrowth}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} domain={['auto', 'auto']} />
-              <Tooltip content={<ChartTip />} />
-              <Line type="monotone" dataKey="users" name="users" stroke="#FF385C" strokeWidth={2.5} dot={{ r: 3, fill: '#FF385C', strokeWidth: 0 }} activeDot={{ r: 5 }} />
-            </LineChart>
-          </ResponsiveContainer>
+          {userGrowth.length === 0 ? (
+            <div className="flex items-center justify-center h-[185px] text-sm" style={{ color: '#AAAAAA' }}>No data yet</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={185}>
+              <LineChart data={userGrowth}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#AAAAAA' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTip />} />
+                <Line type="monotone" dataKey="users" name="users" stroke="#FF385C" strokeWidth={2.5} dot={{ r: 3, fill: '#FF385C', strokeWidth: 0 }} activeDot={{ r: 5 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -242,19 +264,24 @@ export function AdminDashboard() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
-                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-8" /></td>
-                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-16" /></td>
-                      <td className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded w-20" /></td>
+                      {[16, 8, 16, 20].map((w, j) => (
+                        <td key={j} className="px-5 py-4"><div className="h-4 bg-[#F0F0F0] rounded" style={{ width: w * 4 }} /></td>
+                      ))}
                     </tr>
                   ))
+                ) : recentUsers.length === 0 ? (
+                  <tr><td colSpan={5} className="px-5 py-8 text-center text-sm" style={{ color: '#AAAAAA' }}>No users yet</td></tr>
                 ) : recentUsers.map((user: any) => (
                   <tr key={user.id} className="hover:bg-[#FFFAF9] transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
-                          {user.name?.charAt(0) || 'U'}
-                        </div>
+                        {user.avatar ? (
+                          <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
+                        ) : (
+                          <div className="w-8 h-8 bg-[#FF385C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+                            {(user.name ?? user.email ?? 'U').charAt(0).toUpperCase()}
+                          </div>
+                        )}
                         <div>
                           <p className="font-semibold text-sm" style={{ color: '#1C1C1E' }}>{user.name ?? user.email}</p>
                           <p className="text-xs" style={{ color: '#AAAAAA' }}>{user.email}</p>
@@ -263,8 +290,8 @@ export function AdminDashboard() {
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{
-                        background: user.role === 'HOST' ? '#FFF1F3' : '#F7F7F7',
-                        color:      user.role === 'HOST' ? '#FF385C'  : '#717171',
+                        background: user.role === 'HOST' ? '#FFF1F3' : user.role === 'ADMIN' ? '#EDE9FE' : '#F7F7F7',
+                        color:      user.role === 'HOST' ? '#FF385C'  : user.role === 'ADMIN' ? '#7c3aed'  : '#717171',
                       }}>{user.role?.toLowerCase()}</span>
                     </td>
                     <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#1C1C1E' }}>{user._count?.bookings ?? 0}</td>
@@ -275,7 +302,7 @@ export function AdminDashboard() {
                       }}>{user.status === 'SUSPENDED' ? 'suspended' : 'active'}</span>
                     </td>
                     <td className="px-5 py-4">
-                      <a href="/admin-dashboard/users" className="text-xs font-semibold hover:underline" style={{ color: '#FF385C' }}>View</a>
+                      <Link to="/admin-dashboard/users" className="text-xs font-semibold hover:underline" style={{ color: '#FF385C' }}>View</Link>
                     </td>
                   </tr>
                 ))}
@@ -294,7 +321,9 @@ export function AdminDashboard() {
             </div>
           </div>
           <div className="divide-y divide-[#EBEBEB] max-h-[400px] overflow-y-auto">
-            {activities.map(act => {
+            {activities.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm" style={{ color: '#AAAAAA' }}>No recent activity</p>
+            ) : activities.map(act => {
               const Icon = actIconMap[act.type] ?? Activity;
               return (
                 <div key={act.id} className="flex gap-3 px-4 py-3.5 hover:bg-[#FFFAF9] transition-colors">

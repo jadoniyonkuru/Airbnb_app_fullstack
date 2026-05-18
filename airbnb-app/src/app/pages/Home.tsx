@@ -12,6 +12,7 @@ import { HeroSearch } from '../components/shared/HeroSearch';
 import { useAllReviews } from '../../features/reviews/hooks';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import { useListings } from '../../features/listings/hooks';
 
 const HERO_MAIN      = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1080&q=80';
@@ -85,6 +86,7 @@ export function Home() {
 
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
+  const { openLoginModal } = useAuthModal();
   const navigate = useNavigate();
 
   const { data: listings = [], isLoading } = useListings();
@@ -244,7 +246,7 @@ export function Home() {
                           onClick={e => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (!isAuthenticated) { navigate('/signin'); return; }
+                            if (!isAuthenticated) { openLoginModal(); return; }
                             if (isInWishlist(p.id)) removeFromWishlist(p.id);
                             else addToWishlist(p.id);
                           }}

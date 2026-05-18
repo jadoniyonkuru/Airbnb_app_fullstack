@@ -11,6 +11,7 @@ import { Pagination } from '../components/shared/Pagination';
 import { usePagination } from '../components/shared/usePagination';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import { useListings, useSearchListings } from '../../features/listings/hooks';
 import type { MappedListing } from '../../features/listings/types';
 
@@ -178,7 +179,7 @@ function MapCard({
 }) {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { openLoginModal } = useAuthModal();
   const badge = p.rating >= 4.9 ? 'Top rated' : p.reviews > 150 ? 'Guest favourite' : null;
 
   return (
@@ -206,7 +207,7 @@ function MapCard({
             onClick={e => {
               e.preventDefault();
               if (!isAuthenticated) {
-                navigate('/signin');
+                openLoginModal();
                 return;
               }
               if (isInWishlist(p.id)) {
@@ -674,7 +675,7 @@ function ListingsGrid() {
 function GridCard({ p }: { p: Property }) {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { openLoginModal } = useAuthModal();
   return (
     <Link to={`/property/${p.id}`}
       className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#EBEBEB] block">
@@ -687,7 +688,7 @@ function GridCard({ p }: { p: Property }) {
           onClick={e => {
             e.preventDefault();
             if (!isAuthenticated) {
-              navigate('/signin');
+              openLoginModal();
               return;
             }
             if (isInWishlist(p.id)) {

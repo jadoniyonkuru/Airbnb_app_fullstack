@@ -1,8 +1,9 @@
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
 import { Star, Users, Bed, Bath, Wifi, Car, Wind, Utensils, MapPin, Share, Heart, ChevronLeft, Check, ArrowRight } from 'lucide-react';
 import { useListing } from '../../features/listings/hooks';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import ReviewSummary from '../components/ai/ReviewSummary';
 import AIChat from '../components/ai/AIChat';
 import { VisitorReviews } from '../components/shared/VisitorReviews';
@@ -59,11 +60,11 @@ export function PropertyDetails() {
   const total = subtotal + serviceFee;
 
   const { isAuthenticated, user } = useAuth();
-  const location = useLocation();
+  const { openLoginModal } = useAuthModal();
 
   const handleReserve = () => {
     if (!isAuthenticated) {
-      navigate('/signin', { state: { from: location.pathname } });
+      openLoginModal();
       return;
     }
     navigate(`/checkout/${property.id}`);
