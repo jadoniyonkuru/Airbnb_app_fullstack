@@ -10,10 +10,10 @@ import { useAdminBookings, useAdminUsers, useAdminListings } from '../../../feat
 
 const PIE_COLORS = ['#FF385C', '#00A699', '#FC642D', '#484848', '#7c3aed', '#0ea5e9'];
 
-const PERIOD_MONTHS: Record<string, number> = { '7d': 1, '30d': 1, '3m': 3, '12m': 12 };
+const PERIOD_MONTHS: Record<string, number> = { '1m': 1, '3m': 3, '6m': 6, '12m': 12 };
 
 export function AdminAnalytics() {
-  const [period, setPeriod] = useState('12m');
+  const [period, setPeriod] = useState<'1m' | '3m' | '6m' | '12m'>('12m');
   const rawId      = useId();
   const anaRevId   = `ana-rev-${rawId.replace(/:/g, '')}`;
   const anaBookId  = `ana-book-${rawId.replace(/:/g, '')}`;
@@ -99,7 +99,7 @@ export function AdminAnalytics() {
           <p className="text-[#717171] text-sm">Deep insights into platform performance, growth, and trends.</p>
         </div>
         <div className="flex items-center gap-2 bg-white border border-[#DDDDDD] rounded-xl p-1">
-          {(['7d', '30d', '3m', '12m'] as const).map(p => (
+          {(['1m', '3m', '6m', '12m'] as const).map(p => (
             <button
               key={p}
               onClick={() => setPeriod(p)}

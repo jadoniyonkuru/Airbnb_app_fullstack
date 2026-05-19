@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Search, Calendar, X, CheckCircle2, XCircle,
-  MapPin, Clock, CreditCard, Eye,
+  MapPin, Clock, CreditCard, Eye, Home,
   AlertTriangle,
 } from 'lucide-react';
 import { useAdminBookings, useUpdateAdminBookingStatus } from '../../../features/admin/hooks';
@@ -84,8 +84,14 @@ function ViewModal({
           </div>
 
           {/* Property banner */}
-          <div className="relative h-36 overflow-hidden">
-            <img src={booking.propertyImage} alt={booking.propertyTitle} className="w-full h-full object-cover" />
+          <div className="relative h-36 overflow-hidden bg-[#F7F7F7]">
+            {booking.propertyImage ? (
+              <img src={booking.propertyImage} alt={booking.propertyTitle} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FF385C22, #FF385C44)' }}>
+                <Home className="w-10 h-10 text-[#FF385C]" style={{ opacity: 0.5 }} />
+              </div>
+            )}
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
             <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
               <div>
@@ -310,14 +316,20 @@ export function AdminBookings() {
   const updateBookingMutation = useUpdateAdminBookingStatus();
 
   // normalise raw admin bookings to match existing Booking shape
+  const fmtDate = (v?: any) => {
+    if (!v) return '—';
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   const bookings: Booking[] = (rawBookings as any[]).map((b: any) => ({
     id:            b.id,
     guest:         b.guest?.name ?? b.guestId,
     guestAvatar:   b.guest?.avatar ? b.guest.avatar : (b.guest?.name?.charAt(0) ?? 'G'),
     propertyTitle: b.listing?.title ?? '—',
     propertyImage: b.listing?.photos?.[0]?.url ?? '',
-    checkIn:       b.checkIn,
-    checkOut:      b.checkOut,
+    checkIn:       fmtDate(b.checkIn),
+    checkOut:      fmtDate(b.checkOut),
     nights:        Math.max(1, Math.round((new Date(b.checkOut).getTime() - new Date(b.checkIn).getTime()) / 86400000)),
     total:         b.totalPrice,
     status:        b.status?.toLowerCase() as BookingStatus,
@@ -479,9 +491,15 @@ export function AdminBookings() {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        <img src={booking.propertyImage} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                        {booking.propertyImage ? (
+                          <img src={booking.propertyImage} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                        ) : (
+                          <div className="w-8 h-8 rounded-lg bg-[#F0F0F0] flex items-center justify-center shrink-0">
+                            <Calendar className="w-4 h-4 text-[#AAAAAA]" />
+                          </div>
+                        )}
                         <span className="text-sm truncate max-w-[130px]" style={{ color: '#484848' }}>
-                          {booking.propertyTitle.split(' ').slice(0, 3).join(' ')}…
+                          {booking.propertyTitle.split(' ').slice(0, 4).join(' ')}
                         </span>
                       </div>
                     </td>

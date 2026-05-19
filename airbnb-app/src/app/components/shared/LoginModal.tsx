@@ -10,9 +10,10 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToRegister?: () => void;
+  redirectAfterLogin?: string;
 }
 
-export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, onSwitchToRegister, redirectAfterLogin }: LoginModalProps) {
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
   const { isDark } = useTheme();
@@ -20,7 +21,6 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
-  const [remember, setRemember] = useState(false);
   const [role, setRole] = useState<'guest' | 'host'>('guest');
   const [mounted, setMounted] = useState(false);
   const [animating, setAnimating] = useState(false);
@@ -63,8 +63,12 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
           const { user, token } = res;
           authLogin(user, token);
           handleClose();
-          if (user.role === 'HOST' || user.role === 'ADMIN') {
+          if (user.role === 'ADMIN') {
+            navigate('/admin-dashboard');
+          } else if (user.role === 'HOST') {
             navigate('/dashboard');
+          } else if (redirectAfterLogin) {
+            navigate(redirectAfterLogin);
           }
         },
       }
@@ -202,19 +206,6 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                id="modal-remember"
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="w-4 h-4 accent-[#FF5A5F] rounded"
-              />
-              <label htmlFor="modal-remember" className={`text-sm ${isDark ? 'text-white/60' : 'text-[#717171]'}`}>
-                Remember me for 30 days
-              </label>
-            </div>
-
             <button
               type="submit"
               disabled={loginMutation.isPending}
@@ -239,10 +230,10 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
           </div>
 
           {/* Social buttons */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="flex justify-center mb-6">
             <button
               type="button"
-              className={`flex items-center justify-center gap-2 border rounded-xl py-3 transition-colors text-sm font-medium ${
+              className={`flex items-center justify-center gap-2 border rounded-xl py-3 px-8 transition-colors text-sm font-medium ${
                 isDark
                   ? 'border-[#3A3A3C] text-white/80 hover:bg-white/5'
                   : 'border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7]'
@@ -255,19 +246,6 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
               Google
-            </button>
-            <button
-              type="button"
-              className={`flex items-center justify-center gap-2 border rounded-xl py-3 transition-colors text-sm font-medium ${
-                isDark
-                  ? 'border-[#3A3A3C] text-white/80 hover:bg-white/5'
-                  : 'border-[#DDDDDD] text-[#222222] hover:bg-[#F7F7F7]'
-              }`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              Facebook
             </button>
           </div>
 

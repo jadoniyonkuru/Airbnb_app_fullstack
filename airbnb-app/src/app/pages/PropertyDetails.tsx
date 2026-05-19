@@ -64,7 +64,7 @@ export function PropertyDetails() {
 
   const handleReserve = () => {
     if (!isAuthenticated) {
-      openLoginModal();
+      openLoginModal(`/checkout/${property.id}`);
       return;
     }
     navigate(`/checkout/${property.id}`);

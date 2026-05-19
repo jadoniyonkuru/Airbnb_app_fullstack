@@ -25,26 +25,45 @@ export function AdminHosts() {
   const [statusFilter, setStatusFilter] = useState<HostStatus | 'all'>('all');
   const [selectedHost, setSelectedHost] = useState<HostItem | null>(null);
   const [actionModal, setActionModal] = useState<{ host: HostItem; action: 'approve' | 'suspend' | 'reinstate' } | null>(null);
+  const [menuHost, setMenuHost] = useState<string | null>(null);
   const { data: users = [], isLoading } = useAdminUsers();
+  const { data: bookingsData = [] } = useAdminBookings();
+  const { data: listingsData = [] } = useAdminListings();
   const updateStatus = useUpdateUserStatus();
 
-  const hosts: HostItem[] = (users as any[]).filter((u: any) => u.role === 'HOST').map((u: any) => ({
-    id: u.id,
-    name: u.name ?? u.email,
-    email: u.email,
-    avatar: (u.name || u.email || 'H').slice(0, 2).toUpperCase(),
-    location: u.profile?.country ?? 'Unknown',
-    listings: u._count?.listings ?? 0,
-    bookings: u._count?.bookings ?? 0,
-    revenue: 0,
-    rating: 0,
-    reviews: 0,
-    status: u.status === 'SUSPENDED' ? 'suspended' : 'active',
-    joined: new Date(u.createdAt || Date.now()).toLocaleDateString(),
-    verified: u.status === 'ACTIVE',
-    responseRate: 'N/A',
-    responseTime: 'N/A',
-  }));
+  const allBookings = bookingsData as any[];
+  const allListings = listingsData as any[];
+
+  const hosts: HostItem[] = (users as any[]).filter((u: any) => u.role === 'HOST').map((u: any) => {
+    const hostListings = allListings.filter((l: any) => (l.host?.id ?? l.hostId) === u.id);
+    const hostListingIds = new Set(hostListings.map((l: any) => l.id));
+    const confirmedBookings = allBookings.filter((b: any) =>
+      hostListingIds.has(b.listing?.id ?? b.listingId) && b.status === 'CONFIRMED'
+    );
+    const revenue = confirmedBookings.reduce((sum: number, b: any) => sum + (b.totalPrice ?? 0), 0);
+    const ratedListings = hostListings.filter((l: any) => (l.rating ?? 0) > 0);
+    const avgRating = ratedListings.length > 0
+      ? ratedListings.reduce((s: number, l: any) => s + (l.rating ?? 0), 0) / ratedListings.length
+      : 0;
+    const totalReviews = hostListings.reduce((s: number, l: any) => s + (l._count?.reviews ?? 0), 0);
+    return {
+      id: u.id,
+      name: u.name ?? u.email,
+      email: u.email,
+      avatar: (u.name || u.email || 'H').slice(0, 2).toUpperCase(),
+      location: u.profile?.country ?? 'Unknown',
+      listings: u._count?.listings ?? 0,
+      bookings: confirmedBookings.length,
+      revenue,
+      rating: parseFloat(avgRating.toFixed(1)),
+      reviews: totalReviews,
+      status: u.status === 'SUSPENDED' ? 'suspended' : 'active',
+      joined: new Date(u.createdAt || Date.now()).toLocaleDateString(),
+      verified: u.status === 'ACTIVE',
+      responseRate: 'N/A',
+      responseTime: 'N/A',
+    };
+  });
 
   const filtered = hosts.filter(h => {
     if (statusFilter !== 'all' && h.status !== statusFilter) return false;
@@ -168,13 +187,35 @@ export function AdminHosts() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 relative">
                         <button onClick={() => setSelectedHost(host)} className="w-8 h-8 rounded-lg hover:bg-[#EBEBEB] flex items-center justify-center transition-colors">
                           <Eye className="w-4 h-4 text-[#717171]" />
                         </button>
-                        <button className="w-8 h-8 rounded-lg hover:bg-[#EBEBEB] flex items-center justify-center transition-colors">
+                        <button
+                          onClick={() => setMenuHost(menuHost === host.id ? null : host.id)}
+                          className="w-8 h-8 rounded-lg hover:bg-[#EBEBEB] flex items-center justify-center transition-colors"
+                        >
                           <MoreVertical className="w-4 h-4 text-[#717171]" />
                         </button>
+                        {menuHost === host.id && (
+                          <div className="absolute right-0 top-9 z-20 bg-white border border-[#EBEBEB] rounded-xl shadow-lg py-1 min-w-[140px]" onClick={() => setMenuHost(null)}>
+                            {host.status === 'suspended' ? (
+                              <button
+                                className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-[#F0FDF4] transition-colors"
+                                onClick={() => setActionModal({ host, action: 'reinstate' })}
+                              >
+                                Reinstate Host
+                              </button>
+                            ) : (
+                              <button
+                                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-[#FFF1F2] transition-colors"
+                                onClick={() => setActionModal({ host, action: 'suspend' })}
+                              >
+                                Suspend Host
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>

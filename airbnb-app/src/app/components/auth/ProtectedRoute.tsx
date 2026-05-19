@@ -12,8 +12,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redirect to signin with return url
-    return <Navigate to="/signin" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   if (requiredRole && user?.role !== requiredRole) {
